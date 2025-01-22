@@ -1,8 +1,20 @@
 workflows:
   ios:
     name: Build IPA from Runner.app
-    description: Build an IPA from the existing Runner.app folder
+    # You can define environment variables and other parameters as needed
+    environment:
+      vars:
+        FLUTTER_ROOT: "/flutter"  # Adjust based on your environment if necessary
+    # The build steps to create the IPA
     ios:
       build:
-        # Path to the location of Runner.app (relative to the repository root)
+        # Specify the artifact output location
         artifact_output: build/ios/ipa/Runner.ipa
+      scripts:
+        - name: Build IPA from Runner.app
+          script: |
+            # Create an IPA from the Runner.app folder
+            xcodebuild -exportArchive \
+              -archivePath $CI_PROJECT_DIR/build/ios/archive/Runner.xcarchive \
+              -exportOptionsPlist $CI_PROJECT_DIR/ios/ExportOptions.plist \
+              -exportPath $CI_PROJECT_DIR/build/ios/ipa

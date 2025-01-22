@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>method</key>
+    <string>ad-hoc</string> <!-- Can be "app-store", "enterprise", or "ad-hoc" -->
+    <key>teamID</key>
+    <string>YourTeamID</string> <!-- Replace with your Apple Developer Team ID -->
+    <key>bundleIdentifier</key>
+    <string>com.example.app</string> <!-- Replace with your app's bundle identifier -->
+    <key>uploadSymbols</key>
+    <true/>
+    <key>signingStyle</key>
+    <string>automatic</string> <!-- or "manual" if you need to specify a signing identity -->
+    <key>provisioningProfiles</key>
+    <dict>
+      <key>com.example.app</key> <!-- Replace with your app's bundle identifier -->
+      <string>YourProvisioningProfileUUID</string> <!-- Replace with the UUID of your provisioning profile -->
+    </dict>
+  </dict>
+</plist>
