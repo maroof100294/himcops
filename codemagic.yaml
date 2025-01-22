@@ -1,0 +1,8 @@
+workflows:
+  ios:
+    name: Build IPA from Runner.app
+    description: Build an IPA from the existing Runner.app folder
+    ios:
+      build:
+        # Path to the location of Runner.app (relative to the repository root)
+        artifact_output: build/ios/ipa/Runner.ipa
