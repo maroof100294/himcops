@@ -7,12 +7,20 @@ import 'package:get/get.dart';
 import 'package:himcops/citizen/citizentip.dart';
 import 'package:himcops/citizen/domestichelpverification.dart';
 import 'package:himcops/citizen/employeeverification.dart';
+import 'package:himcops/citizen/eventperformancerequest.dart';
 import 'package:himcops/citizen/policeclearance.dart';
+import 'package:himcops/citizen/processionrequest.dart';
+import 'package:himcops/citizen/proteststrikerequest.dart';
+import 'package:himcops/citizen/searchstaus/Tenantverifystatus.dart';
 import 'package:himcops/citizen/searchstaus/characterstatus.dart';
 import 'package:himcops/citizen/searchstaus/dmvviewpage.dart';
 import 'package:himcops/citizen/searchstaus/empviewpage.dart';
+import 'package:himcops/citizen/searchstaus/eventperformance.dart';
 import 'package:himcops/citizen/searchstaus/pccviewpage.dart';
+import 'package:himcops/citizen/searchstaus/processionstatus.dart';
+import 'package:himcops/citizen/searchstaus/proteststrikestatus.dart';
 import 'package:himcops/citizen/searchstaus/viewfir.dart';
+import 'package:himcops/citizen/tenantverification.dart';
 import 'package:himcops/drawer/drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -552,6 +560,59 @@ class _CitizenGridPageState extends State<CitizenGridPage> {
           MaterialPageRoute(
               builder: (context) =>
                   const PoliceClearanceCertificateViewPage()));
+    } else if (service == 'Tenant Verification') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const TenantVerificationPage()));
+    } else if (service == 'Event Performance Request') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const EventPerformanceRequestPage()));
+    } else if (service == 'Protest/Strike Request') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const ProtestStrikeRequestPage()));
+    } else if (service == 'Procession Request') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const ProcessionRequestPage()));
+    } else if (service == 'Procession Status') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const ProcessionStatusPage()));
+    } else if (service == 'Protest/Strike Status') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const ProtestStrikeStatusPage()));
+    }  else if (service == 'Event Performance Status') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const EventPerformanceStatusPage()));
+    } else if (service == 'Tenant Verification Status') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const TenantVerificaitonStatusPage()));
+    } else if (service == 'किरायेदार सत्यापन') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const TenantVerificationPage()));
     } else if (service == 'घरेलू सहायक सत्यापन') {
       Navigator.push(
           context,

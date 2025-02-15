@@ -6,6 +6,7 @@ import 'package:himcops/forgetpassword/pforgetpassword.dart';
 import 'package:himcops/layout/backgroundlayout.dart';
 import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/layout/formlayout.dart';
+import 'package:himcops/pages/cgridhome.dart';
 // import 'package:himcops/pages/cgridhome.dart';
 // import 'package:himcops/pages/cgridhome.dart';
 // import 'package:himcops/pages/cgridhome.dart';
@@ -191,8 +192,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        // const CitizenGridPage()
-                                                        const SSOPage()),
+                                                        const CitizenGridPage()
+                                                        // const SSOPage()
+                                                        ),
                                               );
                                             }
                                           : null,

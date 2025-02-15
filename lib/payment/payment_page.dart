@@ -63,9 +63,9 @@ class _PaymentPageState extends State<PaymentPage> {
     final sdkConfig = SdkConfig(
       sdkConfigJson: SdkConfiguration.fromJson(sdkConfigMap),
       responseHandler: responseHandler,
-      isUATEnv: true,
-      isDevModeAllowed: true,
-      isJailBreakAllowed: true,
+      // isUATEnv: true,
+      // isDevModeAllowed: true,
+      // isJailBreakAllowed: true,
     );
 
     SDKWebView.openSDKWebView(sdkConfig);
@@ -96,5 +96,3 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 }
-//this is payment page , where user will press add icon and it will launch the billdesk sdk after submit it will get response on SdkResponseHandler page.
-//Please wait i will share the SdkResponseHandler page

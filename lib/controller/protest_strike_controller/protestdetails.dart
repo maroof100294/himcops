@@ -9,18 +9,12 @@ class ProtestDetailsForm extends StatefulWidget {
   final TextEditingController instituteNameController;
   final TextEditingController protestTypeController;
   final TextEditingController briefDescriptionController;
-  final TextEditingController startAddressController;
-  final TextEditingController startCountryController;
-  final TextEditingController startStateController;
-  final TextEditingController startDistrictController;
-  final TextEditingController startPoliceStationController;
   final TextEditingController startDateController;
   final TextEditingController endDateController;
   final TextEditingController startHoursController;
   final TextEditingController startMinutesController;
   final TextEditingController expectedHoursController;
   final TextEditingController expectedMinutesController;
-  final TextEditingController locationNameController;
   final TextEditingController locationAreaController;
   final TextEditingController locationNumberController;
   final TextEditingController structureNatureController;
@@ -30,18 +24,12 @@ class ProtestDetailsForm extends StatefulWidget {
     required this.instituteNameController,
     required this.protestTypeController,
     required this.briefDescriptionController,
-    required this.startAddressController,
-    required this.startCountryController,
-    required this.startStateController,
-    required this.startDistrictController,
-    required this.startPoliceStationController,
     required this.startDateController,
     required this.endDateController,
     required this.startHoursController,
     required this.startMinutesController,
     required this.expectedHoursController,
     required this.expectedMinutesController,
-    required this.locationNameController,
     required this.locationAreaController,
     required this.locationNumberController,
     required this.structureNatureController,
@@ -54,7 +42,6 @@ class ProtestDetailsForm extends StatefulWidget {
 
 class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
   int? selectedStateId;
-
 
   String? ValidateFullName(String value) {
     if (!RegExp(r"^[a-zA-Z\s]{1,50}$").hasMatch(value)) {
@@ -121,8 +108,8 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           ],
         ),
         const SizedBox(height: 14),
-       TextFormField(
-          controller: widget.locationNameController,
+        TextFormField(
+          controller: widget.instituteNameController,
           decoration: InputDecoration(
             labelText: 'Name of Target',
             prefixIcon: const Icon(Icons.location_city),
@@ -230,86 +217,11 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           },
         ),
         const SizedBox(height: 10),
-        ProtestPage(
-            controller: widget.protestTypeController, enabled: true),
-         const SizedBox(height: 8),
-        const Divider(),
-        const Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                'Name of location\n(Place of Protest/Strike)',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        TextFormField(
-          controller: widget.locationNameController,
-          decoration: InputDecoration(
-            labelText: 'Name of location',
-            prefixIcon: const Icon(Icons.location_city),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your location name';
-            }
-            return ValidateFullName(value);
-          },
-        ),
-        const SizedBox(height: 10),
-        const Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                'Address of location\n(Place of Protest/Strike)',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        TextFormField(
-          controller: widget.startAddressController,
-          decoration: InputDecoration(
-            labelText: 'Address',
-            prefixIcon: const Icon(Icons.pin_drop),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          keyboardType: TextInputType.streetAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your details';
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: CountryPage(
-                  controller: widget.startCountryController, enabled: true),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-       //statedynamic
+        ProtestPage(controller: widget.protestTypeController, enabled: true),
         const SizedBox(height: 8),
         const Divider(),
-         const Row(
+        const SizedBox(height: 14),
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
@@ -344,12 +256,13 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
             ),
             const SizedBox(width: 10),
             Expanded(
-                child: LocationAreaPage(
-                    controller: widget.locationAreaController, enabled: true)),
+              child: LocationAreaPage(controller: widget.locationAreaController, enabled: true)
+            ),
           ],
         ),
         const SizedBox(height: 10),
-        NatureStructurePage(controller: widget.structureNatureController, enabled: true),
+        NatureStructurePage(
+            controller: widget.structureNatureController, enabled: true),
         const SizedBox(height: 10),
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,6 +397,7 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
             ),
           ],
         ),
+        
       ],
     );
   }

@@ -6,7 +6,7 @@ import 'package:himcops/master/statedistrictdynamic.dart';
 import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:himcops/payment/payment_page.dart';
+// import 'package:himcops/payment/payment_page.dart';
 import 'package:http/io_client.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';

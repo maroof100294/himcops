@@ -342,23 +342,23 @@ class _VerificationPageState extends State<VerificationPage> {
         );
 
         if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $token');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
+          final accountData = json.decode(accountResponse.body);
+          String mercid = accountData['data']['mercid'];
+          String bdorderid = accountData['data']['bdorderid'];
+          String rdata = accountData['data']['rdata'];
+          String token = accountData['data']['token'];
+          // _showConfirmationDialog();
+          print('$mercid, $bdorderid, $token');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PaymentPage(
+                mercid: mercid,
+                bdorderid: bdorderid,
+                rdata: rdata,
+                token: token,
+              ),
+            ),
+          );
         } else {
           print('Failed to enter ${accountResponse.body}, $loginId, $mobile2');
           // _showErrorDialog('Please fill the details');
@@ -816,6 +816,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: nameController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Name',
                       filled: true,

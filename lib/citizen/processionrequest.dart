@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:himcops/controller/procession_controller/applicantaddressdetails.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:himcops/controller/procession_controller/applicantpersonaldetails.dart';
-import 'package:himcops/controller/procession_controller/organizationdetails.dart';
 import 'package:himcops/controller/procession_controller/processiondetails.dart';
 import 'package:himcops/controller/procession_controller/processionverify.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -17,8 +18,6 @@ class ProcessionRequestPage extends StatefulWidget {
 
 class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   final _personalFormKey = GlobalKey<FormState>();
-  final _addressFormKey = GlobalKey<FormState>();
-  final _orgFormKey = GlobalKey<FormState>();
   final _processionFormKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
@@ -77,19 +76,73 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   TextEditingController startMinutesController = TextEditingController();
   TextEditingController expectedMinutesController = TextEditingController();
 
-  bool isOrgFormVisible = false;
+ 
   bool isPersonalFormVisible = true;
-  bool isAddressFormVisible = false;
   bool isProcessionFormVisible = false;
+  String selectedState = 'HIMACHAL PRADESH';
   bool isChecked = true;
-  bool isMovingForward = true;
+  bool isMovingForward = true; 
+  String loginId = '';
+  String firstName = '';
+  String fullName = '';
+  String email = '';
+  String addressLine1 = '';
+  String addressLine2 = '';
+  String addressLine3 = '';
+  String tehsil = '';
+  String village = '';
+  int? mobile2;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  Future<void> _fetchLoginId() async {
+    final String? storedLoginId = await _storage.read(key: 'loginId');
+    final String? storedfirstName = await _storage.read(key: 'firstName');
+    final String? storedfullName = await _storage.read(key: 'fullName');
+    final String? storedemail = await _storage.read(key: 'email');
+    final String? storedaddressLine1 = await _storage.read(key: 'addressLine1');
+    final String? storedaddressLine2 = await _storage.read(key: 'addressLine2');
+    final String? storedaddressLine3 = await _storage.read(key: 'addressLine3');
+    final String? storedtehsil = await _storage.read(key: 'tehsil');
+    final String? storedvillage = await _storage.read(key: 'village');
+    final String? storedMobile2 = await _storage.read(key: 'mobile2');
+    print(
+        'loginID:$storedLoginId, firstname:$storedfirstName, fullname:$storedfullName, email:$storedemail');
+    setState(() {
+      loginId = storedLoginId ?? 'Unknown';
+      firstName = storedfirstName ?? 'Unknown';
+      fullName = storedfullName ?? 'Unknown';
+      email = storedemail ?? 'Unknown';
+      addressLine1 = storedaddressLine1 ?? ' ';
+      addressLine2 = storedaddressLine2 ?? ' ';
+      addressLine3 = storedaddressLine3 ?? ' ';
+      tehsil = storedtehsil ?? ' ';
+      village = storedvillage ?? ' ';
+      mobile2 = storedMobile2 != null ? int.tryParse(storedMobile2) : 0;
+      nameController.text = firstName;
+      emailController.text = email;
+      mobileController.text = mobile2 != null ? mobile2.toString() : '';
+    });
+  }
+  @override
+  void initState() {
+    super.initState();
+    _fetchLoginId();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Procession Request'),
-        backgroundColor: const Color(0xFFB9DA6B),
+      appBar:  AppBar(
+        title: const Text('Procession Request',
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 255, 255, 255)),
+        ),
+        backgroundColor: Color.fromARGB(255, 12, 100, 233),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Set the menu icon color to white
+        ),
       ),
       drawer: const AppDrawer(),
       body: Stack(
@@ -134,60 +187,60 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
                           emailController: emailController,
                           mobileController: mobileController,
                         ),
-                      if (isAddressFormVisible)
-                        ApplicantAddressDetailsForm(
-                          addressController: addressController,
-                          aCountryController: aCountryController,
-                          aStateController: aStateController,
-                          aDistrictController: aDistrictController,
-                          aPoliceStationController: aPoliceStationController,
-                          paddressController: paddressController,
-                          pcountryController: pcountryController,
-                          pstateController: pstateController,
-                          pdistrictController: pdistrictController,
-                          ppoliceStationController: ppoliceStationController,
-                        ),
-                      if (isOrgFormVisible)
-                        ApplicantOrganizationDetailsForm(
-                          orgNameController: orgNameController,
-                          orgAddressController: orgAddressController,
-                          orgCountryController: orgCountryController,
-                          orgStateController: orgStateController,
-                          orgDistrictController: orgDistrictController,
-                          orgPoliceStationController:
-                              orgPoliceStationController,
-                        ),
+                      // if (isAddressFormVisible)
+                      //   ApplicantAddressDetailsForm(
+                      //     addressController: addressController,
+                      //     aCountryController: aCountryController,
+                      //     aStateController: aStateController,
+                      //     aDistrictController: aDistrictController,
+                      //     aPoliceStationController: aPoliceStationController,
+                      //     paddressController: paddressController,
+                      //     pcountryController: pcountryController,
+                      //     pstateController: pstateController,
+                      //     pdistrictController: pdistrictController,
+                      //     ppoliceStationController: ppoliceStationController,
+                      //   ),
+                      // if (isOrgFormVisible)
+                      //   ApplicantOrganizationDetailsForm(
+                      //     orgNameController: orgNameController,
+                      //     orgAddressController: orgAddressController,
+                      //     orgCountryController: orgCountryController,
+                      //     orgStateController: orgStateController,
+                      //     orgDistrictController: orgDistrictController,
+                      //     orgPoliceStationController:
+                      //         orgPoliceStationController,
+                      //   ),
                       if (isProcessionFormVisible)
                         ProcessionDetailsForm(
                           processionTypeController: processionTypeController,
                           briefDescriptionController:
                               briefDescriptionController,
-                          majorParticipantNameController:
-                              majorParticipantNameController,
-                          majorAddressController: majorAddressController,
-                          majorCountryController: majorCountryController,
-                          majorStateController: majorStateController,
-                          majorDistrictController: majorDistrictController,
-                          majorPoliceStationController:
-                              majorPoliceStationController,
-                          startAddressController: startAddressController,
-                          startCountryController: startCountryController,
-                          startStateController: startStateController,
-                          startDistrictController: startDistrictController,
-                          startPoliceStationController:
-                              startPoliceStationController,
-                          endAddressController: endAddressController,
-                          endCountryController: endCountryController,
-                          endStateController: endStateController,
-                          endDistrictController: endDistrictController,
-                          endPoliceStationController:
-                              endPoliceStationController,
-                          otherAddressController: otherAddressController,
-                          otherCountryController: otherCountryController,
-                          otherStateController: otherStateController,
-                          otherDistrictController: otherDistrictController,
-                          otherPoliceStationController:
-                              otherPoliceStationController,
+                          // majorParticipantNameController:
+                          //     majorParticipantNameController,
+                          // majorAddressController: majorAddressController,
+                          // majorCountryController: majorCountryController,
+                          // majorStateController: majorStateController,
+                          // majorDistrictController: majorDistrictController,
+                          // majorPoliceStationController:
+                          //     majorPoliceStationController,
+                          // startAddressController: startAddressController,
+                          // startCountryController: startCountryController,
+                          // startStateController: startStateController,
+                          // startDistrictController: startDistrictController,
+                          // startPoliceStationController:
+                          //     startPoliceStationController,
+                          // endAddressController: endAddressController,
+                          // endCountryController: endCountryController,
+                          // endStateController: endStateController,
+                          // endDistrictController: endDistrictController,
+                          // endPoliceStationController:
+                          //     endPoliceStationController,
+                          // otherAddressController: otherAddressController,
+                          // otherCountryController: otherCountryController,
+                          // otherStateController: otherStateController,
+                          // otherDistrictController: otherDistrictController,
+                          // otherPoliceStationController:
+                          //     otherPoliceStationController,
                           startDateController: startDateController,
                           endDateController: endDateController,
                           processionNumberController:
@@ -221,9 +274,7 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
           ),
           const SizedBox(width: 20),
           Visibility(
-            visible: !isPersonalFormVisible &&
-                !isAddressFormVisible &&
-                !isOrgFormVisible,
+            visible: !isPersonalFormVisible,
             child: Positioned(
               bottom: 20,
               right: 20,
@@ -244,42 +295,26 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
 
   GlobalKey<FormState> _getCurrentFormKey() {
     if (isProcessionFormVisible) return _processionFormKey;
-    if (isOrgFormVisible) return _orgFormKey;
-    if (isAddressFormVisible) return _addressFormKey;
     return _personalFormKey;
   }
 
   String _getFormTitle() {
     if (isProcessionFormVisible) return 'Procession Details';
-    if (isOrgFormVisible) return 'Organization Details';
-    if (isAddressFormVisible) return 'Applicant Address Details';
     return 'Applicant Personal Details';
   }
 
   void _nextSection() {
     setState(() {
       if (isMovingForward) {
-        if (_getCurrentFormKey().currentState!.validate()) {
+        // if (_getCurrentFormKey().currentState!.validate()) {
           if (isPersonalFormVisible) {
             isPersonalFormVisible = false;
-            isAddressFormVisible = true;
-          } else if (isAddressFormVisible) {
-            isAddressFormVisible = false;
-            isOrgFormVisible = true;
-          } else if (isOrgFormVisible) {
-            isOrgFormVisible = false;
             isProcessionFormVisible = true;
           }
-        }
+        // }
       } else {
         if (isProcessionFormVisible) {
           isProcessionFormVisible = false;
-          isOrgFormVisible = true;
-        } else if (isOrgFormVisible) {
-          isOrgFormVisible = false;
-          isAddressFormVisible = true;
-        } else if (isAddressFormVisible) {
-          isAddressFormVisible = false;
           isPersonalFormVisible = true;
         }
       }
@@ -293,45 +328,26 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   }
 
   void _verifyDetails() {
+    final genderData = jsonDecode(genderController.text);
+    final selectedGenderCodeId = genderData['codeId'];
+    final selectedGenderCodeDesc = genderData['codeDesc'];
+    final relationData = jsonDecode(relationController.text);
+    final selectedRelationCodeId = relationData['codeId'];
+    final selectedRelationCodeDesc = relationData['codeDesc'];
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ProcessionVerificationPage(
         applicantName: nameController.text,
-        applicantRelationType: relationController.text,
+        applicantRelationType: selectedRelationCodeDesc,
+        applicantRelationId: selectedRelationCodeId,
         applicationRelativeName: relativeNameController.text,
-        applicantGender: genderController.text,
+        applicantGender: selectedGenderCodeDesc,
+        applicantGenderId: selectedGenderCodeId,
         applicantDateOfBirth: dateDobController.text,
         applicantAge: ageController.text,
         applicantEmail: emailController.text,
         applicantMobile: mobileController.text,
-        orgName: orgNameController.text,
-        orgAddress: orgAddressController.text,
-        orgCountry: orgCountryController.text,
-        orgState: orgStateController.text,
-        orgDistrict: orgDistrictController.text,
-        orgPoliceStation: orgPoliceStationController.text,
         processionType: processionTypeController.text,
         briefDescription: briefDescriptionController.text,
-        majorParticipant: majorParticipantNameController.text,
-        majorAddress: majorAddressController.text,
-        majorCountry: majorCountryController.text,
-        majorState: majorStateController.text,
-        majorDistrict: majorDistrictController.text,
-        majorPoliceStation: majorPoliceStationController.text,
-        startAddress: startAddressController.text,
-        startCountry: startCountryController.text,
-        startState: startStateController.text,
-        startDistrict: startDistrictController.text,
-        startPoliceStation: startPoliceStationController.text,
-        endAddress: endAddressController.text,
-        endCountry: endCountryController.text,
-        endState: endStateController.text,
-        endDistrict: endDistrictController.text,
-        endPoliceStation: endPoliceStationController.text,
-        otherAddress: otherAddressController.text,
-        otherCountry: otherCountryController.text,
-        otherState: otherStateController.text,
-        otherDistrict: otherDistrictController.text,
-        otherPoliceStation: otherPoliceStationController.text,
         startDate: startDateController.text,
         endDate: endDateController.text,
         processionNumber: processionNumberController.text,
@@ -339,22 +355,8 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
         expectedHours: expectedHoursController.text,
         startMinutes: startMinutesController.text,
         expectedMinutes: expectedMinutesController.text,
-        presentAddress: paddressController.text,
-        presentCountry: pcountryController.text,
-        presentState: pstateController.text,
-        presentDistrict: pdistrictController.text,
-        presentPoliceStation: ppoliceStationController.text,
-        permanentAddress:
-            isChecked ? paddressController.text : addressController.text,
-        permanentCountry:
-            isChecked ? pcountryController.text : aCountryController.text,
-        permanentState:
-            isChecked ? pstateController.text : aStateController.text,
-        permanentDistrict:
-            isChecked ? pdistrictController.text : aDistrictController.text,
-        permanentPoliceStation: isChecked
-            ? ppoliceStationController.text
-            : aPoliceStationController.text,
+        selectedState: selectedState,
+       
       ),
     ));
   }

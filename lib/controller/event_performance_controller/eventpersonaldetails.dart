@@ -35,16 +35,23 @@ class EventPerformanceApplicantPersonalDetailsForm extends StatefulWidget {
 
 class _EventPerformanceApplicantPersonalDetailsFormState
     extends State<EventPerformanceApplicantPersonalDetailsForm> {
+ 
+
   Future<void> _selectDob(BuildContext context) async {
-    final DateTime initialDate = DateTime.now();
-    final DateTime firstDate = DateTime(1924);
-    final DateTime lastDate = DateTime.now();
+    // Calculate the last eligible date (18 years before today)
+    final DateTime today = DateTime.now();
+    final DateTime lastEligibleDate =
+        DateTime(today.year - 18, today.month, today.day);
+
+    final DateTime firstDate = DateTime(1924); // Arbitrary earliest date
+    final DateTime initialDate =
+        lastEligibleDate; // Default to the last eligible date
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: firstDate,
-      lastDate: lastDate,
+      lastDate: lastEligibleDate,
     );
 
     if (pickedDate != null) {
@@ -52,9 +59,9 @@ class _EventPerformanceApplicantPersonalDetailsFormState
         widget.dateDobController.text =
             DateFormat('yyyy-MM-dd').format(pickedDate);
 
-        final int age = DateTime.now().year - pickedDate.year;
-        if (DateTime.now().isBefore(
-            DateTime(DateTime.now().year, pickedDate.month, pickedDate.day))) {
+        final int age = today.year - pickedDate.year;
+        if (today
+            .isBefore(DateTime(today.year, pickedDate.month, pickedDate.day))) {
           widget.ageController.text = (age - 1).toString();
         } else {
           widget.ageController.text = age.toString();

@@ -5,6 +5,10 @@ class EventPerformanceOtherDetailsForm extends StatefulWidget {
   final TextEditingController convictedController;
   final TextEditingController preceedingController;
   final TextEditingController blacklistedController;
+  final ValueChanged<bool> onCriminalStatusChanged;
+  final ValueChanged<bool> onConvictedStatusChanged;
+  final ValueChanged<bool> onPreceedingStatusChanged;
+  final ValueChanged<bool> onBlacklistedStatusChanged;
 
   const EventPerformanceOtherDetailsForm({
     super.key,
@@ -12,6 +16,10 @@ class EventPerformanceOtherDetailsForm extends StatefulWidget {
     required this.convictedController,
     required this.preceedingController,
     required this.blacklistedController,
+    required this.onCriminalStatusChanged,
+    required this.onConvictedStatusChanged,
+    required this.onPreceedingStatusChanged,
+    required this.onBlacklistedStatusChanged,
   });
 
   @override
@@ -42,7 +50,6 @@ class _EventPerformanceOtherDetailsFormState
               ),
             ],
           ),
-          
           Row(
             children: [
               Expanded(
@@ -52,6 +59,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isCriminal = val!;
+                       widget.onCriminalStatusChanged(isCriminal);
                     });
                   },
                   title: const Text('Yes'),
@@ -64,6 +72,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isCriminal = val!;
+                       widget.onCriminalStatusChanged(isCriminal);
                     });
                   },
                   title: const Text("No"),
@@ -115,6 +124,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isConvicted = val!;
+                       widget.onConvictedStatusChanged(isConvicted);
                     });
                   },
                   title: const Text('Yes'),
@@ -127,6 +137,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isConvicted = val!;
+                       widget.onConvictedStatusChanged(isConvicted);
                     });
                   },
                   title: const Text("No"),
@@ -178,6 +189,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isPreceeding = val!;
+                       widget.onPreceedingStatusChanged(isPreceeding);
                     });
                   },
                   title: const Text('Yes'),
@@ -190,6 +202,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isPreceeding = val!;
+                       widget.onPreceedingStatusChanged(isPreceeding);
                     });
                   },
                   title: const Text("No"),
@@ -241,6 +254,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isBlacklisted = val!;
+                       widget.onBlacklistedStatusChanged(isBlacklisted);
                     });
                   },
                   title: const Text('Yes'),
@@ -253,6 +267,7 @@ class _EventPerformanceOtherDetailsFormState
                   onChanged: (val) {
                     setState(() {
                       isBlacklisted = val!;
+                       widget.onBlacklistedStatusChanged(isBlacklisted);
                     });
                   },
                   title: const Text("No"),

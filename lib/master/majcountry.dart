@@ -5,16 +5,23 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'dart:convert';
 import 'package:http/io_client.dart';
 
-class CountryPage extends StatefulWidget {
+class MajCountryPage extends StatefulWidget {
   final TextEditingController controller;
+  final bool enabled;
+  final Function(String) onCountrySelected; // Add the callback
 
-  const CountryPage({super.key, required this.controller, required bool enabled});
+  const MajCountryPage({
+    super.key, 
+    required this.controller, 
+    required this.enabled, 
+    required this.onCountrySelected, // Accept the callback
+  });
 
   @override
-  State<CountryPage> createState() => _CountryPageState();
+  State<MajCountryPage> createState() => _MajCountryPageState();
 }
 
-class _CountryPageState extends State<CountryPage> {
+class _MajCountryPageState extends State<MajCountryPage> {
   String selectedCountry = 'INDIA';
   int? selectedCountryId; // Updated to int to store codeId
   List<Map<String, String>> countryDescriptions = [];
@@ -24,9 +31,6 @@ class _CountryPageState extends State<CountryPage> {
   @override
   void initState() {
     super.initState();
-    // if (widget.controller.text.isNotEmpty) {
-    //   selectedCountryId = int.tryParse(widget.controller.text); // Initialize with codeId if available
-    // }
     fetchCountry();
   }
 
@@ -80,7 +84,8 @@ class _CountryPageState extends State<CountryPage> {
                   };
                 }).toList();
 
-                 final initialCountry = countryDescriptions.firstWhere(
+                // Set the initial selected country
+                final initialCountry = countryDescriptions.firstWhere(
                   (item) => item['codeDesc']!.toUpperCase() == selectedCountry.toUpperCase(),
                   orElse: () => {'codeId': '', 'codeDesc': ''},
                 );
@@ -130,20 +135,19 @@ class _CountryPageState extends State<CountryPage> {
     }
   }
 
-   void _showErrorDialog(String message) {
-   showDialog(
+  void _showErrorDialog(String message) {
+    showDialog(
       context: context,
-      barrierDismissible: true, // Allow dismissing by tapping outside
+      barrierDismissible: true,
       builder: (context) {
         return WillPopScope(
           onWillPop: () async {
-            // Navigate to CitizenHomePage when back button is pressed
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const CitizenGridPage(),
               ),
             );
-            return false; // Prevent dialog from closing by default behavior
+            return false;
           },
           child: AlertDialog(
             shape: RoundedRectangleBorder(
@@ -190,7 +194,6 @@ class _CountryPageState extends State<CountryPage> {
         );
       },
     ).then((_) {
-      // When dialog is dismissed (tap outside), navigate to CitizenHomePage
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const CitizenGridPage(),
@@ -199,60 +202,52 @@ class _CountryPageState extends State<CountryPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return isLoading
         ? Center(child: CircularProgressIndicator())
-        // : errorMessage.isNotEmpty
-        //     ? Center(
-        //         child: Text(
-        //           errorMessage,
-        //           style: TextStyle(color: Colors.red),
-        //         ),
-        //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<Map<String, String>?>(
-                  value: selectedCountry.isNotEmpty
-                      ? countryDescriptions.firstWhere(
-                          (item) => item['codeDesc'] == selectedCountry,
-                          orElse: () => {'codeId': '', 'codeDesc': ''},
-                        )
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Country',
-                    prefixIcon: const Icon(Icons.location_city),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: countryDescriptions.map((Map<String, String> value) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: value,
-                      child: Text(value['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (Map<String, String>? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        selectedCountry = newValue['codeDesc']!;
-                        selectedCountryId = int.tryParse(newValue['codeId']!); // Parse as int
-                        widget.controller.text = selectedCountryId.toString(); // Update controller
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Country';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<Map<String, String>?>( 
+              value: selectedCountry.isNotEmpty
+                  ? countryDescriptions.firstWhere(
+                      (item) => item['codeDesc'] == selectedCountry,
+                      orElse: () => {'codeId': '', 'codeDesc': ''},
+                    )
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Country',
+                prefixIcon: const Icon(Icons.location_city),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: countryDescriptions.map((Map<String, String> value) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: value,
+                  child: Text(value['codeDesc']!),
+                );
+              }).toList(),
+              onChanged: (Map<String, String>? newValue) {
+                setState(() {
+                  if (newValue != null) {
+                    selectedCountry = newValue['codeDesc']!;
+                    selectedCountryId = int.tryParse(newValue['codeId']!);
+                    widget.controller.text = selectedCountryId.toString();
+                    widget.onCountrySelected(selectedCountry); // Pass selected country to callback
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Country';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }
- 

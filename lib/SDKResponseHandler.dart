@@ -36,52 +36,76 @@ class SdkResponseHandler implements ResponseHandler {
   @override
   Future<void> onTransactionResponse(TxnInfo txnInfoMap) async {
     print('Transaction map :  $txnInfoMap');
-    String merchantId = '${txnInfoMap.txnInfoMap["merchantId"]}';
+    // String merchantId = '${txnInfoMap.txnInfoMap["merchantId"]}';
     String orderId = '${txnInfoMap.txnInfoMap["orderId"]}';
-    var payloa = {
-      "mercid": merchantId,
-      "orderid": orderId,
-    };
+    // var payloa = {
+    //   "mercid": merchantId,
+    //   "orderid": orderId,
+    // };
 
-    var head = {
-      "alg": "HS256",
-      "clientid": "uathpcopos",
-    };
-    const accountUrl =
-        'https://uat1.billdesk.com/u2/payments/ve1_2/transactions/get';
+    // var head = {
+    //   "alg": "HS256",
+    //   "clientid": "ids6himcop",
+    // };
+    // const accountUrl =
+    //'https://uat1.billdesk.com/u2/payments/ve1_2/transactions/get';
+    // 'https://api.billdesk.com/payments/ve1_2/transactions/get';
+    // '$baseUrl/androidapi/service/getBillDeskTransaction';
 
-    String encodedHeader = base64Url.encode(utf8.encode(jsonEncode(head)));
-    String encodedPayload = base64Url.encode(utf8.encode(jsonEncode(payloa)));
-    String encodedHeaderPayload = '$encodedHeader.$encodedPayload';
-    String secretKey =
-        'Xv5BmIa50ewwFHZxDZ8SkLsUpVgej3Nh'; // Production: 'wtM0jJUPhueSKJ56T0VOUKq0GcMLwvwA'
-    final key = utf8.encode(secretKey);
-    final hmacSha256 = Hmac(sha256, key);
-    final hmacSignature = hmacSha256.convert(utf8.encode(encodedHeaderPayload));
-    String encodedSignature = base64Url.encode(hmacSignature.bytes);
-    String jwt = '$encodedHeaderPayload.$encodedSignature';
-    int epochTimestamp = DateTime.now().millisecondsSinceEpoch;
-    Map<String, String> headers = {
-      'Content-Type': 'application/jose',
-      'bd-timestamp': epochTimestamp.toString(),
-      'Accept': 'application/jose',
-      'bd-traceid': '$orderId$epochTimestamp',
-    };
+    // String encodedHeader = base64Url.encode(utf8.encode(jsonEncode(head)));
+    // String encodedPayload = base64Url.encode(utf8.encode(jsonEncode(payloa)));
+    // String encodedHeaderPayload = '$encodedHeader.$encodedPayload';
+    // String secretKey = 'wtM0jJUPhueSKJ56T0VOUKq0GcMLwvwA';
+    //     //'Xv5BmIa50ewwFHZxDZ8SkLsUpVgej3Nh'; // Production: 'wtM0jJUPhueSKJ56T0VOUKq0GcMLwvwA'
+    // final key = utf8.encode(secretKey);
+    // final hmacSha256 = Hmac(sha256, key);
+    // final hmacSignature = hmacSha256.convert(utf8.encode(encodedHeaderPayload));
+    // String encodedSignature = base64Url.encode(hmacSignature.bytes);
+    // String jwt = '$encodedHeaderPayload.$encodedSignature';
+    // int epochTimestamp = DateTime.now().millisecondsSinceEpoch;
+    // Map<String, String> headers = {
+    //   'Content-Type': 'application/jose',
+    //   'bd-timestamp': epochTimestamp.toString(),
+    //   'Accept': 'application/jose',
+    //   'bd-traceid': '$orderId$epochTimestamp',
+    // };
 
-    String thirdPartyUrl = accountUrl;
+    // String thirdPartyUrl = accountUrl;
+    // final ioc = HttpClient();
+    //     ioc.badCertificateCallback =
+    //         (X509Certificate cert, String host, int port) => true;
+    //     final client = IOClient(ioc);
+    //     final response = await client.post(
+    //       Uri.parse('$baseUrl/androidapi/service/getBillDeskTransaction'),
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
 
-    final response = await http
-        .post(
-      Uri.parse(thirdPartyUrl),
-      headers: headers,
-      body: utf8.encode(jwt),
-    )
-        .timeout(const Duration(seconds: 30), onTimeout: () {
-      print("Request timeout");
-      return http.Response('Timeout', 408);
-    });
-    print("Request Headers: $headers");
-    print("Request Body: $jwt");
+    // // final response = await http.post(Uri.parse(thirdPartyUrl), headers: {
+    // //   'Content-Type': 'application/json',
+    // // },
+    // body: {
+    //   "bdOrderId": orderId, //1407225000158
+    // } //utf8.encode(jwt),
+    //     );
+    // print("Request Headers: $headers");
+    // print("Request Body: $jwt");
+
+    final ioc = HttpClient();
+    ioc.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
+    final client = IOClient(ioc);
+
+    final response = await client.post(
+      Uri.parse('$baseUrl/androidapi/service/getBillDeskTransaction'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "bdOrderId": orderId, // Ensure orderId is properly defined
+      }),
+    );
+    print('Response billdesk: $response');
 
     if (response.statusCode == 200) {
       String responseBody = response.body;
@@ -203,36 +227,3 @@ class SdkResponseHandler implements ResponseHandler {
     }
   }
 }
-
-// const String callbackSimulatorUrl =
-//           'https://uat1.billdesk.com/u2/websimulator/upi/callbackSimulator';
-
-//       Map<String, dynamic> requestBody = {
-//         "bankId": "HD5",
-//         "requestId": "$tran",
-//         "requestType": "Transaction Creation",
-//         "status": "SUCCESS",c
-//         "txnType": "Collect",
-//         "payerVpa": "testvpa@icici",
-//         "payerName": "",
-//         "payerMobile": ""
-//       };
-
-//       try {
-//         final response = await http.post(
-//           Uri.parse(callbackSimulatorUrl),
-//           headers: {
-//             'Content-Type': 'application/json',
-//           },
-//           body: jsonEncode(requestBody),
-//         );
-
-//         if (response.statusCode == 200) {
-//           print('UPI Callback Simulation Successful: ${response.body}');
-//         } else {
-//           print('Error: ${response.statusCode}');
-//           print('Response: ${response.body}');
-//         }
-//       } catch (e) {
-//         print('Exception: $e');
-//       }

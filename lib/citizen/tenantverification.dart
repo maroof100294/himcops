@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:himcops/controller/domestic_controller/dmvaffidavit.dart';
-import 'package:himcops/controller/domestic_controller/dmvotherdetails.dart';
-import 'package:himcops/controller/tenant_controller/tenantaddressdetails.dart';
-import 'package:himcops/controller/tenant_controller/tenantownerdetails.dart';
+// import 'package:himcops/controller/domestic_controller/dmvaffidavit.dart';
+import 'package:himcops/controller/tenant_controller/tenantaffidavit.dart';
+// import 'package:himcops/controller/domestic_controller/dmvotherdetails.dart';
+// import 'package:himcops/controller/tenant_controller/tenantaddressdetails.dart';
+// import 'package:himcops/controller/tenant_controller/tenantownerdetails.dart';
 import 'package:himcops/controller/tenant_controller/tenantpersonaldetails.dart';
 import 'package:himcops/controller/tenant_controller/tenantverify.dart';
 import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/backgroundlayout.dart';
-import 'package:himcops/layout/formlayout.dart';
+// import 'package:himcops/layout/formlayout.dart';
 
 class TenantVerificationPage extends StatefulWidget {
   const TenantVerificationPage({super.key});
@@ -18,9 +21,6 @@ class TenantVerificationPage extends StatefulWidget {
 
 class _TenantVerificationPageState extends State<TenantVerificationPage> {
   final _personalFormKey = GlobalKey<FormState>();
-  final _addressFormKey = GlobalKey<FormState>();
-  final _ownerFormKey = GlobalKey<FormState>();
-  final _otherFormKey = GlobalKey<FormState>();
   final _affidavitFormKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
@@ -52,28 +52,33 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
   TextEditingController ageController = TextEditingController();
   TextEditingController oNameController = TextEditingController();
 
-  bool isOwnerFormVisible = true;
-  bool isPersonalFormVisible = false;
-  bool isAddressFormVisible = false;
-  bool isOtherDetailsFormVisible = false;
+  // bool isOwnerFormVisible = true;
+  bool isPersonalFormVisible = true;
+  String selectedState = 'HIMACHAL PRADESH';
+  // bool isAddressFormVisible = false;
+  // bool isOtherDetailsFormVisible = false;
   bool isAffidavitFormVisible = false;
   bool isChecked = true;
-  bool isMovingForward = true;
-  bool _filesUploaded = false;
-  String? onPhotoUploadedFileName;
-  String? onDocumentUploadedFileName;
 
-  void _showWarning(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
+  bool _criminalChanged = false;
+  bool isMovingForward = true;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tenant Verification Request'),
-        backgroundColor: const Color(0xFFB9DA6B),
+      appBar:AppBar(
+        title: const Text(
+          'Tenant Verification Request',
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 255, 255, 255)),
+        ),
+        backgroundColor: Color.fromARGB(255, 12, 100, 233),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Set the menu icon color to white
+        ),
       ),
       drawer: const AppDrawer(),
       body: Stack(
@@ -81,8 +86,17 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
           const BackgroundPage(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Container(
-              decoration: myBoxDecoration(),
+            child: Container(  
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 233, 240, 221),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Form(
@@ -107,18 +121,6 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
                             fontSize: 12),
                       ),
                       const SizedBox(height: 16),
-                      if (isOwnerFormVisible)
-                        TenantOwnerDetailsFormPage(
-                          oNameController: oNameController,
-                          occupationController: occupationController,
-                          oAddressController: oAddressController,
-                          mobileController: mobileController,
-                          emailController: emailController,
-                          oCountryController: oCountryController,
-                          oStateController: oStateController,
-                          oDistrictController: oDistrictController,
-                          oPoliceStationController: oPoliceStationController,
-                        ),
                       if (isPersonalFormVisible)
                         TenantDetailsFormPage(
                           nameController: nameController,
@@ -130,36 +132,12 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
                           relativeNameController: relativeNameController,
                           tenancyController: tenancyController,
                         ),
-                      if (isAddressFormVisible)
-                        TenentAddressDetailsForm(
-                          addressController: addressController,
-                          aCountryController: aCountryController,
-                          aStateController: aStateController,
-                          aDistrictController: aDistrictController,
-                          aPoliceStationController: aPoliceStationController,
-                          paddressController: paddressController,
-                          pcountryController: pcountryController,
-                          pstateController: pstateController,
-                          pdistrictController: pdistrictController,
-                          ppoliceStationController: ppoliceStationController,
-                        ),
-                      if (isOtherDetailsFormVisible)
-                        OtherDetailsForm(
-                          onFilesUploaded: (uploaded) {
-                            setState(() {
-                              _filesUploaded = uploaded;
-                            });
-                          },
-                          onPhotoUploaded: (fileName) {
-                            onPhotoUploadedFileName = fileName;
-                          },
-                          onDocumentUploaded: (fileName) {
-                            onDocumentUploadedFileName = fileName;
-                          },
-                        ),
                       if (isAffidavitFormVisible)
-                        AffidavitForm(
-                          affidavitController: affidavitController, onCriminalStatusChanged: (bool value) {  },
+                        TenantaffidavitForm(
+                          affidavitController: affidavitController,
+                          onCriminalStatusChanged: (bool value) {
+                            _criminalChanged = value;
+                          },
                         ),
                     ],
                   ),
@@ -185,9 +163,7 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
           ),
           const SizedBox(width: 20),
           Visibility(
-            visible: !isOwnerFormVisible && !isPersonalFormVisible &&
-                !isAddressFormVisible &&
-                !isOtherDetailsFormVisible,
+            visible: !isPersonalFormVisible,
             child: Positioned(
               bottom: 20,
               right: 20,
@@ -197,7 +173,7 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
                     borderRadius: BorderRadius.circular(30)),
                 backgroundColor: Colors.yellow[700],
                 child:
-                    const Text('Verify', style: TextStyle(color: Colors.white)),
+                    const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -208,106 +184,64 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
 
   GlobalKey<FormState> _getCurrentFormKey() {
     if (isAffidavitFormVisible) return _affidavitFormKey;
-    if (isOtherDetailsFormVisible) return _otherFormKey;
-    if (isAddressFormVisible) return _addressFormKey;
-    if (isPersonalFormVisible) return _personalFormKey;
-    return _ownerFormKey;
+    return _personalFormKey;
   }
 
   String _getFormTitle() {
     if (isAffidavitFormVisible) return 'Affidavit Information';
-    if (isOtherDetailsFormVisible) return 'Tenant Document Upload';
-    if (isAddressFormVisible) return 'Tenant Address Details';
-    if (isPersonalFormVisible) return 'Tenant Personal Details';
-    return 'Owner Details';
+    return 'Tenant Personal Details';
   }
 
   void _nextSection() {
     setState(() {
       if (isMovingForward) {
         if (_getCurrentFormKey().currentState!.validate()) {
-          if (isOwnerFormVisible) {
-            isOwnerFormVisible = false;
-            isPersonalFormVisible = true;
-          } else if (isPersonalFormVisible) {
+          if (isPersonalFormVisible) {
             isPersonalFormVisible = false;
-            isAddressFormVisible = true;
-          } else if (isAddressFormVisible) {
-            isAddressFormVisible = false;
-            isOtherDetailsFormVisible = true;
-          } else if (isOtherDetailsFormVisible) {
-            if (!_filesUploaded) {
-              _showWarning(
-                  'Please upload both the photo and identification document.');
-              return;
-            }
-            isOtherDetailsFormVisible = false;
             isAffidavitFormVisible = true;
           }
         }
       } else {
         if (isAffidavitFormVisible) {
           isAffidavitFormVisible = false;
-          isOtherDetailsFormVisible = true;
-        } else if (isOtherDetailsFormVisible) {
-          isOtherDetailsFormVisible = false;
-          isAddressFormVisible = true;
-        } else if (isAddressFormVisible) {
-          isAddressFormVisible = false;
           isPersonalFormVisible = true;
-        } else if (isPersonalFormVisible) {
-          isPersonalFormVisible = false;
-          isOwnerFormVisible = true;
         }
       }
 
       if (isAffidavitFormVisible) {
         isMovingForward = false;
-      } else if (isOwnerFormVisible) {
+      } else if (isPersonalFormVisible) {
         isMovingForward = true;
       }
     });
   }
 
   void _verifyDetails() {
+    final genderData = jsonDecode(genderController.text);
+    final selectedGenderCodeId = genderData['codeId'];
+    final selectedGenderCodeDesc = genderData['codeDesc'];
+    final occupationData = jsonDecode(tOccupationController.text);
+    final selectedOccupationCodeId = occupationData['codeId'];
+    final selectedOccupationCodeDesc = occupationData['codeDesc'];
+    final relationData = jsonDecode(relationController.text);
+    final selectedRelationCodeId = relationData['codeId'];
+    final selectedRelationCodeDesc = relationData['codeDesc'];
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => tvrVerificationPage(
+      builder: (context) => TvrVerificationPage(
         name: nameController.text,
         dateOfBirth: dateDobController.text,
-        gender: genderController.text,
-        relation: relationController.text,
+        gender: selectedGenderCodeDesc,
+        relation: selectedRelationCodeDesc,
+        relationId: selectedRelationCodeId,
         relativeName: relativeNameController.text,
         affidavit: affidavitController.text,
-        email: emailController.text,
-        mobile: mobileController.text,
-        ownerOccupation: occupationController.text,
-        ownerAddress: oAddressController.text,
-        ownerCountry: oCountryController.text,
-        ownerState: oStateController.text,
-        ownerDistrict: oDistrictController.text,
-        ownerPoliceStation: oPoliceStationController.text,
-        ownerName: oNameController.text,
-        tenantOccupation: tOccupationController.text,
+        tenantOccupation: selectedOccupationCodeDesc,
+        isCriminal: _criminalChanged,
+        tenantId: selectedOccupationCodeId,
+        genderId: selectedGenderCodeId,
         tenancy: tenancyController.text,
         age: ageController.text,
-        presentAddress: paddressController.text,
-        presentCountry: pcountryController.text,
-        presentState: pstateController.text,
-        presentDistrict: pdistrictController.text,
-        presentPoliceStation: ppoliceStationController.text,
-        permanentAddress:
-            isChecked ? paddressController.text : addressController.text,
-        permanentCountry:
-            isChecked ? pcountryController.text : aCountryController.text,
-        permanentState:
-            isChecked ? pstateController.text : aStateController.text,
-        permanentDistrict:
-            isChecked ? pdistrictController.text : aDistrictController.text,
-        permanentPoliceStation: isChecked
-            ? ppoliceStationController.text
-            : aPoliceStationController.text,
-        photoFileName: '$onPhotoUploadedFileName',
-        documentFileName: '$onDocumentUploadedFileName',
+        selectedState: selectedState,
       ),
     ));
   }

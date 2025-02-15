@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 //import 'package:hppolice/payment/payment.dart';
 
-class TenantAffidavitForm extends StatefulWidget {
+class TenantaffidavitForm extends StatefulWidget {
   final TextEditingController affidavitController;
+  final ValueChanged<bool> onCriminalStatusChanged;
 
-  const TenantAffidavitForm({
+  const TenantaffidavitForm({
     super.key,
     required this.affidavitController,
+    required this.onCriminalStatusChanged,
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _TenantAffidavitFormState createState() => _TenantAffidavitFormState();
+  _TenantaffidavitFormState createState() => _TenantaffidavitFormState();
 }
 
-class _TenantAffidavitFormState extends State<TenantAffidavitForm> {
-  bool isCriminal = true;
+class _TenantaffidavitFormState extends State<TenantaffidavitForm> {
+  bool isCriminal = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,7 @@ class _TenantAffidavitFormState extends State<TenantAffidavitForm> {
                   onChanged: (val) {
                     setState(() {
                       isCriminal = val!;
+                      widget.onCriminalStatusChanged(isCriminal);
                     });
                   },
                   title: const Text('Yes'),
@@ -46,6 +48,7 @@ class _TenantAffidavitFormState extends State<TenantAffidavitForm> {
                   onChanged: (val) {
                     setState(() {
                       isCriminal = val!;
+                      widget.onCriminalStatusChanged(isCriminal);
                     });
                   },
                   title: const Text("No"),

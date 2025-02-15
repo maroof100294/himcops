@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:himcops/master/country.dart';
 import 'package:himcops/master/occupation.dart';
 
 class TenantOwnerDetailsFormPage extends StatefulWidget {
@@ -34,8 +33,8 @@ class TenantOwnerDetailsFormPage extends StatefulWidget {
 
 class _TenantOwnerDetailsFormPageState
     extends State<TenantOwnerDetailsFormPage> {
-      int? selectedStateId;
-    
+  int? selectedStateId;
+
   String? ValidateFullName(String value) {
     if (!RegExp(r"^[a-zA-Z\s]{1,50}$").hasMatch(value)) {
       return "Full name should only contain alphabets\nand not exceed 50 words";
@@ -68,31 +67,6 @@ class _TenantOwnerDetailsFormPageState
         const SizedBox(height: 10),
         OccupationPage(
           controller: widget.occupationController,
-          enabled: true,
-        ),
-        const SizedBox(height: 10),
-        TextFormField(
-          controller: widget.mobileController,
-          decoration: InputDecoration(
-            labelText: 'Mobile Number',
-            prefixIcon: const Icon(Icons.phone),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          keyboardType: TextInputType.number,
-          maxLength: 10,
-          onTap: () {
-            //to be fetch when user is login
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your Mobile number';
-            }
-            return null;
-          },
         ),
         const SizedBox(height: 10),
         TextFormField(
@@ -119,35 +93,28 @@ class _TenantOwnerDetailsFormPageState
         ),
         const SizedBox(height: 10),
         TextFormField(
-          controller: widget.oAddressController,
+          controller: widget.mobileController,
           decoration: InputDecoration(
-            labelText: 'Address',
-            prefixIcon: const Icon(Icons.pin_drop),
+            labelText: 'Mobile Number',
+            prefixIcon: const Icon(Icons.phone),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          keyboardType: TextInputType.streetAddress,
+          keyboardType: TextInputType.number,
+          maxLength: 10,
           onTap: () {
-            //API hit
+            //to be fetch when user is login
           },
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your address';
+              return 'Please enter your Mobile number';
             }
             return null;
           },
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        CountryPage(controller: widget.oCountryController, enabled: true),
-        const SizedBox(
-          height: 10,
-        ),
-        //statedynamic
       ],
     );
   }

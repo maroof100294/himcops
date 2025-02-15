@@ -32,34 +32,31 @@ class TenantDetailsFormPage extends StatefulWidget {
 }
 
 class _TenantDetailsFormPageState extends State<TenantDetailsFormPage> {
-  Future<void> _selectDob(BuildContext context) async {
-  final DateTime initialDate = DateTime.now();
-  final DateTime firstDate = DateTime(1924);
-  final DateTime lastDate = DateTime.now();
+ Future<void> _selectDob(BuildContext context) async {
+  // Calculate the last eligible date (18 years before today)
+  final DateTime today = DateTime.now();
+  final DateTime lastEligibleDate = DateTime(today.year - 18, today.month, today.day);
+
+  final DateTime firstDate = DateTime(1924); // Arbitrary earliest date
+  final DateTime initialDate = lastEligibleDate; // Default to the last eligible date
 
   final DateTime? pickedDate = await showDatePicker(
     context: context,
     initialDate: initialDate,
     firstDate: firstDate,
-    lastDate: lastDate,
+    lastDate: lastEligibleDate,
   );
 
   if (pickedDate != null) {
     setState(() {
       widget.dateDobController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
 
-      final DateTime now = DateTime.now();
-      int years = now.year - pickedDate.year;
-      int months = now.month - pickedDate.month;
-
-      // If the current month is before the birth month or it's the same month but before the birth date
-      if (months < 0 || (months == 0 && now.day < pickedDate.day)) {
-        years--;
-        months += 12; // Add 12 months when reducing 1 year
+      final int age = today.year - pickedDate.year;
+      if (today.isBefore(DateTime(today.year, pickedDate.month, pickedDate.day))) {
+        widget.ageController.text = (age - 1).toString();
+      } else {
+        widget.ageController.text = age.toString();
       }
-
-      // Display age in the format "X years, Y months"
-      widget.ageController.text = '$years years, $months months';
     });
   }
 }
@@ -99,7 +96,7 @@ class _TenantDetailsFormPageState extends State<TenantDetailsFormPage> {
         const SizedBox(height: 10),
         OccupationPage(
           controller: widget.tOccupationController,
-          enabled: true,
+          
         ),
         const SizedBox(height: 10),
         TextFormField(

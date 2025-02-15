@@ -1,21 +1,16 @@
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:himcops/config.dart';
-import 'package:himcops/controller/police_clearance_controller/pccreqview.dart';
+import 'package:himcops/controller/tenant_controller/tenantreqview.dart';
 import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/backgroundlayout.dart';
 import 'package:himcops/layout/formlayout.dart';
 import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
-// import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:open_filex/open_filex.dart';
-import 'dart:io'; // Import this for file handling
-// import 'package:path_provider/path_provider.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
 
 class TenantVerificaitonStatusPage extends StatefulWidget {
   const TenantVerificaitonStatusPage({super.key});
@@ -78,7 +73,8 @@ class _TenantVerificaitonStatusPageState
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
       final response = await client.post(
         Uri.parse(url),
@@ -114,21 +110,20 @@ class _TenantVerificaitonStatusPageState
           setState(() {
             pccList = List<Map<String, String>>.from(
               data['data'].map((item) {
-                String status = item['requestStatus']?.toString() ?? '';
-                if (status == 'Approved' ||
-                    status == 'Assigned' ||
-                    status == 'SendBack' ||
+                String status = item['serviceReqStatus']?.toString() ?? '';
+                if (status == 'Assigned' ||
                     status ==
                         'Verification Report Submitted By Enquiry Officer') {
                   status = 'In Progress';
                 }
-                if (status == 'Rejected' || status == 'Complete') {
-                  status = 'Completed';
+                if (status == 'Rejected' || status == 'Completed') {
+                  status = 'Complete';
                 }
                 return {
-                  'serviceRequestNumber': item['reqno']?.toString() ?? '',
-                  'serviceDate': item['fromDate']?.toString() ?? '',
-                  'applicantName': item['fullName']?.toString() ?? '',
+                  'serviceRequestNumber':
+                      item['serviceRequestNo']?.toString() ?? '',
+                  'serviceDate': item['applicationDate']?.toString() ?? '',
+                  'applicantName': item['applicantName']?.toString() ?? '',
                   'paymentStatus': status,
                 };
               }),
@@ -149,7 +144,7 @@ class _TenantVerificaitonStatusPageState
           });
         } else {
           print('API failed to fetch PCC data: ${fetchPccResponse.statusCode}');
-        _showErrorDialog('Internet Connection Lost, Please check connection');
+          _showErrorDialog('Internet Connection Lost, Please check connection');
         }
       } else {
         print('API failed: ${response.statusCode}');
@@ -157,12 +152,12 @@ class _TenantVerificaitonStatusPageState
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
   //when requestStatus is "Approved,Rejected and Verification Report Submitted By Enquiry Officer" it will view in "Pending" as a paymentStatus with length
 
-  Future<void> _openView(String reqno) async {
+  Future<void> _openView(String serviceRequestNo) async {
     const url = '$baseUrl/androidapi/oauth/token';
     String credentials =
         'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
@@ -170,7 +165,8 @@ class _TenantVerificaitonStatusPageState
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
       final response = await client.post(
         Uri.parse(url),
@@ -197,7 +193,10 @@ class _TenantVerificaitonStatusPageState
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $accessToken',
           },
-          body: jsonEncode({"userName": "$loginId", "tempreqno": reqno}),
+          body: jsonEncode({
+            "userName": loginId,//"maroofchoudhury8367",
+            "tempreqno": serviceRequestNo
+          }), //"$loginId", "tempreqno": serviceRequestNo}),
         );
 
         if (pccPdfResponse.statusCode == 200) {
@@ -208,21 +207,21 @@ class _TenantVerificaitonStatusPageState
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PccReqViewPage(data: responseData),
+              builder: (context) => TenantReqViewPage(data: responseData),
             ),
           );
         } else {
           print('Failed to load PDF ${pccPdfResponse.statusCode}');
-        _showErrorDialog('Technical Server issue, Try again later');
+          _showErrorDialog('Technical Server issue, Try again later');
         }
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
-  Future<void> _downloadPdf(String reqno) async {
+  Future<void> _downloadPdf(String serviceRequestNo) async {
     const url = '$baseUrl/androidapi/oauth/token';
     String credentials =
         'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
@@ -231,7 +230,8 @@ class _TenantVerificaitonStatusPageState
     try {
       // Step 1: Authenticate to get the token
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
       final response = await client.post(
         Uri.parse(url),
@@ -253,7 +253,8 @@ class _TenantVerificaitonStatusPageState
         print('Access Token: $accessToken'); // Debugging token
 
         // Step 2: Fetch the PDF file
-        final pdfUrl = '$baseUrl/androidapi/mobile/service/printTenantVerification?userName=$loginId&tenantSrNo=$reqno';
+        final pdfUrl =
+            '$baseUrl/androidapi/mobile/service/printTenantVerification?userName=$loginId&tenantSrNo=$serviceRequestNo';
         print('Fetching PDF from: $pdfUrl'); // Debugging PDF URL
 
         final pdfResponse = await client.get(
@@ -272,7 +273,7 @@ class _TenantVerificaitonStatusPageState
           if (pdfResponse.bodyBytes.isNotEmpty) {
             final directory = '/storage/emulated/0/Download';
             final filePath =
-                '$directory/TenantVerification_$reqno.pdf';
+                '$directory/TenantVerification_$serviceRequestNo.pdf';
             final file = File(filePath);
             await file.writeAsBytes(pdfResponse.bodyBytes);
             print('File saved to: $filePath');
@@ -302,7 +303,7 @@ class _TenantVerificaitonStatusPageState
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
@@ -340,7 +341,7 @@ class _TenantVerificaitonStatusPageState
   }
 
   void _showErrorDialog(String message) {
-   showDialog(
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -387,8 +388,7 @@ class _TenantVerificaitonStatusPageState
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },

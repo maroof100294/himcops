@@ -6,16 +6,16 @@ import 'dart:io';
 
 import 'package:himcops/pages/cgridhome.dart';
 
-class OccupationPage extends StatefulWidget {
+class MainOccupationPage extends StatefulWidget {
   final TextEditingController controller;
 
-  const OccupationPage({super.key, required this.controller});
+  const MainOccupationPage({super.key, required this.controller});
 
   @override
-  State<OccupationPage> createState() => _OccupationPageState();
+  State<MainOccupationPage> createState() => _MainOccupationPageState();
 }
 
-class _OccupationPageState extends State<OccupationPage> {
+class _MainOccupationPageState extends State<MainOccupationPage> {
   String selectedOccupation = '';
   int? selectedOccupationId;
   List<Map<String, String>> occupationDescriptions = [];
@@ -191,16 +191,15 @@ class _OccupationPageState extends State<OccupationPage> {
                   if (newValue != null) {
                     selectedOccupation = newValue['codeDesc']!;
                     selectedOccupationId = int.tryParse(newValue['codeId']!);
-                    widget.controller.text = jsonEncode({
-                      'codeId': selectedOccupationId,
-                      'codeDesc': selectedOccupation,
-                    });
+
+                    // Update the occupationController to contain the selected codeId
+                    widget.controller.text = selectedOccupationId.toString();
                   }
                 });
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please select a Occupation';
+                  return 'Please select an Occupation';
                 }
                 return null;
               },

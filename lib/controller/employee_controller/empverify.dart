@@ -11,7 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/drawer.dart';
-import 'package:himcops/payment/payment_page.dart';
+// import 'package:himcops/payment/payment_page.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
