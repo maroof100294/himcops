@@ -38,6 +38,7 @@ class ProtestVerificationPage extends StatefulWidget {
   final String selectedState;
   final int applicantGenderId;
   final int applicantRelationId;
+  final int protestStrikeId;
 
   const ProtestVerificationPage({
     super.key,
@@ -64,6 +65,7 @@ class ProtestVerificationPage extends StatefulWidget {
     required this.selectedState,
     required this.applicantGenderId,
     required this.applicantRelationId,
+    required this.protestStrikeId,
   });
 
   @override
@@ -324,7 +326,7 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
           "charLimitId33": 279,
           "targetInstituteOrPersonMobileNo1": "91",
           "charLimitId34": 100,
-          "typeOfProtestStrike": 2,//protest/strikeID
+          "typeOfProtestStrike": widget.protestStrikeId,//2,//protest/strikeID
           "locationProtestStrikeName":
               locationNameController.text, //"werwerewr",
           "locationAreaDetails": widget.locationNumber, //"32",

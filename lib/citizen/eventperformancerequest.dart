@@ -314,6 +314,9 @@ class _EventPerformanceRequestPageState
     final relationData = jsonDecode(relationController.text);
     final selectedRelationCodeId = relationData['codeId'];
     final selectedRelationCodeDesc = relationData['codeDesc'];
+    final eventData = jsonDecode(eventPerformanceTypeController.text);
+    final selectedEventCodeId = eventData['codeId'];
+    final selectedEventCodeDesc = eventData['codeDesc'];
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => EventPerformanceVerificationPage(
         applicantName: nameController.text,
@@ -331,7 +334,8 @@ class _EventPerformanceRequestPageState
         convicted: convictedController.text,
         preceeding: preceedingController.text,
         blacklisted: blacklistedController.text,
-        eventPerformanceType: eventPerformanceTypeController.text,//eventtype dropdown from master table 
+        eventPerformanceType: selectedEventCodeDesc,
+        eventPerformanceId: selectedEventCodeId, 
         startDate: startDateController.text,
         endDate: endDateController.text,
         briefDescription: briefDescriptionController.text,

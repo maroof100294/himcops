@@ -35,6 +35,7 @@ class ProcessionVerificationPage extends StatefulWidget {
   final String expectedMinutes;
   final int applicantGenderId;
   final int applicantRelationId;
+  final int processionTypeId;
   final String selectedState;
 
   const ProcessionVerificationPage({
@@ -58,6 +59,7 @@ class ProcessionVerificationPage extends StatefulWidget {
     required this.expectedMinutes,
     required this.applicantGenderId,
     required this.applicantRelationId,
+    required this.processionTypeId,
     required this.selectedState,
   });
 
@@ -115,7 +117,6 @@ class _ProcessionVerificationPageState
   String? majStateCode;
   String? majDistrictCode;
   String? majPoliceStationCode;
-
   String? selectedCountry = 'INDIA';
   String? selectedStateName;
   String? selectedDistrictName;
@@ -390,7 +391,7 @@ class _ProcessionVerificationPageState
             // "CountryValue": "INDIA",
             // "policeStationValue": "GHUMARWIN"
           },
-          "procesionType": 2,//ProcessiontypeId
+          "procesionType": widget.processionTypeId,//2,//ProcessiontypeId
           "processionStartTimeHH": startHoursController.text, //"6",
           "processionStartTimeMM": startMinutesController.text, //"11",
           "processionMajorParticipantName": ["major participent"],
@@ -407,7 +408,7 @@ class _ProcessionVerificationPageState
           "processionStartDtStr": formattedSDate, //"07/02/2025",
           "processionEndDtStr": formattedEDate, //"08/02/2025",
           "expectedCrowd": widget.processionNumber,//100,
-          "vehicleTypeCd": 45,
+          "vehicleTypeCd": 0,
           "animalTypeCd": 0,
           "anyObstructions": "N",
           "anyOtherOnRoute": "N",
@@ -1264,12 +1265,6 @@ class _ProcessionVerificationPageState
                     ),
                   ),
                   maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 10),
 

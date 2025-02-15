@@ -334,6 +334,9 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
     final relationData = jsonDecode(relationController.text);
     final selectedRelationCodeId = relationData['codeId'];
     final selectedRelationCodeDesc = relationData['codeDesc'];
+    final processionData = jsonDecode(processionTypeController.text);
+    final selectedProcessionCodeId = processionData['codeId'];
+    final selectedProcessionCodeDesc = processionData['codeDesc'];
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ProcessionVerificationPage(
         applicantName: nameController.text,
@@ -346,7 +349,8 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
         applicantAge: ageController.text,
         applicantEmail: emailController.text,
         applicantMobile: mobileController.text,
-        processionType: processionTypeController.text,
+        processionType: selectedProcessionCodeDesc,
+        processionTypeId: selectedProcessionCodeId,
         briefDescription: briefDescriptionController.text,
         startDate: startDateController.text,
         endDate: endDateController.text,

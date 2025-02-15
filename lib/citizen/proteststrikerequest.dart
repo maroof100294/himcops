@@ -275,6 +275,9 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
     final relationData = jsonDecode(relationController.text);
     final selectedRelationCodeId = relationData['codeId'];
     final selectedRelationCodeDesc = relationData['codeDesc'];
+    final strikeData = jsonDecode(protestTypeController.text);
+    final selectedStrikeCodeId = strikeData['codeId'];
+    final selectedStrikeCodeDesc = strikeData['codeDesc'];
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ProtestVerificationPage(
         applicantName: nameController.text,
@@ -289,7 +292,8 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
         applicantMobile: mobileController.text,
         briefDescription: briefDescriptionController.text,
         structureNature: structureNatureController.text,
-        protestType: protestTypeController.text,//strike_type dropdown
+        protestType: selectedStrikeCodeDesc,
+        protestStrikeId: selectedStrikeCodeId,
         startDate: startDateController.text,
         endDate: endDateController.text,
         locationArea: locationAreaController.text,

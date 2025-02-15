@@ -45,6 +45,7 @@ class EventPerformanceVerificationPage extends StatefulWidget {
   final bool isPreceeding;
   final bool isBlacklisted;
   final int applicantGenderId;
+  final int eventPerformanceId;
   final int applicantRelationId;
 
   const EventPerformanceVerificationPage({
@@ -77,6 +78,7 @@ class EventPerformanceVerificationPage extends StatefulWidget {
     required this.isCriminal,
     required this.isPreceeding,
     required this.applicantGenderId,
+    required this.eventPerformanceId,
     required this.applicantRelationId,
   });
 
@@ -370,7 +372,7 @@ class _EventPerformanceVerificationPageState
             "briefSynopsis": briefDescriptionController.text,
             "charLimitId18": 182,
             "isLoudspeakerUsed": "N",
-            "eventTypeCd": 3, //eventPerformanceId
+            "eventTypeCd": widget.eventPerformanceId,//3, //eventPerformanceId
             "isParkingAvail": "N",
             "isFireDeptClearance": "Y", //isFireClearance
             "securityRoomDetail": "",
@@ -648,15 +650,32 @@ class _EventPerformanceVerificationPageState
                 TextFormField(
                   controller: paddressController,
                   decoration: InputDecoration(
-                    labelText: 'Present Address',
+                    label: RichText(
+                      text: TextSpan(
+                        text: 'Present Address',
+                        style: TextStyle(
+                            color: Colors.black), // Normal label color
+                        children: [
+                          TextSpan(
+                            text: ' *',
+                            style:
+                                TextStyle(color: Colors.red), // Red color for *
+                          ),
+                        ],
+                      ),
+                    ),
                     prefixIcon: const Icon(Icons.home),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
                   ),
-                  maxLines: 2,
+                  maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your address';
@@ -736,21 +755,38 @@ class _EventPerformanceVerificationPageState
                         controller: addressController,
                         enabled: true,
                         decoration: InputDecoration(
-                          labelText: 'Permanent Address',
-                          prefixIcon: const Icon(Icons.home),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                    label: RichText(
+                      text: TextSpan(
+                        text: 'Permanent Address',
+                        style: TextStyle(
+                            color: Colors.black), // Normal label color
+                        children: [
+                          TextSpan(
+                            text: ' *',
+                            style:
+                                TextStyle(color: Colors.red), // Red color for *
                           ),
-                        ),
-                        maxLines: 2,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your address';
-                          }
-                          return null;
-                        },
+                        ],
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.home),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
+                  maxLines: 3,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your address';
+                    }
+                    return null;
+                  },
                       ),
                       const SizedBox(height: 8),
                       CountryPage(
@@ -824,18 +860,35 @@ class _EventPerformanceVerificationPageState
                 TextFormField(
                   controller: locationAddressController,
                   decoration: InputDecoration(
-                    labelText: 'Address',
-                    prefixIcon: const Icon(Icons.pin_drop),
+                    label: RichText(
+                      text: TextSpan(
+                        text: 'Location Address',
+                        style: TextStyle(
+                            color: Colors.black), // Normal label color
+                        children: [
+                          TextSpan(
+                            text: ' *',
+                            style:
+                                TextStyle(color: Colors.red), // Red color for *
+                          ),
+                        ],
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.home),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
                   ),
-                  keyboardType: TextInputType.streetAddress,
+                  maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your details';
+                      return 'Please enter your address';
                     }
                     return null;
                   },
