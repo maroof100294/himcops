@@ -1,38 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:himcops/drawer/drawer.dart';
-// import 'package:himcops/layout/backgroundlayout.dart';
-// import 'package:himcops/layout/formlayout.dart';
-// class ProcessionStatusPage extends StatefulWidget {
-//   const ProcessionStatusPage({super.key});
-
-//   @override
-//   State<ProcessionStatusPage> createState() => _ProcessionStatusPageState();
-// }
-
-// class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return  Scaffold(
-//       appBar: AppBar(
-//         title: const Text(''),
-//         backgroundColor: const Color(0xFFB9DA6B),
-//       ),
-//       drawer: const AppDrawer(),
-//       body: Stack(
-//         children: [
-//           const BackgroundPage(),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 10),
-//             child: Container(
-//               decoration: myBoxDecoration(),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -146,18 +111,18 @@ class _ProcessionStatusPageState
           setState(() {
             pccList = List<Map<String, String>>.from(
               data['data'].map((item) {
-                String status = item['requestStatus']?.toString() ?? '';
-                if (status == 'Assigned' || status == 'Sent To Edistrict') {
+                String status = item['applicationStatus']?.toString() ?? '';
+                if (status == 'Assigned') {
                   status = 'In Progress';
                 }
-                if (status == 'Rejected' ||
+                if (status == 'Rejected and sent to E-District' ||
                     status == 'Approved') {
                   status = 'Complete';
                 }
                 return {
-                  'serviceRequestNumber': item['regProtestStrikeNum']?.toString() ?? '',
-                  'serviceDate': item['fromDateStr']?.toString() ?? '',
-                  'applicantName': item['fullName']?.toString() ?? '',
+                  'serviceRequestNumber': item['regProcessionNum']?.toString() ?? '',
+                  'serviceDate': item['applicationDate']?.toString() ?? '',
+                  'applicantName': item['firstName']?.toString() ?? '',
                   'paymentStatus': status,
                 };
               }),
@@ -190,7 +155,9 @@ class _ProcessionStatusPageState
     }
   }
 
-  Future<void> _openView(String regProtestStrikeNum) async {
+// need to test below API
+
+  Future<void> _openView(String regProcessionNum) async {
     const url = '$baseUrl/androidapi/oauth/token';
     String credentials =
         'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
@@ -228,7 +195,7 @@ class _ProcessionStatusPageState
           },
           body: jsonEncode({
             "userName": "maroofchoudhury8367", // loginId, "arunkumar7796",
-            "regProcessionNum": regProtestStrikeNum //"122532500003"
+            "regProcessionNum": regProcessionNum //"122532500003"
           }), 
         );
 
@@ -251,7 +218,7 @@ class _ProcessionStatusPageState
     }
   }
 
-  Future<void> _downloadPdf(String regProtestStrikeNum) async {
+  Future<void> _downloadPdf(String regProcessionNum) async {
     const url = '$baseUrl/androidapi/oauth/token';
     String credentials =
         'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
@@ -284,7 +251,7 @@ class _ProcessionStatusPageState
 
         // Step 2: Fetch the PDF file
         final pdfUrl =
-            '$baseUrl/androidapi/mobile/service/printProcessionReg?userName=$loginId&regProcessionNum=122532500004&processionUseCase=print1';
+            '$baseUrl/androidapi/mobile/service/printProcessionReg?userName=$loginId&regProcessionNum=$regProcessionNum&processionUseCase=print1';
         print('Fetching PDF from: $pdfUrl'); // Debugging PDF URL
 
         final pdfResponse = await client.get(
@@ -302,7 +269,7 @@ class _ProcessionStatusPageState
         if (pdfResponse.statusCode == 200) {
           if (pdfResponse.bodyBytes.isNotEmpty) {
             final directory = '/storage/emulated/0/Download';
-            final filePath = '$directory/Procession_$regProtestStrikeNum.pdf';
+            final filePath = '$directory/Procession_$regProcessionNum.pdf';
             final file = File(filePath);
             await file.writeAsBytes(pdfResponse.bodyBytes);
             print('File saved to: $filePath');

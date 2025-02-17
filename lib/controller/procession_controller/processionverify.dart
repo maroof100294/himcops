@@ -137,7 +137,7 @@ class _ProcessionVerificationPageState
         // Clear fields
         majorParticipantNameController.clear();
         majorAddressController.clear();
-        majorCountryController.clear();
+        // majorCountryController.clear();
         selectedCountry = 'INDIA';
       });
     }
@@ -300,7 +300,7 @@ class _ProcessionVerificationPageState
         final tokenData = json.decode(response.body);
         String accessToken = tokenData['access_token'];
         final accountUrl =
-            '$baseUrl/androidapi/mobile/service/protestStrikeRequestRegistration';
+            '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
         final DateTime dob = DateTime.parse(widget
             .applicantDateOfBirth); // Parse the date string into DateTime object
         final String formattedDob =
@@ -423,6 +423,7 @@ class _ProcessionVerificationPageState
           "charLimitId38": 90,
           "charLimitId39": 90,
           "charLimitId40": 90
+
         };
         print('Request Body: \n${json.encode(payloadBody)}');
 
