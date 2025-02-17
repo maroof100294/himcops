@@ -12,7 +12,7 @@ import 'package:himcops/pages/cgridhome.dart';
 // import 'package:himcops/pages/cgridhome.dart';
 // import 'package:himcops/pages/cgridhome.dart';
 import 'package:himcops/pages/sso.dart';
-import 'package:himcops/police/dsi.dart';
+import 'package:himcops/police/phome.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                DSIMobileHomePage(),
+                                                PoliceHomePage(), // change to function from API
                                           ),
                                         );
                                       },
@@ -370,4 +370,3 @@ class _LoginPageState extends State<LoginPage> {
     return shouldLogout;
   }
 }
-//its not changing language only the language in button is changing

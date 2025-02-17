@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:himcops/citizen/citizentip.dart';
+import 'package:himcops/citizen/complaint.dart';
 import 'package:himcops/citizen/domestichelpverification.dart';
 import 'package:himcops/citizen/employeeverification.dart';
 import 'package:himcops/citizen/eventperformancerequest.dart';
@@ -241,7 +242,11 @@ class _CitizenGridPageState extends State<CitizenGridPage> {
                                             const ViewFIRPage()));
                                 break;
                               case 2:
-                                // showComplaintDialog(context);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ComplaintPage()));
                                 break;
                               case 3:
                                 _launchURL(

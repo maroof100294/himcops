@@ -48,6 +48,13 @@ class AppTranslations extends Translations {
           'crs': 'Character Certificate Status',
           'log': 'Do you want to logout?',
           'cancel': 'Cancel',
+          'dsi': 'DSI Dashboard',
+          'v_complaint': 'View Complaint',
+          'c_diary':'Case Diary',
+          'v_search':'Vehicle Search',
+          'a_search':'Accused Search',
+          'cis':'Case Investigation Status',
+          'hcs':'Heinous Case Status',
           'cn':'Contact Number: '
         },
         'hi_IN': {
@@ -95,6 +102,13 @@ class AppTranslations extends Translations {
           'crs': 'चरित्र प्रमाणपत्र स्थिति',
           'log': 'क्या आप लॉग आउट करना चाहते हैं?',
           'cancel': 'रद्द करें',
+          'dsi':'DSI डैशबोर्ड',
+          'v_complaint':'शिकायत देखें',
+          'c_diary':'रिपोर्ट जिमनी',
+          'v_search':'वाहन खोज',
+          'a_search':'अभियुक्त खोज',
+          'cis':'मामले की जांच की स्थिति',
+          'hcs':'जघन्य अपराध की स्थिति',
           'cn':'संपर्क संख्या ',
         },
       };
