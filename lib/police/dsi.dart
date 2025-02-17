@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:himcops/drawer/pdrawer.dart';
 import 'package:himcops/master/sdp.dart';
 import 'package:intl/intl.dart';
 
@@ -14,24 +15,24 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _dateFromController = TextEditingController();
   final TextEditingController _dateToController = TextEditingController();
-  final String district = "Sample District";
-  final String policeStation = "Sample PS";
   int totalFIR = 0;
   int specialCases = 0;
   DateTime? fromDate;
   DateTime? toDate;
   String? dsiDistrictCode;
   String? dsiPoliceStationCode;
+  int? selectedIndex;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _dateFromController.text = DateTime.now().toString().split(' ')[0];
+    _dateFromController.text = DateFormat('yyyy-MM-dd')
+        .format(DateTime.now().subtract(Duration(days: 1)));
     _dateToController.text = DateTime.now().toString().split(' ')[0];
     _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showFilterDialog(context);
+      _showListDialog(context);
     });
   }
 
@@ -39,6 +40,103 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _showListDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) => Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Please Select Anyone to View',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setDialogState(() => selectedIndex = 0);
+                            setState(() {}); // Update UI in main screen
+                            Navigator.pop(context);
+                            _showFilterDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: selectedIndex == 0
+                                ? Colors.blue[900]
+                                : Colors.grey[300],
+                            foregroundColor: selectedIndex == 0
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                          child: const Text('Graphical View'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setDialogState(() => selectedIndex = 1);
+                            setState(() {}); // Update UI in main screen
+                            // Navigator.pop(context);
+                            // _showFirDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: selectedIndex == 1
+                                ? Colors.blue[900]
+                                : Colors.grey[300],
+                            foregroundColor: selectedIndex == 1
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                          child: const Text('FIR Details View'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setDialogState(() => selectedIndex = 2);
+                            setState(() {}); // Update UI in main screen
+                            // Navigator.pop(context);
+                            // _showHeadDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: selectedIndex == 2
+                                ? Colors.blue[900]
+                                : Colors.grey[300],
+                            foregroundColor: selectedIndex == 2
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                          child: const Text('Local Head Count View'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showFilterDialog(BuildContext context) {
@@ -143,46 +241,6 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     });
   }
 
-  Widget _buildViewportCard(String title, String subtitle, int count) {
-    return InkWell(
-      onTap: () {
-        _showDetailsDialog(context);
-      },
-      child: Container(
-        width: 150,
-        height: 150,
-        child: Card(
-          elevation: 5,
-          margin: const EdgeInsets.all(5),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 8),
-                Text(subtitle,
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 10),
-                Text(
-                  '$count',
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildGraph(String title, List<Map<String, dynamic>> data) {
     int touchedIndex = -1;
     return Scaffold(
@@ -232,7 +290,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                             final sectionData = data[i];
                             return PieChartSectionData(
                               value: sectionData['value'].toDouble(),
-                              title: '${sectionData['value']}%',
+                              title: '${sectionData['value']}',
                               radius: radius,
                               color: sectionData['color'],
                               titleStyle: const TextStyle(
@@ -256,33 +314,76 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                 ),
               ),
               const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: data.map((section) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                    child: Text(
-                      '${section['label']}: ${section['value']}%',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: section['color'],
-                          fontWeight: FontWeight.bold),
-                    ),
-                  );
-                }).toList(),
+              // Wrap this in a scrollable widget
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Header',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text('Total Count',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const Divider(),
+                      ...data.map((section) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: section['color'],
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                      width: 8), // Space between color and text
+                                  TextButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text(section['label']),
+                                            content: Text(
+                                                'Details of ${section['label']}'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text('Close'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text('${section['label']}'),
+                                  ),
+                                ],
+                              ),
+                              Text('${section['value']}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Implement your download logic here
-        },
-        backgroundColor: Colors.indigo[300],
-        child: const Icon(Icons.download, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 
@@ -290,16 +391,36 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   Widget build(BuildContext context) {
     final graphs = [
       _buildGraph(
-        'Total FIR\n(${_dateFromController.text} to ${_dateToController.text})',
+        'Total FIR $totalFIR\n(${_dateFromController.text} to ${_dateToController.text})',
         [
           {'label': 'Abetment to Suicide', 'value': 20, 'color': Colors.blue},
           {'label': 'Attempt to Murder', 'value': 30, 'color': Colors.red},
           {'label': 'Murder', 'value': 40, 'color': Colors.green},
           {'label': 'Accident', 'value': 10, 'color': Colors.orange},
+          {
+            'label': 'Abetment to Suicide',
+            'value': 20,
+            'color': const Color.fromARGB(255, 240, 243, 33)
+          },
+          {
+            'label': 'Attempt to Murder',
+            'value': 30,
+            'color': const Color.fromARGB(255, 190, 54, 244)
+          },
+          {
+            'label': 'Murder',
+            'value': 40,
+            'color': const Color.fromARGB(255, 78, 67, 2)
+          },
+          {
+            'label': 'Accident',
+            'value': 10,
+            'color': const Color.fromARGB(255, 255, 0, 98)
+          },
         ],
       ),
       _buildGraph(
-        'Special Cases\n(${_dateFromController.text} to ${_dateToController.text})',
+        'Special Cases $specialCases\n(${_dateFromController.text} to ${_dateToController.text})',
         [
           {'label': 'Abetment to Suicide', 'value': 25, 'color': Colors.blue},
           {'label': 'Attempt to Murder', 'value': 35, 'color': Colors.red},
@@ -340,15 +461,14 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_alt, color: Colors.white),
-            onPressed: () {
-              _showFilterDialog(context);
-            },
+            icon: const Icon(Icons.list_sharp, color: Colors.white, size: 30),
+            onPressed: () => _showListDialog(context),
           ),
         ],
       ),
+      drawer: PolAppDrawer(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(0.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -356,18 +476,56 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  child: _buildViewportCard(
-                    'Total FIR',
-                    '(${_dateFromController.text} to\n${_dateToController.text})',
-                    totalFIR,
+                  child: TextFormField(
+                    controller: _dateFromController,
+                    decoration: InputDecoration(
+                      labelText: 'Date Range From',
+                      prefixIcon: const Icon(Icons.calendar_month),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    readOnly: true,
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      _selectfromDate(context);
+                    },
                   ),
                 ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: _buildViewportCard(
-                    'Special Cases',
-                    '(${_dateFromController.text} to\n${_dateToController.text})',
-                    specialCases,
+                  child: TextFormField(
+                    controller: _dateToController,
+                    decoration: InputDecoration(
+                      labelText: 'Date Range To',
+                      prefixIcon: const Icon(Icons.calendar_month),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    readOnly: true,
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      _selecttoDate(context);
+                    },
                   ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _search();
+                  },
+                  child: const Text('Search'),
                 ),
               ],
             ),
@@ -397,165 +555,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     );
   }
 
-  void _showDetailsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Details View',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailText('FIR No:', '12345'),
-                      const SizedBox(height: 8),
-                      _buildDetailText('Act/Section:', 'IPC 123'),
-                      const SizedBox(height: 8),
-                      _buildDetailText('Name of Complainant:', 'John wick'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close current dialog
-                          _showBriefFactDialog(
-                              context); // Show brief fact dialog
-                        },
-                        child: const Text('View More Details'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Card(
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailText('FIR No:', '12346'),
-                      const SizedBox(height: 8),
-                      _buildDetailText('Act/Section:', 'IPC 123'),
-                      const SizedBox(height: 8),
-                      _buildDetailText(
-                          'Name of Complainant:', 'merry christmas'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close current dialog
-                          _showBriefFactDialog(
-                              context); // Show brief fact dialog
-                        },
-                        child: const Text('View More Details'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Card(
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailText('FIR No:', '12347'),
-                      const SizedBox(height: 8),
-                      _buildDetailText('Act/Section:', 'IPC 123'),
-                      const SizedBox(height: 8),
-                      _buildDetailText('Name of Complainant:', 'Piyush Sharma'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close current dialog
-                          _showBriefFactDialog(
-                              context); // Show brief fact dialog
-                        },
-                        child: const Text('View More Details'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DSIMobileHomePage(),
-                    ),
-                  );
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailText(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.black87),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showBriefFactDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Brief Fact Details'),
-        content: const Text('Full details of the brief fact.'),
-        actions: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: () => _showDetailsDialog(context),
-                child: const Text('Ok'),
-              ),
-              SizedBox(width: 10),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
+// when user click on button in _showListDialog it is getting blue but when user click on icon button in appbar it is opening the _showListDialog but the active button is not showing dark blue button
   Future<void> _selectfromDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
