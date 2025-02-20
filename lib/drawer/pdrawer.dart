@@ -13,6 +13,7 @@ class PolAppDrawer extends StatefulWidget {
 }
 
 class _PolAppDrawerState extends State<PolAppDrawer> {
+  final TextEditingController districtController = TextEditingController();
   // int? _expandedTileIndex;
 
   // void _onExpansionChanged(int index, bool isExpanded) {
@@ -150,7 +151,7 @@ class _PolAppDrawerState extends State<PolAppDrawer> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const DSIMobileHomePage()),
+                    builder: (context) => DSIMobileHomePage()),
               );
             },
           ),

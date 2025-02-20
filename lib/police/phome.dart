@@ -7,6 +7,7 @@ import 'package:himcops/citizen/searchstaus/complaintstatus.dart';
 import 'package:himcops/citizen/searchstaus/viewfir.dart';
 import 'package:himcops/drawer/pdrawer.dart';
 import 'package:himcops/police/dsi.dart';
+import 'package:himcops/police/ekyc.dart';
 
 class PoliceHomePage extends StatefulWidget {
   const PoliceHomePage({super.key});
@@ -15,6 +16,7 @@ class PoliceHomePage extends StatefulWidget {
 }
 
 class _PoliceHomePageState extends State<PoliceHomePage> {
+  TextEditingController districtController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
  
 
@@ -40,6 +42,7 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
     Service(label: 'v_fir'.tr, iconPath: 'asset/images/vfir.jpeg'),
     Service(label: 'v_complaint'.tr, iconPath: 'asset/images/complaint.jpeg'),
     Service(label: 'c_diary'.tr, iconPath: 'asset/images/echallan.jpeg'),
+    Service(label: 'ekyc'.tr, iconPath: 'asset/images/echallan.jpeg'),
     // Service(label: 'v_search'.tr, iconPath: 'asset/images/ctip.jpeg'),
     // Service(label: 'a_search'.tr, iconPath: 'asset/images/contact.jpeg'),
     // Service(label: 'cis'.tr, iconPath: 'asset/images/ctip.jpeg'),
@@ -206,7 +209,7 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const DSIMobileHomePage()));
+                                            DSIMobileHomePage()));
                                 break;
                               case 1:
                                 Navigator.push(
@@ -226,13 +229,13 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                               // showComplaintDialog(context);
                               //   _launchURL(
                               //       'https://echallan.parivahan.gov.in/index/accused-challan');
-                                // break;
-                              // case 4:
-                              //   Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //           builder: (context) =>
-                              //               const CitizenTipForm()));
+                                 break;
+                              case 4:
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const EkycPage()));
                               //   break;
                               // case 5:
                               //   showContactDetail();

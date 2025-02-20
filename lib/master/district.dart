@@ -1,17 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:himcops/config.dart';
-import 'package:himcops/pages/cgridhome.dart';
-// import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:http/io_client.dart';
 
 class DistrictPage extends StatefulWidget {
   final Function(String?) controller;
 
-  const DistrictPage(
-      {super.key, required this.controller, required bool enabled});
+  const DistrictPage({super.key, required this.controller, required bool enabled});
 
   @override
   State<DistrictPage> createState() => _DistrictPageState();
@@ -23,6 +19,7 @@ class _DistrictPageState extends State<DistrictPage> {
   bool isLoading = true;
   String errorMessage = '';
   String? accessToken;
+
   @override
   void initState() {
     super.initState();
@@ -61,8 +58,7 @@ class _DistrictPageState extends State<DistrictPage> {
       } else {
         setState(() {
           isLoading = false;
-          errorMessage =
-              'Error fetching token: ${response.statusCode} - ${response.body}';
+          errorMessage = 'Error fetching token: ${response.statusCode}';
         });
       }
     } catch (e) {
@@ -114,114 +110,32 @@ class _DistrictPageState extends State<DistrictPage> {
             setState(() {
               isLoading = false;
               errorMessage = 'Invalid structure: expected a list in "data"';
-              _showErrorDialog(
-                  'Internet Connection Slow, Please check your connection');
             });
           }
         } else {
           setState(() {
             isLoading = false;
             errorMessage = 'Key "data" not found in response.';
-            _showErrorDialog(
-                'Internet Connection Slow, Please check your connection');
           });
         }
       } else {
         setState(() {
           isLoading = false;
           errorMessage = 'Error fetching district: ${response.statusCode}';
-          _showErrorDialog(
-              'Internet Connection Slow, Please check your connection');
         });
       }
     } catch (e) {
       setState(() {
         isLoading = false;
         errorMessage = 'Error occurred: $e';
-        _showErrorDialog('Technical Problem, Please Try again later');
       });
     }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: true, // Allow dismissing by tapping outside
-      builder: (context) {
-        return WillPopScope(
-          onWillPop: () async {
-            // Navigate to CitizenHomePage when back button is pressed
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const CitizenGridPage(),
-              ),
-            );
-            return false; // Prevent dialog from closing by default behavior
-          },
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            title: Column(
-              children: [
-                Image.asset(
-                  'asset/images/hp_logo.png',
-                  height: 50,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Himachal Pradesh',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Text(
-                  'Citizen Service',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CitizenGridPage(),
-                    ),
-                  );
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      },
-    ).then((_) {
-      // When dialog is dismissed (tap outside), navigate to CitizenHomePage
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const CitizenGridPage(),
-        ),
-      );
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return isLoading
         ? Center(child: CircularProgressIndicator())
-        // : errorMessage.isNotEmpty
-        //     ? Center(
-        //         child: Text(
-        //           errorMessage,
-        //           style: TextStyle(color: Colors.red),
-        //         ),
-        //       )
         : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: DropdownButtonFormField<String>(
@@ -247,10 +161,8 @@ class _DistrictPageState extends State<DistrictPage> {
               onChanged: (String? newValue) async {
                 setState(() {
                   selectedDistrict = newValue;
-                  
-                  widget.controller(
-                      newValue); // Pass the district code back
-                  isLoading = true;
+                  widget.controller(newValue); // Pass selected value back
+                  isLoading = false;
                 });
               },
               validator: (value) {

@@ -55,6 +55,7 @@ class AppTranslations extends Translations {
           'a_search':'Accused Search',
           'cis':'Case Investigation Status',
           'hcs':'Heinous Case Status',
+          'ekyc':'e-KYC',
           'cn':'Contact Number: '
         },
         'hi_IN': {
@@ -109,6 +110,7 @@ class AppTranslations extends Translations {
           'a_search':'अभियुक्त खोज',
           'cis':'मामले की जांच की स्थिति',
           'hcs':'जघन्य अपराध की स्थिति',
+          'ekyc':'e-ग्राहक सत्यापन',
           'cn':'संपर्क संख्या ',
         },
       };

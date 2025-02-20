@@ -345,7 +345,7 @@ class _DpPageState extends State<DpPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 10.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 0.0),
                     child: DropdownButtonFormField<String>(

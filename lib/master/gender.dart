@@ -1,6 +1,7 @@
 import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:himcops/config.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:himcops/pages/cgridhome.dart';
@@ -43,7 +44,7 @@ class _GenderPageState extends State<GenderPage> {
   }
 
   Future<void> fetchGender() async {
-    final url = 'https://citizenportal.hppolice.gov.in/androidapi/oauth/token';
+    final url = '$baseUrl/androidapi/oauth/token';
     String credentials =
         'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
     String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
@@ -69,7 +70,7 @@ class _GenderPageState extends State<GenderPage> {
         String accessToken = tokenData['access_token'];
 
         final genderUrl =
-            'https://citizenportal.hppolice.gov.in/androidapi/mobile/service/getGender';
+            '$baseUrl/androidapi/mobile/service/getGender';
         final genderResponse = await dio.get(
           genderUrl,
           options: Options(

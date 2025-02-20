@@ -8,7 +8,8 @@ import 'package:http/io_client.dart';
 class CountryPage extends StatefulWidget {
   final TextEditingController controller;
 
-  const CountryPage({super.key, required this.controller, required bool enabled});
+  const CountryPage(
+      {super.key, required this.controller, required bool enabled});
 
   @override
   State<CountryPage> createState() => _CountryPageState();
@@ -38,7 +39,8 @@ class _CountryPageState extends State<CountryPage> {
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
       final response = await client.post(
         Uri.parse(url),
@@ -80,8 +82,10 @@ class _CountryPageState extends State<CountryPage> {
                   };
                 }).toList();
 
-                 final initialCountry = countryDescriptions.firstWhere(
-                  (item) => item['codeDesc']!.toUpperCase() == selectedCountry.toUpperCase(),
+                final initialCountry = countryDescriptions.firstWhere(
+                  (item) =>
+                      item['codeDesc']!.toUpperCase() ==
+                      selectedCountry.toUpperCase(),
                   orElse: () => {'codeId': '', 'codeDesc': ''},
                 );
 
@@ -97,21 +101,25 @@ class _CountryPageState extends State<CountryPage> {
               setState(() {
                 isLoading = false;
                 errorMessage = 'Invalid structure: expected a list in "data"';
-                _showErrorDialog('Internet Connection Slow, Please check your connection');
+                _showErrorDialog(
+                    'Internet Connection Slow, Please check your connection');
               });
             }
           } else {
             setState(() {
               isLoading = false;
               errorMessage = 'Key "data" not found in response.';
-              _showErrorDialog('Internet Connection Slow, Please check your connection');
+              _showErrorDialog(
+                  'Internet Connection Slow, Please check your connection');
             });
           }
         } else {
           setState(() {
             isLoading = false;
-            errorMessage = 'Error fetching Country: ${countryResponse.statusCode}';
-            _showErrorDialog('Internet Connection Slow, Please check your connection');
+            errorMessage =
+                'Error fetching Country: ${countryResponse.statusCode}';
+            _showErrorDialog(
+                'Internet Connection Slow, Please check your connection');
           });
         }
       } else {
@@ -130,8 +138,8 @@ class _CountryPageState extends State<CountryPage> {
     }
   }
 
-   void _showErrorDialog(String message) {
-   showDialog(
+  void _showErrorDialog(String message) {
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -178,8 +186,7 @@ class _CountryPageState extends State<CountryPage> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -199,7 +206,6 @@ class _CountryPageState extends State<CountryPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -211,48 +217,49 @@ class _CountryPageState extends State<CountryPage> {
         //           style: TextStyle(color: Colors.red),
         //         ),
         //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<Map<String, String>?>(
-                  value: selectedCountry.isNotEmpty
-                      ? countryDescriptions.firstWhere(
-                          (item) => item['codeDesc'] == selectedCountry,
-                          orElse: () => {'codeId': '', 'codeDesc': ''},
-                        )
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Country',
-                    prefixIcon: const Icon(Icons.location_city),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: countryDescriptions.map((Map<String, String> value) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: value,
-                      child: Text(value['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (Map<String, String>? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        selectedCountry = newValue['codeDesc']!;
-                        selectedCountryId = int.tryParse(newValue['codeId']!); // Parse as int
-                        widget.controller.text = selectedCountryId.toString(); // Update controller
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Country';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<Map<String, String>?>(
+              value: selectedCountry.isNotEmpty
+                  ? countryDescriptions.firstWhere(
+                      (item) => item['codeDesc'] == selectedCountry,
+                      orElse: () => {'codeId': '', 'codeDesc': ''},
+                    )
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Country',
+                prefixIcon: const Icon(Icons.location_city),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: countryDescriptions.map((Map<String, String> value) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: value,
+                  child: Text(value['codeDesc']!),
+                );
+              }).toList(),
+              onChanged: (Map<String, String>? newValue) {
+                setState(() {
+                  if (newValue != null) {
+                    selectedCountry = newValue['codeDesc']!;
+                    selectedCountryId =
+                        int.tryParse(newValue['codeId']!); // Parse as int
+                    widget.controller.text =
+                        selectedCountryId.toString(); // Update controller
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Country';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }
- 
