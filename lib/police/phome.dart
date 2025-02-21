@@ -18,37 +18,34 @@ class PoliceHomePage extends StatefulWidget {
 class _PoliceHomePageState extends State<PoliceHomePage> {
   TextEditingController districtController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
- 
 
   final List<String> imagePaths = [
     'asset/images/pic_a.jpg',
-    'asset/images/pic_b.jpg',
-    'asset/images/pic_c.jpg',
-    'asset/images/pic_d.jpg',
-    'asset/images/pic_e.jpg',
+    // 'asset/images/pic_b.jpg',
+    // 'asset/images/pic_c.jpg',
+    // 'asset/images/pic_d.jpg',
+    // 'asset/images/pic_e.jpg',
   ];
 
-  final List<String> imageEmgPaths = [
-    'asset/images/pem.png',
-    'asset/images/amb.png',
-    'asset/images/fire.png',
-    'asset/images/child.png',
-    'asset/images/gudiya.png',
-  ];
+  // final List<String> imageEmgPaths = [
+  //   'asset/images/pem.png',
+  //   'asset/images/amb.png',
+  //   'asset/images/fire.png',
+  //   'asset/images/child.png',
+  //   'asset/images/gudiya.png',
+  // ];
 
   final List<Service> services = [
-    Service(
-        label: 'dsi'.tr, iconPath: 'asset/images/cservice.jpeg'),
+    Service(label: 'dsi'.tr, iconPath: 'asset/images/cservice.jpeg'),
     Service(label: 'v_fir'.tr, iconPath: 'asset/images/vfir.jpeg'),
     Service(label: 'v_complaint'.tr, iconPath: 'asset/images/complaint.jpeg'),
     Service(label: 'c_diary'.tr, iconPath: 'asset/images/echallan.jpeg'),
     Service(label: 'ekyc'.tr, iconPath: 'asset/images/echallan.jpeg'),
-    // Service(label: 'v_search'.tr, iconPath: 'asset/images/ctip.jpeg'),
-    // Service(label: 'a_search'.tr, iconPath: 'asset/images/contact.jpeg'),
-    // Service(label: 'cis'.tr, iconPath: 'asset/images/ctip.jpeg'),
-    // Service(label: 'hcs'.tr, iconPath: 'asset/images/contact.jpeg'),
+    Service(label: 'v_search'.tr, iconPath: 'asset/images/ctip.jpeg'),
+    Service(label: 'a_search'.tr, iconPath: 'asset/images/contact.jpeg'),
+    Service(label: 'cis'.tr, iconPath: 'asset/images/ctip.jpeg'),
+    Service(label: 'hcs'.tr, iconPath: 'asset/images/contact.jpeg'),
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,23 +129,26 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                     ),
                     children: <TextSpan>[
                       TextSpan(
-                        text: 'Police User Name', //Police User Full Name with district and Police station
+                        text:
+                            'Police User Name ', //Police User Full Name with district and Police station
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * 0.035,
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(211, 11, 72, 151),
                         ),
                       ),
-                      TextSpan(
-                        text: 'Police User District', //Police User Full Name with district and Police station
+                       TextSpan(
+                        text:
+                            ' / ', //Police User Full Name with district and Police station
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * 0.035,
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(211, 11, 72, 151),
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                       TextSpan(
-                        text: 'Police User PoliceStation', //Police User Full Name with district and Police station
+                        text:
+                            ' Office Name', //Police User Full Name with district and Police station
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * 0.035,
                           fontWeight: FontWeight.bold,
@@ -176,13 +176,13 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                   .toList(),
               options: CarouselOptions(
                 height: 200,
-                autoPlay: true,
-                autoPlayInterval: Duration(seconds: 3),
+                // autoPlay: true,
+                // autoPlayInterval: Duration(seconds: 3),
                 viewportFraction: 0.9,
                 enlargeCenterPage: true,
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 34),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -219,36 +219,47 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                                             const ViewFIRPage()));
                                 break;
                               case 2:
-                                 Navigator.push(
+                                Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             const ComplaintStatusPage()));
                                 break;
                               case 3:
-                              // showComplaintDialog(context);
-                              //   _launchURL(
-                              //       'https://echallan.parivahan.gov.in/index/accused-challan');
-                                 break;
+                                // showComplaintDialog(context);
+                                //   _launchURL(
+                                //       'https://echallan.parivahan.gov.in/index/accused-challan');
+                                break;
                               case 4:
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             const EkycPage()));
-                              //   break;
-                              // case 5:
-                              //   showContactDetail();
+                                break;
+                              case 5:
+                                // showContactDetail();
+                                break;
+                              case 6:
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) =>
+                                //             const CitizenTipForm()));
+                                break;
                               // break;
-                              // case 6:
-                              //   Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //           builder: (context) =>
-                              //               const CitizenTipForm()));
-                              //   break;
-                              // case 7:
-                              //   showContactDetail();
+                              case 7:
+                                // showContactDetail();
+                                break;
+                              case 8:
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) =>
+                                //             const CitizenTipForm()));
+                                break;
+                              case 9:
+                                // showContactDetail();
                                 break;
                               default:
                                 break;
@@ -257,26 +268,26 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                         );
                       },
                     ),
-                    SizedBox(height: 10),
-                    CarouselSlider(
-                      items: imageEmgPaths
-                          .map((path) => ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.asset(
-                                  path,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                ),
-                              ))
-                          .toList(),
-                      options: CarouselOptions(
-                        height: 100,
-                        autoPlay: true,
-                        autoPlayInterval: Duration(seconds: 5),
-                        viewportFraction: 0.9,
-                        enlargeCenterPage: true,
-                      ),
-                    ),
+                    // SizedBox(height: 10),
+                    // CarouselSlider(
+                    //   items: imageEmgPaths
+                    //       .map((path) => ClipRRect(
+                    //             borderRadius: BorderRadius.circular(15),
+                    //             child: Image.asset(
+                    //               path,
+                    //               fit: BoxFit.cover,
+                    //               width: double.infinity,
+                    //             ),
+                    //           ))
+                    //       .toList(),
+                    //   options: CarouselOptions(
+                    //     height: 100,
+                    //     autoPlay: true,
+                    //     autoPlayInterval: Duration(seconds: 5),
+                    //     viewportFraction: 0.9,
+                    //     enlargeCenterPage: true,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -304,7 +315,6 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
       ),
     );
   }
-
 
   Future<bool> _showLogoutDialog(BuildContext context) async {
     bool shouldLogout = false;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:himcops/drawer/pdrawer.dart';
-// import 'package:himcops/police/phome.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class EkycPage extends StatefulWidget {
@@ -19,7 +18,7 @@ class _EkycPageState extends State<EkycPage> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       
-      ..loadRequest(Uri.parse('https://himstaging2.hp.gov.in/aadhaar-service/ekyc'));
+      ..loadRequest(Uri.parse('https://himstaging2.hp.gov.in/aadhaar-service/ekyc?getAadhaarIframe(1000003)'));
   }
 
 

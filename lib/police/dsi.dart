@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/pdrawer.dart';
-import 'package:himcops/master/sdp.dart';
-import 'package:himcops/pages/cgridhome.dart';
+import 'package:himcops/master/psdp.dart';
+import 'package:himcops/police/phome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 
@@ -27,8 +26,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   final TextEditingController _dateFirFromController = TextEditingController();
   final TextEditingController _dateFirToController = TextEditingController();
 
-  int totalFIR = 0;
-  int specialCases = 0;
+  int totalFIR = 42;
+  int specialCases = 24;
   DateTime? fromDate;
   DateTime? toDate;
   String? dsiDistrictCode;
@@ -105,23 +104,16 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     _dateFirFromController.text = DateFormat('yyyy-MM-dd')
         .format(DateTime.now().subtract(Duration(days: 1)));
     _dateFirToController.text = DateTime.now().toString().split(' ')[0];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showListDialog(context);
-      // _showTooltip();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _showListDialog(context);
+    //   // _showTooltip();
+    // });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _search() {
-    setState(() {
-      totalFIR = 42;
-      specialCases = 10;
-    });
   }
 
   void configureDio() {
@@ -230,7 +222,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                     'codeId': district['codeId'].toString(),
                     'codeDesc': codeDesc
                   };
-                }).toList()
+                })
               ];
               selectedDistrict = 'ALL'; // Default selection
               // widget.controller('ALL', 'ALL');
@@ -353,7 +345,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             TextButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const CitizenGridPage()));
+                    builder: (context) => const PoliceHomePage()));
               },
               child: const Text('OK'),
             ),
@@ -463,9 +455,12 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                         child: ElevatedButton(
                           onPressed: () {
                             setDialogState(() => selectedIndex = 0);
-                            setState(() {}); // Update UI in main screen
+                            setState(() {
+                              isFirDetailsVisible = false;
+                              isGraphDetailsVisible = true;
+                            }); // Update UI in main screen
                             Navigator.pop(context);
-                            _showGraphDialog(context);
+                            // _showGraphDialog(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: selectedIndex == 0
@@ -487,9 +482,24 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                         child: ElevatedButton(
                           onPressed: () {
                             setDialogState(() => selectedIndex = 1);
-                            setState(() {});
+                            setState(() {
+                              isFirDetailsVisible = true;
+                              isGraphDetailsVisible = false;
+
+                              // Apply filtering logic
+                              filteredFirList = firDetailsList.where((fir) {
+                                bool matchesFirNo =
+                                    firNumController.text.isEmpty ||
+                                        fir['firNo'] == firNumController.text;
+
+                                return matchesFirNo;
+                              }).toList();
+
+                              // Reset pagination when filtering
+                              currentPage = 0;
+                            });
                             Navigator.pop(context);
-                            _showFirDialog(context); // Update UI in main screen
+                            // _showFirDialog(context); // Update UI in main screen
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: selectedIndex == 1
@@ -559,107 +569,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
 /*----------------one content start------------------*/
 
 //GraphicalView begin
-//graphFilter begin
-  void _showGraphDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Filter Options',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _dateFromController,
-                      decoration: InputDecoration(
-                        labelText: 'Date Range From',
-                        prefixIcon: const Icon(Icons.calendar_month),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      readOnly: true,
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        _selectfromDate(context);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _dateToController,
-                      decoration: InputDecoration(
-                        labelText: 'Date Range To',
-                        prefixIcon: const Icon(Icons.calendar_month),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      readOnly: true,
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        _selecttoDate(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              DpPage(
-                onDistrictSelected: (districtCode) {
-                  setState(() {
-                    dsiDistrictCode = districtCode;
-                  });
-                },
-                onPoliceStationSelected: (policeStationCode) {
-                  setState(() {
-                    dsiPoliceStationCode = policeStationCode;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        isFirDetailsVisible = false;
-                        isGraphDetailsVisible = true; // Show FIR details
-                      });
-                      Navigator.pop(context);
-                      _search();
-                    },
-                    child: const Text('Search'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-//graphFilter end
 //graphDesign begin
   Widget _buildGraph(String title, List<Map<String, dynamic>> data) {
     int touchedIndex = -1;
@@ -772,6 +682,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                                     onPressed: () {
                                       setState(() {
                                         headDsiName = section['label'];
+                                        headDistrictName = 'ALL';
                                         isFirDetailsVisible = false;
                                         isGraphDetailsVisible = false;
                                       });
@@ -904,7 +815,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
           ],
         ),
         const SizedBox(height: 8),
-        DpPage(
+        PolDpPage(
           onDistrictSelected: (districtCode) {
             setState(() {
               dsiDistrictCode = districtCode;
@@ -971,155 +882,25 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
       "policeStation": "Police A",
       "ioName": "IO A",
     },
-    {
-      "firNo": "12348",
-      "firDate": "2023-01-04",
-      "gdNo": "12348113",
-      "district": "District A",
-      "policeStation": "Police A",
-      "ioName": "IO A",
-    },
-    {
-      "firNo": "12349",
-      "firDate": "2023-01-05",
-      "gdNo": "12349114",
-      "district": "District A",
-      "policeStation": "Police A",
-      "ioName": "IO A",
-    },
+    // {
+    //   "firNo": "12348",
+    //   "firDate": "2023-01-04",
+    //   "gdNo": "12348113",
+    //   "district": "District A",
+    //   "policeStation": "Police A",
+    //   "ioName": "IO A",
+    // },
+    // {
+    //   "firNo": "12349",
+    //   "firDate": "2023-01-05",
+    //   "gdNo": "12349114",
+    //   "district": "District A",
+    //   "policeStation": "Police A",
+    //   "ioName": "IO A",
+    // },
   ];
   List<Map<String, String>> filteredFirList = [];
-  void _filterFirDetails() {
-    setState(() {
-      String firNum = firNumController.text.trim();
-      if (firNum.isEmpty) {
-        filteredFirList = firDetailsList;
-      } else {
-        filteredFirList =
-            firDetailsList.where((fir) => fir["firNo"] == firNum).toList();
-      }
-    });
-  }
-//FIRFilter begin
-  void _showFirDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Filter Options',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: firNumController,
-                      decoration: InputDecoration(
-                        labelText: 'FIR Number',
-                        prefixIcon: const Icon(Icons.note),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _dateFirFromController,
-                      decoration: InputDecoration(
-                        labelText: 'Date Range From',
-                        prefixIcon: const Icon(Icons.calendar_month),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      readOnly: true,
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        _selectfirfromDate(context);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _dateFirToController,
-                      decoration: InputDecoration(
-                        labelText: 'Date Range To',
-                        prefixIcon: const Icon(Icons.calendar_month),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      readOnly: true,
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        _selectfirtoDate(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              DpPage(
-                onDistrictSelected: (districtCode) {
-                  setState(() {
-                    dsiFirDistrictCode = districtCode;
-                  });
-                },
-                onPoliceStationSelected: (policeStationCode) {
-                  setState(() {
-                    dsiFirPoliceStationCode = policeStationCode;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _filterFirDetails();
-                      setState(() {
-                        isFirDetailsVisible = true;
-                        isGraphDetailsVisible = false; // Show FIR details
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Search'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-//FIRFilter ends
 //FIRDetails begins
 
   Widget _buildFirDetails() {
@@ -1139,7 +920,6 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onChanged: (value) => _filterFirDetails(),
               ),
             ),
           ],
@@ -1189,7 +969,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
           ],
         ),
         const SizedBox(height: 8),
-        DpPage(
+        PolDpPage(
           onDistrictSelected: (districtCode) {
             setState(() {
               dsiFirDistrictCode = districtCode;
@@ -1201,27 +981,65 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             });
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  // isFirDetailsVisible = true;
+                  // isGraphDetailsVisible = false;
+
+                  // Apply filtering logic
+                  filteredFirList = firDetailsList.where((fir) {
+                    bool matchesFirNo = firNumController.text.isEmpty ||
+                        fir['firNo'] == firNumController.text;
+
+                    return matchesFirNo;
+                  }).toList();
+
+                  // Reset pagination when filtering
+                  currentPage = 0;
+                });
+
+                // Navigator.pop(context);
+              },
+              child: const Text('Search'),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  firNumController.clear(); // Clear FIR number input
+                  // _dateFirFromController.clear(); // Clear date range inputs
+                  // _dateFirToController.clear();
+                  // dsiFirDistrictCode = null; // Reset district selection
+                  // dsiFirPoliceStationCode =
+                  // null; // Reset police station selection
+                  filteredFirList =
+                      List.from(firDetailsList); // Restore full list
+                  currentPage = 0; // Reset pagination to first page
+                });
+              },
+              child: const Text('Reset'),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-//in these both widget function has same filter field if user enter FIR Number then only that FIR number details will display, in showFirDialog user enter the FIR Number and then press the search button to display that FIR number Details, and
-//in buildFirDetails user type the FIR number and it will display the details of that FIR NUMBER
-//FIRDetails end
-//FIRViewPage begins
   Widget _buildFirList() {
     int startIndex = currentPage * itemsPerPage;
-    int endIndex = (startIndex + itemsPerPage).clamp(0, firDetailsList.length);
+    int endIndex = (startIndex + itemsPerPage).clamp(0, filteredFirList.length);
     List<Map<String, String>> paginatedList =
-        firDetailsList.sublist(startIndex, endIndex);
+        filteredFirList.sublist(startIndex, endIndex);
 
     return Column(
       children: [
         ListView.builder(
           shrinkWrap: true,
-          physics:
-              NeverScrollableScrollPhysics(), // Prevents internal scrolling
+          physics: NeverScrollableScrollPhysics(),
           itemCount: paginatedList.length,
           itemBuilder: (context, index) {
             return buildDsiFirCard(paginatedList[index]);
@@ -1234,7 +1052,9 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   }
 
   Widget _buildPaginationControls() {
-    int totalPages = (firDetailsList.length / itemsPerPage).ceil();
+    int totalPages = (filteredFirList.length / itemsPerPage).ceil();
+    if (totalPages <= 1) return const SizedBox.shrink();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1327,11 +1147,12 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
       ),
     );
   }
+//i need to filter the details of firDetailsList in buildDsiFirCard,
 
   void showFirContentDetailsDialog(BuildContext context) {
     final Map<String, dynamic> dsiFirItem = {
       'FIR Content':
-          ' GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTestGDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest',
+          'GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest GDTest',
     };
 
     showModalBottomSheet(
@@ -1566,6 +1387,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     );
   }
 
+// in _filterFirDetails filter is not working
   Widget _buildActSectionTable(List<Map<String, dynamic>> dsiFirItems) {
     return Table(
       border: TableBorder.all(color: Colors.black),
@@ -1643,6 +1465,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
       ),
     );
   }
+
 //FIRViewPage ends
 //FIRDetailView ends
 
@@ -1662,10 +1485,14 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     Function(String, String) onDistrictSelected,
     Function(String, String) onCrimeHeadSelected,
   ) {
-    String? selectedHead = currentHeadCode; // Preserve current selection
-    String? selectedHeadName = currentHeadName;
-    String? selectedDistrictCode = currentDistrictCode;
-    String? selectedDistrictName = currentDistrictName;
+    // String? selectedHead = currentHeadCode; // Preserve current selection
+    // String? selectedHeadName = currentHeadName;
+    // String? selectedDistrictCode = currentDistrictCode;
+    // String? selectedDistrictName = currentDistrictName;
+    String? selectedHead = "ALL";
+    String? selectedHeadName =  "ALL";
+    String? selectedDistrictCode = "ALL";
+    String? selectedDistrictName = "ALL";
 
     showDialog(
       context: context,
@@ -1716,11 +1543,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                           },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
+                      SizedBox(width: 10),
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: selectedDistrictCode, // Corrected variable
@@ -1755,6 +1578,12 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                       ),
                     ],
                   ),
+                  // const SizedBox(height: 10),
+                  // Row(
+                  //   children: [
+                      
+                  //   ],
+                  // ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -1960,7 +1789,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Text(
-                        headDsiName ?? "All",
+                        headDsiName ?? "ALL",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
@@ -1989,7 +1818,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Text(
-                        headDistrictName ?? "Not Selected",
+                        headDistrictName ?? "ALL",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
@@ -2146,34 +1975,6 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
       ),
     );
   }
-  // Widget buildDsiHeadCard(Map<String, dynamic> dsiHeadItem) {
-  //   return Card(
-  //     elevation: 4,
-  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16.0),
-  //       child: DataTable(
-  //         columnSpacing: 20, // Adjust spacing if needed
-  //         headingRowHeight: 40, // Adjust heading height
-  //         columns: [
-  //           DataColumn(
-  //               label: Text('Police Station',
-  //                   style: TextStyle(fontWeight: FontWeight.bold))),
-  //           DataColumn(
-  //               label: Text('Total Count',
-  //                   style: TextStyle(fontWeight: FontWeight.bold))),
-  //         ],
-  //         rows: [
-  //           DataRow(cells: [
-  //             DataCell(Text(dsiHeadItem['PoliceStation'] ?? 'N/A')),
-  //             DataCell(Text(dsiHeadItem['TotalCount']?.toString() ?? '0',
-  //                 style: TextStyle(color: Colors.blue))),
-  //           ]),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // } // header will be avobe the card
 
 //CrimeHeadDetails end
 //CrimeHeadviewPage ends
@@ -2199,7 +2000,20 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
           IconButton(
             icon: const Icon(Icons.filter_list_rounded,
                 color: Colors.white, size: 30),
-            onPressed: () => _showListDialog(context),
+            onPressed: () {
+              setState(() {
+                if (isGraphDetailsVisible) {
+                  selectedIndex = 0;
+                } else if (isFirDetailsVisible) {
+                  selectedIndex = 1;
+                } else {
+                  selectedIndex =
+                      2; // Ensure it sets to "Local Head Count View"
+                }
+              });
+
+              _showListDialog(context);
+            },
           ),
         ],
       ),
