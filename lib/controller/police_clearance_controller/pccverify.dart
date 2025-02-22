@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/citizen/searchstaus/pccviewpage.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -6,7 +7,6 @@ import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/master/country.dart';
 import 'package:himcops/master/statedistrictdynamic.dart';
 import 'package:himcops/pages/cgridhome.dart';
-import 'package:himcops/payment/payment_page.dart';
 import 'package:http/io_client.dart';
 // import 'package:himcops/payment/payment_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -240,135 +240,118 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _registerUser() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     try {
       final ioc = HttpClient();
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final accountUrl = '$baseUrl/androidapi/mobile/service/pcr';
+
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode({
+          'uid': ' ',
+          'userName': loginId,
+          'firstname': widget.name,
+          'purpose': widget.descriptionService,
+          'modeofrecievingCd': 2,
+          'genderCd': widget.genderId,
+          'relationCd': widget.relationId,
+          'relativename': widget.relativeName,
+          'strmobilenum1': '91',
+          'strMobilenum': '$mobile2',
+          'email': '$email',
+          'ccrCharacter': {
+            'commonPaneldateOfBirth': widget.dateOfBirth,
+            'commonPanelAgeYear': widget.age,
+          },
+          'permCountryCd': isChecked
+              ? int.tryParse(pcountryController.text)
+              : int.tryParse(aCountryController.text),
+          'permStateCd': isChecked
+              ? int.tryParse(presentStateCode!)
+              : int.tryParse(permanentStateCode!),
+          'permDistrictCd': isChecked
+              ? int.tryParse(presentDistrictCode!)
+              : int.tryParse(permanentDistrictCode!),
+          'permvillage':
+              isChecked ? paddressController.text : addressController.text,
+          'permPsCd': isChecked
+              ? int.tryParse(presentPoliceStationCode!)
+              : int.tryParse(permanentPoliceStationCode!),
+          'samepermenant': isChecked ? 'Y' : 'N',
+          'permdurationyr':
+              isChecked ? pYearsStayController.text : aYearsStayController.text,
+          'permdurationmonth': isChecked
+              ? pMonthsStayController.text
+              : aMonthsStayController.text,
+          'previllage': paddressController.text,
+          'preCountryCd': int.tryParse(pcountryController.text),
+          'preStateCd': int.tryParse(presentStateCode!),
+          'preDistrictCd': int.tryParse(presentDistrictCode!),
+          'prePsCd': int.tryParse(presentPoliceStationCode!),
+          'predurationyr': int.tryParse(pYearsStayController.text),
+          'predurationmonth': int.tryParse(pMonthsStayController.text),
+          'criminalproceeding': widget.isCriminal ? 'Y' : 'N',
+          "criminalproceedingdetails":
+              widget.isCriminal ? widget.affidavitDetails : '',
+          "idtypeCd": 0,
+          'charLimitId': 250,
+          'allinfotrue': 'Y',
+          '_allinfotrue': 'on',
+          'files': [
+            {
+              'fileName': 'Pcc_Photo.jpg',
+              'fileData': photoBase64String ?? '',
+              'fileTypeCd': 1,
+            },
+            {
+              'fileName': 'Pcc_Report.pdf',
+              'fileData': documentBase64String ?? '',
+              'fileTypeCd': 8,
+            },
+          ],
+        }),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-
-        final accountUrl = '$baseUrl/androidapi/mobile/service/pcr';
-
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode({
-            'uid': ' ',
-            'userName': loginId,
-            'firstname': widget.name,
-            'purpose': widget.descriptionService,
-            'modeofrecievingCd': 2,
-            'genderCd': widget.genderId,
-            'relationCd': widget.relationId,
-            'relativename': widget.relativeName,
-            'strmobilenum1': '91',
-            'strMobilenum': '$mobile2',
-            'email': '$email',
-            'ccrCharacter': {
-              'commonPaneldateOfBirth': widget.dateOfBirth,
-              'commonPanelAgeYear': widget.age,
-            },
-            'permCountryCd': isChecked
-                ? int.tryParse(pcountryController.text)
-                : int.tryParse(aCountryController.text),
-            'permStateCd': isChecked
-                ? int.tryParse(presentStateCode!)
-                : int.tryParse(permanentStateCode!),
-            'permDistrictCd': isChecked
-                ? int.tryParse(presentDistrictCode!)
-                : int.tryParse(permanentDistrictCode!),
-            'permvillage':
-                isChecked ? paddressController.text : addressController.text,
-            'permPsCd': isChecked
-                ? int.tryParse(presentPoliceStationCode!)
-                : int.tryParse(permanentPoliceStationCode!),
-            'samepermenant': isChecked ? 'Y' : 'N',
-            'permdurationyr': isChecked
-                ? pYearsStayController.text
-                : aYearsStayController.text,
-            'permdurationmonth': isChecked
-                ? pMonthsStayController.text
-                : aMonthsStayController.text,
-            'previllage': paddressController.text,
-            'preCountryCd': int.tryParse(pcountryController.text),
-            'preStateCd': int.tryParse(presentStateCode!),
-            'preDistrictCd': int.tryParse(presentDistrictCode!),
-            'prePsCd': int.tryParse(presentPoliceStationCode!),
-            'predurationyr': int.tryParse(pYearsStayController.text),
-            'predurationmonth': int.tryParse(pMonthsStayController.text),
-            'criminalproceeding': widget.isCriminal ? 'Y' : 'N',
-            "criminalproceedingdetails":
-                widget.isCriminal ? widget.affidavitDetails : '',
-            "idtypeCd": 0,
-            'charLimitId': 250,
-            'allinfotrue': 'Y',
-            '_allinfotrue': 'on',
-            'files': [
-              {
-                'fileName': 'Pcc_Photo.jpg',
-                'fileData': photoBase64String ?? '',
-                'fileTypeCd': 1,
-              },
-              {
-                'fileName': 'Pcc_Report.pdf',
-                'fileData': documentBase64String ?? '',
-                'fileTypeCd': 8,
-              },
-            ],
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (accountResponse.statusCode == 200) {
-          final accountData = json.decode(accountResponse.body);
-          String mercid = accountData['data']['mercid'];
-          String bdorderid = accountData['data']['bdorderid'];
-          String rdata = accountData['data']['rdata'];
-          String token = accountData['data']['token'];
-          // _showConfirmationDialog();
-          print('$mercid, $bdorderid, $token');
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PaymentPage(
-                mercid: mercid,
-                bdorderid: bdorderid,
-                rdata: rdata,
-                token: token,
-              ),
-            ),
-          );
-        } else {
-          print('Failed to enter ${accountResponse.body}, $loginId, $mobile2');
-          // _showErrorDialog('Please fill the details');
-          _showErrorDialog(
-              'Failed to enter ${accountResponse.body}, $loginId, $mobile2');
-        }
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $token');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
       } else {
-        print('Failed to fetch token${response.body}');
-        // _showErrorDialog('Technical issue, Try again later');
-        _showErrorDialog('Failed to fetch token${response.body}');
+        print('Failed to enter ${accountResponse.body}, $loginId, $mobile2');
+        // _showErrorDialog('Please fill the details');
+        _showErrorDialog(
+            'Failed to enter ${accountResponse.body}, $loginId, $mobile2');
       }
     } catch (e) {
       setState(() {

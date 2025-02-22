@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
@@ -22,7 +23,8 @@ class MajStateDistrictDynamicPage extends StatefulWidget {
       _MajStateDistrictDynamicPageState();
 }
 
-class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPage> {
+class _MajStateDistrictDynamicPageState
+    extends State<MajStateDistrictDynamicPage> {
   String? selectedState;
   String? selectedDistrict;
   String? selectedPolice;
@@ -43,53 +45,17 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
     fetchStates();
   }
 
-  Future<String?> getAccessToken() async {
-    if (accessToken != null) {
-      return accessToken;
-    }
-
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
-
-    try {
-      final ioc = HttpClient();
-      ioc.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      final client = IOClient(ioc);
-
-      final response = await client.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        accessToken =
-            tokenData['access_token'];
-        return accessToken;
-      } else {
-        _showErrorDialog('Internet Connection Slow, Please check your connection');
-        return null;
-      }
-    } catch (e) {
-      _showErrorDialog('Technical Problem, Please Try again later');
-      return null;
-    }
-  }
-
   Future<void> fetchStates() async {
-    String? token = await getAccessToken();
-    if (token == null) return;
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     final url = '$baseUrl/androidapi/mobile/service/getState';
 
@@ -129,9 +95,16 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
   }
 
   Future<void> fetchDistrict(String stateCodeId) async {
-    String? token = await getAccessToken();
-    if (token == null) return;
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     final url =
         '$baseUrl/androidapi/mobile/service/getDistrict?statecd=$stateCodeId';
 
@@ -171,8 +144,16 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
   }
 
   Future<void> fetchPolice(String districtCodeId) async {
-    String? token = await getAccessToken();
-    if (token == null) return;
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     final url =
         '$baseUrl/androidapi/mobile/service/getPoliceStation?districtcd=$districtCodeId';
@@ -309,9 +290,8 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
                   onChanged: (String? newValue) async {
                     setState(() {
                       selectedState = newValue;
-                      selectedStateName = stateDescriptions
-                          .firstWhere((state) =>
-                              state['codeId'] == newValue)['codeDesc'];
+                      selectedStateName = stateDescriptions.firstWhere(
+                          (state) => state['codeId'] == newValue)['codeDesc'];
                       districtDescriptions = [];
                       selectedDistrict = null;
                       policeDescriptions = [];
@@ -358,8 +338,8 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
                   onChanged: (String? newValue) async {
                     setState(() {
                       selectedDistrict = newValue;
-                      selectedDistrictName = districtDescriptions
-                          .firstWhere((district) =>
+                      selectedDistrictName = districtDescriptions.firstWhere(
+                          (district) =>
                               district['codeId'] == newValue)['codeDesc'];
                       policeDescriptions = [];
                       selectedPolice = null;
@@ -405,9 +385,8 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedPolice = newValue;
-                      selectedPoliceName = policeDescriptions
-                          .firstWhere((police) =>
-                              police['codeId'] == newValue)['codeDesc'];
+                      selectedPoliceName = policeDescriptions.firstWhere(
+                          (police) => police['codeId'] == newValue)['codeDesc'];
                       widget.onPoliceStationSelected(newValue);
                     });
                   },
@@ -419,7 +398,6 @@ class _MajStateDistrictDynamicPageState extends State<MajStateDistrictDynamicPag
                   },
                 ),
               ),
-             
             ],
           );
   }

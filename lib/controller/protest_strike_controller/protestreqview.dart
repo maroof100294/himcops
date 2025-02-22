@@ -14,14 +14,20 @@ class ProtestReqViewPage extends StatelessWidget {
     final viewProtestVerificationDetails =
         data['applicant'] as Map<String, dynamic>? ?? {};
     final Map<String, String> labels = {
-      'firstName': 'Full Name',
-      'genderDesc': 'Gender', //this is needed
-      'mRelationTypeDesc': 'Relation', //this is needed
+      'firstName': 'Full Name'
+    };
+    final viewPProtestVerificationDetails = data.isNotEmpty ? data : {};
+    final Map<String, String> applicantlabels = {
+      'applicantGenderCdDesc': 'Gender', //this is needed
+      'mRelationTypeDesc': 'Relation' //this is needed //ps code needed
+    };
+final viewPPProtestVerificationDetails =
+        data['applicant'] as Map<String, dynamic>? ?? {};
+    final Map<String, String> applabels = {
       'relativeName': 'Relative Name',
       'email': 'Email ID',
       'mobile2': 'Mobile Number'
     };
-
     final Map<String, dynamic> nestedData =
         viewProtestVerificationDetails['protestStrikeApplicant']
                 as Map<String, dynamic>? ??
@@ -71,7 +77,7 @@ class ProtestReqViewPage extends StatelessWidget {
     final viewProtestOrgDetails =data.isNotEmpty ? data : {};
     final Map<String, String> orglabels = {
       'targetInstituteOrPersonName': 'Target Institute/Person Name',
-      'orgnizationName': 'Organization Name',
+      'orgName': 'Organization Name',
       
     };
     final Map<String, dynamic> orgAddressData = viewProtestOrgDetails['organization'] as Map<String ,dynamic>? ??
@@ -185,6 +191,52 @@ class ProtestReqViewPage extends StatelessWidget {
               ...presentlabels.entries.map((entry) {
                 final value =
                     viewProtestPresentDetails[entry.key]?.toString() ?? 'N/A';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
+              ...applicantlabels.entries.map((entry) {
+                final value =
+                    viewPProtestVerificationDetails[entry.key]?.toString() ?? 'N/A';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
+              ...applabels.entries.map((entry) {
+                final value =
+                    viewPPProtestVerificationDetails[entry.key]?.toString() ?? 'N/A';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(

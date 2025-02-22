@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
@@ -11,7 +12,8 @@ import 'package:http/io_client.dart';
 class RelationTypePage extends StatefulWidget {
   final TextEditingController controller;
 
-  const RelationTypePage({Key? key, required this.controller}) : super(key: key);
+  const RelationTypePage({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   State<RelationTypePage> createState() => _RelationTypePageState();
@@ -28,43 +30,35 @@ class _RelationTypePageState extends State<RelationTypePage> {
   void initState() {
     super.initState();
     if (widget.controller.text.isNotEmpty) {
-      selectedRelationId = int.tryParse(widget.controller.text); // Initialize with codeId if available
+      selectedRelationId = int.tryParse(
+          widget.controller.text); // Initialize with codeId if available
     }
     fetchRelationType();
   }
 
   Future<void> fetchRelationType() async {
-  final url = '$baseUrl/androidapi/oauth/token';
-  String credentials =
-      'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-  String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
-  try {
-    final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
+
+    try {
+      final ioc = HttpClient();
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-    final response = await client.post(
-      Uri.parse(url),
-      headers: {
-        'Authorization': basicAuth,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'grant_type': 'password',
-        'username': 'icjsws',
-        'password': 'cctns@123',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final tokenData = json.decode(response.body);
-      String accessToken = tokenData['access_token'];
 
       final relationUrl = '$baseUrl/androidapi/mobile/service/getRelationType';
       final relationResponse = await client.get(
         Uri.parse(relationUrl),
         headers: {
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -79,7 +73,7 @@ class _RelationTypePageState extends State<RelationTypePage> {
               // Filter the relation descriptions to include only codeId 1, 2, 3, and 4
               relationDescriptions = data.where((relation) {
                 String codeId = relation['codeId'].toString();
-                return ['5', '7', '6', '8','9'].contains(codeId);
+                return ['5', '7', '6', '8', '9'].contains(codeId);
               }).map((relation) {
                 return {
                   'codeId': relation['codeId'].toString(),
@@ -91,41 +85,38 @@ class _RelationTypePageState extends State<RelationTypePage> {
           } else {
             setState(() {
               isLoading = false;
-              errorMessage = 'Invalid structure: expected a list in "data" ${relationResponse.statusCode}';
-        _showErrorDialog('Technical Problem, Please Try again later');
+              errorMessage =
+                  'Invalid structure: expected a list in "data" ${relationResponse.statusCode}';
+              _showErrorDialog('Technical Problem, Please Try again later');
             });
           }
         } else {
           setState(() {
             isLoading = false;
-            errorMessage = 'Key "data" not found in response. ${relationResponse.statusCode}';
-        _showErrorDialog('Technical Problem, Please Try again later');
+            errorMessage =
+                'Key "data" not found in response. ${relationResponse.statusCode}';
+            _showErrorDialog('Technical Problem, Please Try again later');
           });
         }
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Error fetching RelationType: ${relationResponse.statusCode}';
-        _showErrorDialog('Technical Problem, Please Try again later');
+          errorMessage =
+              'Error fetching RelationType: ${relationResponse.statusCode}';
+          _showErrorDialog('Technical Problem, Please Try again later');
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Error: ${response.statusCode} - ${response.body}';
-      _showErrorDialog('Technical Problem, Please Try again later');
+        errorMessage = 'Error occurred: $e';
+        _showErrorDialog('Technical Problem, Please Try again later');
       });
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-      errorMessage = 'Error occurred: $e';
-      _showErrorDialog('Technical Problem, Please Try again later');
-    });
   }
-}
+
   void _showErrorDialog(String message) {
-   showDialog(
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -172,8 +163,7 @@ class _RelationTypePageState extends State<RelationTypePage> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -193,7 +183,6 @@ class _RelationTypePageState extends State<RelationTypePage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -205,51 +194,51 @@ class _RelationTypePageState extends State<RelationTypePage> {
         //           style: TextStyle(color: Colors.red),
         //         ),
         //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<Map<String, String>?>(
-                  value: selectedRelation.isNotEmpty
-                      ? relationDescriptions.firstWhere(
-                          (item) => item['codeDesc'] == selectedRelation,
-                          orElse: () => {'codeId': '', 'codeDesc': ''},
-                        )
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Relation Type',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: relationDescriptions.map((Map<String, String> value) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: value,
-                      child: Text(value['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (Map<String, String>? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        selectedRelation = newValue['codeDesc']!;
-                        selectedRelationId = int.tryParse(newValue['codeId']!); 
-                        // widget.controller.text = selectedRelationId.toString();
-                        widget.controller.text = jsonEncode({
-                          'codeId': selectedRelationId,
-                          'codeDesc': selectedRelation,
-                        }); 
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Relation Type';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<Map<String, String>?>(
+              value: selectedRelation.isNotEmpty
+                  ? relationDescriptions.firstWhere(
+                      (item) => item['codeDesc'] == selectedRelation,
+                      orElse: () => {'codeId': '', 'codeDesc': ''},
+                    )
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Relation Type',
+                prefixIcon: const Icon(Icons.person),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: relationDescriptions.map((Map<String, String> value) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: value,
+                  child: Text(value['codeDesc']!),
+                );
+              }).toList(),
+              onChanged: (Map<String, String>? newValue) {
+                setState(() {
+                  if (newValue != null) {
+                    selectedRelation = newValue['codeDesc']!;
+                    selectedRelationId = int.tryParse(newValue['codeId']!);
+                    // widget.controller.text = selectedRelationId.toString();
+                    widget.controller.text = jsonEncode({
+                      'codeId': selectedRelationId,
+                      'codeDesc': selectedRelation,
+                    });
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Relation Type';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }

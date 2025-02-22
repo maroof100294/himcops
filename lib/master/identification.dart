@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
@@ -11,8 +12,7 @@ import 'package:http/io_client.dart';
 class IdentificationTypePage extends StatefulWidget {
   final TextEditingController controller;
 
-  const IdentificationTypePage(
-      {super.key, required this.controller});
+  const IdentificationTypePage({super.key, required this.controller});
 
   @override
   State<IdentificationTypePage> createState() => _IdentificationTypePageState();
@@ -35,93 +35,80 @@ class _IdentificationTypePageState extends State<IdentificationTypePage> {
   }
 
   Future<void> fetchIdentification() async {
-    final url = 'http://10.126.51.116:8080/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+      final identificationUrl =
+          '$baseUrl/androidapi/mobile/service/getIdentity';
+      final identificationResponse = await client.get(
+        Uri.parse(identificationUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
+      if (identificationResponse.statusCode == 200) {
+        final jsonResponse = json.decode(identificationResponse.body);
 
-        final identificationUrl =
-            '$baseUrl/androidapi/mobile/service/getIdentity';
-        final identificationResponse = await client.get(
-          Uri.parse(identificationUrl),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
+        if (jsonResponse.containsKey('data')) {
+          final data = jsonResponse['data'];
 
-        if (identificationResponse.statusCode == 200) {
-          final jsonResponse = json.decode(identificationResponse.body);
-
-          if (jsonResponse.containsKey('data')) {
-            final data = jsonResponse['data'];
-
-            if (data is List) {
-              setState(() {
-                identificationDescriptions = data
-                    .map((identification) => identification['codeDesc'].toString())
-                    .toList();
-                isLoading = false;
-              });
-            } else {
-              setState(() {
-                isLoading = false;
-                errorMessage = 'Invalid structure: expected a list in "data"';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
-              });
-            }
+          if (data is List) {
+            setState(() {
+              identificationDescriptions = data
+                  .map(
+                      (identification) => identification['codeDesc'].toString())
+                  .toList();
+              isLoading = false;
+            });
           } else {
             setState(() {
               isLoading = false;
-              errorMessage = 'Key "data" not found in response.';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
+              errorMessage = 'Invalid structure: expected a list in "data"';
+              _showErrorDialog(
+                  'Internet Connection Slow, Please check your connection');
             });
           }
         } else {
           setState(() {
             isLoading = false;
-            errorMessage =
-                'Error fetching Identification: ${identificationResponse.statusCode}';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
+            errorMessage = 'Key "data" not found in response.';
+            _showErrorDialog(
+                'Internet Connection Slow, Please check your connection');
           });
         }
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Error: ${response.statusCode} - ${response.body}';
-      _showErrorDialog('Technical Problem, Please Try again later');
+          errorMessage =
+              'Error fetching Identification: ${identificationResponse.statusCode}';
+          _showErrorDialog(
+              'Internet Connection Slow, Please check your connection');
         });
       }
     } catch (e) {
       setState(() {
         isLoading = false;
         errorMessage = 'Error occurred: $e';
-      _showErrorDialog('Technical Problem, Please Try again later');
+        _showErrorDialog('Technical Problem, Please Try again later');
       });
     }
   }
-void _showErrorDialog(String message) {
-   showDialog(
+
+  void _showErrorDialog(String message) {
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -168,8 +155,7 @@ void _showErrorDialog(String message) {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -200,44 +186,43 @@ void _showErrorDialog(String message) {
         //           style: TextStyle(color: Colors.red),
         //         ),
         //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<String>(
-                  value: selectedIdentification.isNotEmpty ? selectedIdentification : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Identification Type',
-                    prefixIcon: const Icon(Icons.perm_identity),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: identificationDescriptions.isNotEmpty
-                      ? identificationDescriptions.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList()
-                      : [],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedIdentification = newValue!;
-                      widget.controller.text = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Identification';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<String>(
+              value: selectedIdentification.isNotEmpty
+                  ? selectedIdentification
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Identification Type',
+                prefixIcon: const Icon(Icons.perm_identity),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: identificationDescriptions.isNotEmpty
+                  ? identificationDescriptions.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList()
+                  : [],
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedIdentification = newValue!;
+                  widget.controller.text = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Identification';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }
-
-
-

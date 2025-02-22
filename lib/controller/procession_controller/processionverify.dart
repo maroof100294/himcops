@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/citizen/searchstaus/processionstatus.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -273,194 +274,180 @@ class _ProcessionVerificationPageState
   }
 
   Future<void> _registerUser() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      final accountUrl =
+          '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
+      final DateTime dob = DateTime.parse(widget
+          .applicantDateOfBirth); // Parse the date string into DateTime object
+      final String formattedDob =
+          DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
+      final DateTime startDate = DateTime.parse(
+          widget.startDate); // Parse the date string into DateTime object
+      final String formattedSDate = DateFormat('dd/MM/yyyy').format(startDate);
+      final DateTime endDate = DateTime.parse(
+          widget.endDate); // Parse the date string into DateTime object
+      final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
+      final payloadBody = {
+        "userName": "maroofchoudhury8367", //loginId,
+        "applicant": {
+          "firstName": widget.applicantName, //"Arun",
+          "middleName": "",
+          "gender": widget.applicantGenderId, //3,
+          "lastName": "",
+          "mobile1": "91",
+          "mobile2": widget.applicantMobile, //"9857645455",
+          "mRelationType": widget.applicantRelationId, //0,
+          "landLine1": "91",
+          "relativeName":
+              widget.applicationRelativeName, //"arunsharma8441@gmail.com",
+          "permanentAddressFormBean": {
+            "countryCd": 80,
+            "stateCd": 12,
+            "districtCd": isChecked //12253
+                ? int.tryParse(presentDistrictCode!)
+                : int.tryParse(permanentDistrictCode!),
+            "village": isChecked
+                ? paddressController.text
+                : addressController.text, //"per town",
+            "policeStationCd": isChecked
+                ? int.tryParse(presentPoliceStationCode!)
+                : int.tryParse(permanentPoliceStationCode!)
+          },
+          "presentAddressFormBean": {
+            "countryCd": 80,
+            "stateCd": 12,
+            "districtCd": int.tryParse(presentDistrictCode!), //12253,
+            "village": paddressController.text, //"pre town",
+            "policeStationCd": int.tryParse(presentPoliceStationCode!)
+          }
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+        "processionRequestRegApplicant": {
+          "commonPaneldateOfBirth": formattedDob, //"07/02/2007",
+          "commonPanelAgeYear": widget.applicantAge //31,
+          // "commonPanelAgeMonth": 8,
+          // "commonPanelyearOfBirth": 1993
+        },
+        "isClickedSubmit": 0,
+        "sameAsPermanant": isChecked ? 'Y' : 'N', //"Y",
+        "orgName": orgNameController.text, //"SCRBgfdgfdgdf",
+        "orgPhoneNo1": "91",
+        "orgMobileNo1": "91",
+        "organization": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(orgDistrictCode!), //12253,
+          "village": orgAddressController.text, //"town",
+        },
+        "startPointAddr": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(startDistrictCode!), //12253,
+          "village": startAddressController.text, //"starting town",
+          "policeStationCd": int.tryParse(startPoliceStationCode!) //12253025,
+          // "stateValue": "HIMACHAL PRADESH",
+          // "districtValue": "INDIA",
+          // "CountryValue": "HAMIRPUR",
+          // "policeStationValue": "NADAUN"
+        },
+        "routePointAddr": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(otherDistrictCode!), //12246,
+          "village": otherAddressController.text, //"other town",
+          "policeStationCd": int.tryParse(otherPoliceStationCode!) //12246002
+        },
+        "endPointAddr": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(endDistrictCode!), //12242,
+          "village": endAddressController.text, //"end town",
+          "policeStationCd": int.tryParse(endPoliceStationCode!), //12242011,
+          // "stateValue": "HIMACHAL PRADESH",
+          // "districtValue": "BILASPUR",
+          // "CountryValue": "INDIA",
+          // "policeStationValue": "GHUMARWIN"
+        },
+        "procesionType": widget.processionTypeId, //2,//ProcessiontypeId
+        "processionStartTimeHH": startHoursController.text, //"6",
+        "processionStartTimeMM": startMinutesController.text, //"11",
+        "processionMajorParticipantName": ["major participent"],
+        "processionMajorParticipantStatus": ["C"],
+        "briefSynopsis":
+            widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
+        "charLimitId42": 74,
+        "enRouteAddress": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": 12246,
+          "policeStationCd": 12246002,
+          "RecordStatus": "C"
+        },
+        "processionStartDtStr": formattedSDate, //"07/02/2025",
+        "processionEndDtStr": formattedEDate, //"08/02/2025",
+        "expectedCrowd": widget.processionNumber, //100,
+        "vehicleTypeCd": 0,
+        "animalTypeCd": 0,
+        "anyObstructions": "N",
+        "anyOtherOnRoute": "N",
+        "isFrequencyYearly": "N",
+        "isCrackersUsed": "N",
+        "processionStartTimeStrHH": expectedHoursController.text, //"12",
+        "processionStartTimeStrMM": expectedMinutesController.text, //"12",
+        "charLimitId41": 7,
+        "charLimitId35": 90,
+        "charLimitId36": 90,
+        "charLimitId37": 90,
+        "charLimitId38": 90,
+        "charLimitId39": 90,
+        "charLimitId40": 90
+      };
+      print('Request Body: \n${json.encode(payloadBody)}');
+
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode(payloadBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-        final accountUrl =
-            '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
-        final DateTime dob = DateTime.parse(widget
-            .applicantDateOfBirth); // Parse the date string into DateTime object
-        final String formattedDob =
-            DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
-        final DateTime startDate = DateTime.parse(
-            widget.startDate); // Parse the date string into DateTime object
-        final String formattedSDate =
-            DateFormat('dd/MM/yyyy').format(startDate);
-        final DateTime endDate = DateTime.parse(
-            widget.endDate); // Parse the date string into DateTime object
-        final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
-        final payloadBody = {
-          "userName": "maroofchoudhury8367", //loginId,
-          "applicant": {
-            "firstName": widget.applicantName,//"Arun",
-            "middleName": "",
-            "gender": widget.applicantGenderId,//3,
-            "lastName": "",
-            "mobile1": "91",
-            "mobile2": widget.applicantMobile,//"9857645455",
-            "mRelationType": widget.applicantRelationId,//0,
-            "landLine1": "91",
-            "relativeName": widget.applicationRelativeName,//"arunsharma8441@gmail.com",
-            "permanentAddressFormBean": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": isChecked //12253
-                  ? int.tryParse(presentDistrictCode!)
-                  : int.tryParse(permanentDistrictCode!),
-              "village": isChecked
-                  ? paddressController.text
-                  : addressController.text, //"per town",
-              "policeStationCd": isChecked
-                  ? int.tryParse(presentPoliceStationCode!)
-                  : int.tryParse(permanentPoliceStationCode!)
-            },
-            "presentAddressFormBean": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": int.tryParse(presentDistrictCode!), //12253,
-              "village":  paddressController.text, //"pre town",
-              "policeStationCd": int.tryParse(presentPoliceStationCode!)
-            }
-          },
-          "processionRequestRegApplicant": {
-            "commonPaneldateOfBirth": formattedDob, //"07/02/2007",
-            "commonPanelAgeYear": widget.applicantAge//31,
-            // "commonPanelAgeMonth": 8,
-            // "commonPanelyearOfBirth": 1993
-          },
-          "isClickedSubmit": 0,
-          "sameAsPermanant": isChecked ? 'Y' : 'N', //"Y",
-          "orgName":  orgNameController.text, //"SCRBgfdgfdgdf",
-          "orgPhoneNo1": "91",
-          "orgMobileNo1": "91",
-          "organization": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(orgDistrictCode!), //12253,
-            "village": orgAddressController.text, //"town",
-          },
-          "startPointAddr": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(startDistrictCode!),//12253,
-            "village": startAddressController.text,//"starting town",
-            "policeStationCd": int.tryParse(startPoliceStationCode!)//12253025,
-            // "stateValue": "HIMACHAL PRADESH",
-            // "districtValue": "INDIA",
-            // "CountryValue": "HAMIRPUR",
-            // "policeStationValue": "NADAUN"
-          },
-          "routePointAddr": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(otherDistrictCode!),//12246,
-            "village": otherAddressController.text,//"other town",
-            "policeStationCd": int.tryParse(otherPoliceStationCode!)//12246002
-          },
-          "endPointAddr": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(endDistrictCode!),//12242,
-            "village": endAddressController.text,//"end town",
-            "policeStationCd": int.tryParse(endPoliceStationCode!),//12242011,
-            // "stateValue": "HIMACHAL PRADESH",
-            // "districtValue": "BILASPUR",
-            // "CountryValue": "INDIA",
-            // "policeStationValue": "GHUMARWIN"
-          },
-          "procesionType": widget.processionTypeId,//2,//ProcessiontypeId
-          "processionStartTimeHH": startHoursController.text, //"6",
-          "processionStartTimeMM": startMinutesController.text, //"11",
-          "processionMajorParticipantName": ["major participent"],
-          "processionMajorParticipantStatus": ["C"],
-          "briefSynopsis": widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
-          "charLimitId42": 74,
-          "enRouteAddress": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": 12246,
-            "policeStationCd": 12246002,
-            "RecordStatus": "C"
-          },
-          "processionStartDtStr": formattedSDate, //"07/02/2025",
-          "processionEndDtStr": formattedEDate, //"08/02/2025",
-          "expectedCrowd": widget.processionNumber,//100,
-          "vehicleTypeCd": 0,
-          "animalTypeCd": 0,
-          "anyObstructions": "N",
-          "anyOtherOnRoute": "N",
-          "isFrequencyYearly": "N",
-          "isCrackersUsed": "N",
-          "processionStartTimeStrHH": expectedHoursController.text,//"12",
-          "processionStartTimeStrMM": expectedMinutesController.text,//"12",
-          "charLimitId41": 7,
-          "charLimitId35": 90,
-          "charLimitId36": 90,
-          "charLimitId37": 90,
-          "charLimitId38": 90,
-          "charLimitId39": 90,
-          "charLimitId40": 90
-
-        };
-        print('Request Body: \n${json.encode(payloadBody)}');
-
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode(payloadBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $rdata');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
-        } else {
-          print('Failed to enter${accountResponse.body},$loginId,$mobile2');
-          _showErrorDialog('Please fill the details');
-        }
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $rdata');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
       } else {
-        print('Failed to fetch token${response.body}');
-        _showErrorDialog('Technical issue, Try again later');
+        print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+        _showErrorDialog('Please fill the details');
       }
     } catch (e) {
       setState(() {

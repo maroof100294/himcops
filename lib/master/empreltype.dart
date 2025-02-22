@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
+import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -10,7 +12,8 @@ import 'package:http/io_client.dart';
 class EmpRelationTypePage extends StatefulWidget {
   final TextEditingController controller;
 
-  const EmpRelationTypePage({Key? key, required this.controller}) : super(key: key);
+  const EmpRelationTypePage({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   State<EmpRelationTypePage> createState() => _EmpRelationTypePageState();
@@ -27,43 +30,33 @@ class _EmpRelationTypePageState extends State<EmpRelationTypePage> {
   void initState() {
     super.initState();
     if (widget.controller.text.isNotEmpty) {
-      selectedRelationId = int.tryParse(widget.controller.text); // Initialize with codeId if available
+      selectedRelationId = int.tryParse(
+          widget.controller.text); // Initialize with codeId if available
     }
     fetchRelationType();
   }
 
   Future<void> fetchRelationType() async {
-  final url = '$baseUrl/androidapi/oauth/token';
-  String credentials =
-      'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-  String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
-  try {
-    final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
+    try {
+      final ioc = HttpClient();
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-    final response = await client.post(
-      Uri.parse(url),
-      headers: {
-        'Authorization': basicAuth,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'grant_type': 'password',
-        'username': 'icjsws',
-        'password': 'cctns@123',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final tokenData = json.decode(response.body);
-      String accessToken = tokenData['access_token'];
-
       final relationUrl = '$baseUrl/androidapi/mobile/service/getRelationType';
       final relationResponse = await client.get(
         Uri.parse(relationUrl),
         headers: {
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -78,7 +71,7 @@ class _EmpRelationTypePageState extends State<EmpRelationTypePage> {
               // Filter the relation descriptions to include only codeId 1, 2, 3, and 4
               relationDescriptions = data.where((relation) {
                 String codeId = relation['codeId'].toString();
-                return ['5', '7', '6', '8','9'].contains(codeId);
+                return ['5', '7', '6', '8', '9'].contains(codeId);
               }).map((relation) {
                 return {
                   'codeId': relation['codeId'].toString(),
@@ -102,23 +95,67 @@ class _EmpRelationTypePageState extends State<EmpRelationTypePage> {
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Error fetching RelationType: ${relationResponse.statusCode}';
+          errorMessage =
+              'Error fetching RelationType: ${relationResponse.statusCode}';
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Error: ${response.statusCode} - ${response.body}';
+        errorMessage = 'Error occurred: $e';
       });
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-      errorMessage = 'Error occurred: $e';
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Column(
+            children: [
+              Image.asset(
+                'asset/images/hp_logo.png',
+                height: 50,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Himachal Pradesh',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Citizen Service',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CitizenGridPage(),
+                  ),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const CitizenGridPage(),
+        ),
+      );
     });
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -160,12 +197,12 @@ class _EmpRelationTypePageState extends State<EmpRelationTypePage> {
                     setState(() {
                       if (newValue != null) {
                         selectedRelation = newValue['codeDesc']!;
-                        selectedRelationId = int.tryParse(newValue['codeId']!); 
+                        selectedRelationId = int.tryParse(newValue['codeId']!);
                         widget.controller.text = selectedRelationId.toString();
                         // widget.controller.text = jsonEncode({
                         //   'codeId': selectedRelationId,
                         //   'codeDesc': selectedRelation,
-                        // }); 
+                        // });
                       }
                     });
                   },

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/citizen/searchstaus/empviewpage.dart';
 import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/master/country.dart';
@@ -268,161 +269,146 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
   }
 
   Future<void> _registerUser() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+      final accountUrl =
+          '$baseUrl/androidapi/mobile/service/addEmployeeVerification';
+      final DateTime dob = DateTime.parse(
+          widget.dateOfBirth); // Parse the date string into DateTime object
+      final String formattedDob =
+          DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
+
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode({
+          "userName": loginId,
+          "uid": "$email",
+          "basicOrganization": widget.department,
+          "basicApplicationDate": DateFormat('dd/MM/yyyy HH:mm:ss')
+              .format(DateTime.now()), //"21/11/2024",
+          "basicEmailId": "$email",
+          "employeeFirstName": widget.name,
+          "employeeRelationType": int.tryParse(relationTypeController.text),
+          "employeeRelativeName": relativeNameController.text,
+          "employeeGender": widget.genderId,
+          "employeePlaceofBirth": widget.placeBirth,
+          "permenantVillageTownCity":
+              isChecked ? paddressController.text : addressController.text,
+          "permenantCountry": isChecked
+              ? int.tryParse(pcountryController.text)
+              : int.tryParse(aCountryController.text),
+          "permenantDistrict": isChecked
+              ? int.tryParse(presentDistrictCode!)
+              : int.tryParse(permanentDistrictCode!),
+          "permenantPoliceStation": isChecked
+              ? int.tryParse(presentPoliceStationCode!)
+              : int.tryParse(permanentPoliceStationCode!),
+          "presentVillageTownCity": paddressController.text,
+          "presentCountry": int.tryParse(pcountryController.text),
+          "presentDistrict": int.tryParse(presentDistrictCode!),
+          "presentPoliceStation": int.tryParse(presentPoliceStationCode!),
+          "previousEmployerName": "",
+          "previousEmployerFromDate": "",
+          "previousEmployerToDate": "",
+          "previousEmployerMobileNo": "91",
+          "previousEmployerMobileNo1": "",
+          "previousEmployerVillageTownCity": "",
+          "previousEmployerCountry": 0,
+          "previousEmployerState": 0,
+          "previousEmployerDistrict": 0,
+          "previousEmployerPoliceStation": 0,
+          "currentEmployerName": employerNameController.text,
+          "currentEmployerMobileNo": "91",
+          "currentEmployerMobileNo1": "",
+          "currentEmployerRoleOfEmployee": employerRoleController.text,
+          "currentEmployerVillageTownCity": employerAddressController.text,
+          "currentEmployerCountry":
+              int.tryParse(employerCountryController.text),
+          "currentEmployerState": int.tryParse(employerStateCode!),
+          "currentEmployerDistrict": int.tryParse(employerDistrictCode!),
+          "currentEmployerPoliceStation":
+              int.tryParse(employerPoliceStationCode!),
+          "addressVerificationDocument": widget.addressId,
+          "documentNo": widget.documentNo,
+          "policeStationName": int.tryParse(presentPoliceStationCode!),
+          "hasAnyCriminalRecord": widget.isCriminal ? 'Y' : 'N',
+          "affidivitDetails": widget.isCriminal ? widget.employeeAffidavit : '',
+          "oRecord": 1,
+          "fileTypeCd": 0,
+          "fileSubTypeCd": 0,
+          "submitemployee": "submit",
+          "state2": 0,
+          "dist2": 0,
+          "emplVerificationEmployee": {
+            "commonPaneldateOfBirth": formattedDob,
+            "commonPanelAgeYear": widget.age,
+          },
+          "employeeVerificationRelativeBo": [
+            {
+              "employeeRelationType": int.tryParse(relationTypeController.text),
+              "presCountryCd": int.tryParse(relativeCountryController.text),
+              "presStateCd": int.tryParse(relativeStateCode!),
+              "presDistrictCd": int.tryParse(relativeDistrictCode!),
+              "presVill": relativeAddressController.text,
+              "presPsCd": int.tryParse(relativePoliceStationCode!),
+            }
+          ],
+          "files": [
+            {
+              "fileName": 'employee_photo.jpg',
+              "fieldName": "scanPhotoUpload",
+              "fileData": photoBase64String ?? '',
+              "fileTypeCd": 1,
+            },
+            {
+              "fileName": 'employee_document.pdf',
+              "fieldName": "docUpload",
+              "fileData": documentBase64String ?? '',
+              "fileTypeCd": 8
+            }
+          ]
+        }),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-        final accountUrl =
-            '$baseUrl/androidapi/mobile/service/addEmployeeVerification';
-        final DateTime dob = DateTime.parse(
-            widget.dateOfBirth); // Parse the date string into DateTime object
-        final String formattedDob =
-            DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
-
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode({
-            "userName": loginId,
-            "uid": "$email",
-            "basicOrganization": widget.department,
-            "basicApplicationDate": DateFormat('dd/MM/yyyy HH:mm:ss')
-                .format(DateTime.now()), //"21/11/2024",
-            "basicEmailId": "$email",
-            "employeeFirstName": widget.name,
-            "employeeRelationType": int.tryParse(relationTypeController.text),
-            "employeeRelativeName": relativeNameController.text,
-            "employeeGender": widget.genderId,
-            "employeePlaceofBirth": widget.placeBirth,
-            "permenantVillageTownCity":
-                isChecked ? paddressController.text : addressController.text,
-            "permenantCountry": isChecked
-                ? int.tryParse(pcountryController.text)
-                : int.tryParse(aCountryController.text),
-            "permenantDistrict": isChecked
-                ? int.tryParse(presentDistrictCode!)
-                : int.tryParse(permanentDistrictCode!),
-            "permenantPoliceStation": isChecked
-                ? int.tryParse(presentPoliceStationCode!)
-                : int.tryParse(permanentPoliceStationCode!),
-            "presentVillageTownCity": paddressController.text,
-            "presentCountry": int.tryParse(pcountryController.text),
-            "presentDistrict": int.tryParse(presentDistrictCode!),
-            "presentPoliceStation": int.tryParse(presentPoliceStationCode!),
-            "previousEmployerName": "",
-            "previousEmployerFromDate": "",
-            "previousEmployerToDate": "",
-            "previousEmployerMobileNo": "91",
-            "previousEmployerMobileNo1": "",
-            "previousEmployerVillageTownCity": "",
-            "previousEmployerCountry": 0,
-            "previousEmployerState": 0,
-            "previousEmployerDistrict": 0,
-            "previousEmployerPoliceStation": 0,
-            "currentEmployerName": employerNameController.text,
-            "currentEmployerMobileNo": "91",
-            "currentEmployerMobileNo1": "",
-            "currentEmployerRoleOfEmployee": employerRoleController.text,
-            "currentEmployerVillageTownCity": employerAddressController.text,
-            "currentEmployerCountry":
-                int.tryParse(employerCountryController.text),
-            "currentEmployerState": int.tryParse(employerStateCode!),
-            "currentEmployerDistrict": int.tryParse(employerDistrictCode!),
-            "currentEmployerPoliceStation":
-                int.tryParse(employerPoliceStationCode!),
-            "addressVerificationDocument": widget.addressId,
-            "documentNo": widget.documentNo,
-            "policeStationName": int.tryParse(presentPoliceStationCode!),
-            "hasAnyCriminalRecord": widget.isCriminal ? 'Y' : 'N',
-            "affidivitDetails":
-                widget.isCriminal ? widget.employeeAffidavit : '',
-            "oRecord": 1,
-            "fileTypeCd": 0,
-            "fileSubTypeCd": 0,
-            "submitemployee": "submit",
-            "state2": 0,
-            "dist2": 0,
-            "emplVerificationEmployee": {
-              "commonPaneldateOfBirth": formattedDob,
-              "commonPanelAgeYear": widget.age,
-            },
-            "employeeVerificationRelativeBo": [
-              {
-                "employeeRelationType":
-                    int.tryParse(relationTypeController.text),
-                "presCountryCd": int.tryParse(relativeCountryController.text),
-                "presStateCd": int.tryParse(relativeStateCode!),
-                "presDistrictCd": int.tryParse(relativeDistrictCode!),
-                "presVill": relativeAddressController.text,
-                "presPsCd": int.tryParse(relativePoliceStationCode!),
-              }
-            ],
-            "files": [
-              {
-                "fileName": 'employee_photo.jpg',
-                "fieldName": "scanPhotoUpload",
-                "fileData": photoBase64String ?? '',
-                "fileTypeCd": 1,
-              },
-              {
-                "fileName": 'employee_document.pdf',
-                "fieldName": "docUpload",
-                "fileData": documentBase64String ?? '',
-                "fileTypeCd": 8
-              }
-            ]
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $rdata');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
-        } else {
-          print('Failed to enter${accountResponse.body},$loginId,$mobile2');
-          _showErrorDialog('Please fill the details');
-        }
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $rdata');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
       } else {
-        print('Failed to fetch token${response.body}');
-        _showErrorDialog('Technical issue, Try again later');
+        print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+        _showErrorDialog('Please fill the details');
       }
     } catch (e) {
       setState(() {
@@ -503,7 +489,7 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
   }
 
   void _showErrorDialog(String message) {
-   showDialog(
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -550,8 +536,7 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -597,623 +582,625 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
         return shouldLogout;
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Employee Verification Details',
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 255, 255, 255)),
+        appBar: AppBar(
+          title: const Text(
+            'Employee Verification Details',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255)),
+          ),
+          backgroundColor: Color.fromARGB(255, 12, 100, 233),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the menu icon color to white
+          ),
         ),
-        backgroundColor: Color.fromARGB(255, 12, 100, 233),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Set the menu icon color to white
-        ),
-      ),
-      drawer: const AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _PccaffidavitDetailsFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Please Fill the Mandatory Details',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red)),
-                const SizedBox(height: 10),
-                const Text('Employee Address Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: paddressController,
-                  decoration: InputDecoration(
-                    labelText: 'Present Address',
-                    prefixIcon: const Icon(Icons.home),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  maxLines: 2,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                CountryPage(
-                  controller: pcountryController,
-                  enabled: true,
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: widget.selectedState,
-                  readOnly: true, // Makes the field uneditable
-                  decoration: InputDecoration(
-                    labelText: 'State',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                DpPage(
-                  onDistrictSelected: (districtCode) {
-                    setState(() {
-                      if (isChecked) {
-                        permanentDistrictCode = districtCode;
-                      } else {
-                        presentDistrictCode = districtCode;
-                      }
-                    });
-                  },
-                  onPoliceStationSelected: (policeStationCode) {
-                    setState(() {
-                      if (isChecked) {
-                        permanentPoliceStationCode = policeStationCode;
-                      } else {
-                        presentPoliceStationCode = policeStationCode;
-                      }
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-                const Row(
-                  children: [
-                    Text(
-                      '*Note: If you are from other states,\nplease visit yourstate Police Station*',
+        drawer: const AppDrawer(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _PccaffidavitDetailsFormKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Please Fill the Mandatory Details',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value ?? false;
-                          //  widget.onAddressSame(isChecked);
-                          if (isChecked) {
-                            addressController.text = paddressController.text;
-                            aCountryController.text = pcountryController.text;
-                            // permanentStateCode = presentStateCode;
-                            permanentDistrictCode = presentDistrictCode;
-                            permanentPoliceStationCode =
-                                presentPoliceStationCode;
-                          } else {
-                            // Clear the present address fields if unchecked
-                            addressController.clear();
-                            aCountryController.clear();
-                            // widget.selectedState.clear();
-                            permanentDistrictCode = null;
-                            permanentPoliceStationCode = null;
-                          }
-                        });
-                      },
-                    ),
-                    const Text('Permanent address\nsame as present address'),
-                  ],
-                ),
-                if (!isChecked)
-                  Column(children: [
-                    TextFormField(
-                      controller: addressController,
-                      enabled: true,
-                      decoration: InputDecoration(
-                        labelText: 'Permanent Address',
-                        prefixIcon: const Icon(Icons.home),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      maxLines: 2,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your address';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    CountryPage(controller: aCountryController, enabled: true),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      initialValue: widget.selectedState,
-                      readOnly: true, // Makes the field uneditable
-                      decoration: InputDecoration(
-                        labelText: 'State',
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red)),
+                  const SizedBox(height: 10),
+                  const Text('Employee Address Details',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: paddressController,
+                    decoration: InputDecoration(
+                      labelText: 'Present Address',
+                      prefixIcon: const Icon(Icons.home),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    DpPage(
-                      onDistrictSelected: (districtCode) {
-                        setState(() {
+                    maxLines: 2,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CountryPage(
+                    controller: pcountryController,
+                    enabled: true,
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.selectedState,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'State',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DpPage(
+                    onDistrictSelected: (districtCode) {
+                      setState(() {
+                        if (isChecked) {
                           permanentDistrictCode = districtCode;
-                        });
-                      },
-                      onPoliceStationSelected: (policeStationCode) {
-                        setState(() {
-                          permanentPoliceStationCode = policeStationCode;
-                        });
-                      },
-                    ),
-                  ]),
-                const SizedBox(height: 10),
-                const Text('Please Fill the Mandatory Details',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red)),
-                const SizedBox(height: 10),
-                const Text("Employee Relative's Details",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: relativeNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Relative Full Name',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return ValidateRelative(value);
-                  },
-                ),
-                const SizedBox(height: 8),
-                EmpRelationTypePage(controller: relationTypeController),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: relativeAddressController,
-                  decoration: InputDecoration(
-                    labelText: 'Address',
-                    prefixIcon: const Icon(Icons.home),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  maxLines: 2,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                CountryPage(
-                  controller: relativeCountryController,
-                  enabled: true,
-                ),
-                const SizedBox(height: 8),
-                StateDistrictDynamicPage(
-                  onStateSelected: (stateCode) {
-                    setState(() {
-                      relativeStateCode = stateCode;
-                    });
-                  },
-                  onDistrictSelected: (districtCode) {
-                    setState(() {
-                      relativeDistrictCode = districtCode;
-                    });
-                  },
-                  onPoliceStationSelected: (policeStationCode) {
-                    setState(() {
-                      relativePoliceStationCode = policeStationCode;
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                const Text('Please Fill the Mandatory Details',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red)),
-                const SizedBox(height: 10),
-                const Text("Current Employer Details",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: employerNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Name of the Employer',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter name of your current employer';
-                    }
-                    return ValidateFullName(value);
-                  },
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: employerRoleController,
-                  decoration: InputDecoration(
-                    labelText: 'Role of the Employer',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter role of your current employer';
-                    }
-                    return ValidateRole(value);
-                  },
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: employerAddressController,
-                  decoration: InputDecoration(
-                    labelText: 'Employer Address',
-                    prefixIcon: const Icon(Icons.home),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  maxLines: 2,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                CountryPage(
-                  controller: employerCountryController,
-                  enabled: true,
-                ),
-                const SizedBox(height: 8),
-                StateDistrictDynamicPage(
-                  onStateSelected: (stateCode) {
-                    setState(() {
-                      employerStateCode = stateCode;
-                    });
-                  },
-                  onDistrictSelected: (districtCode) {
-                    setState(() {
-                      employerDistrictCode = districtCode;
-                    });
-                  },
-                  onPoliceStationSelected: (policeStationCode) {
-                    setState(() {
-                      employerPoliceStationCode = policeStationCode;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                const Text('Basic Information',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: departmentController,
-                  decoration: InputDecoration(
-                    labelText: 'Department Name',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: applicationDateController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Application Date',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text('Employee Personal Information',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: widget.genderDescription,
-                  readOnly: true, // Makes the field uneditable
-                  decoration: InputDecoration(
-                    labelText: 'Gender',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: dateOfBirthController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Date of Birth',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: ageController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Age',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: placeBirthController,
-                  decoration: InputDecoration(
-                    labelText: 'Place of Birth',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text("Employee Other Details",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  initialValue: widget.addressDescription,
-                  readOnly: true, // Makes the field uneditable
-                  decoration: InputDecoration(
-                    labelText: 'Address Verification',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: docController,
-                  decoration: InputDecoration(
-                    labelText: 'Document Number',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text('Uploaded Files',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                          'Scan Photo of the Employee\n(Maximum file size limit 250 kb)'),
-                    ),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _uploadPhoto,
-                        icon: const Icon(Icons.upload, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF133371),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        label: const Text(
-                          'Choose file',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (_photoFileName != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Image.file(
-                      _photoFileName!,
-                      height: 80,
-                      width: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                if (_photoWarning != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      _photoWarning!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                          'Upload Counsellor/Pradhan Report\n(Maximum file size limit 250 kb)'),
-                    ),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _uploadDocument,
-                        icon: const Icon(Icons.upload, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF133371),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        label: const Text(
-                          'Choose file',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (_documentFileName != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      '$_documentFileName',
-                      style: const TextStyle(color: Colors.blue),
-                    ),
-                  ),
-                if (_documentWarning != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      _documentWarning!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                const SizedBox(height: 20),
-                const Text('Employee Affidavit Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextFormField(
-                  controller: employeeAffidavitController,
-                  decoration: InputDecoration(
-                    labelText: 'Affidavit',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  maxLines: 2,
-                  enabled: false,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isAgree,
-                      onChanged: (value) {
-                        setState(() {
-                          isAgree = value!;
-                        });
-                      },
-                    ),
-                    const Text(
-                        'All the information provided in the form is true'),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: (isAgree &&
-                          _PccaffidavitDetailsFormKey.currentState!
-                              .validate() &&
-                          !_isSubmitting) // Check if not already submitting
-                      ? () async {
-                          setState(() {
-                            _isSubmitting = true; // Disable the button
-                          });
-
-                          try {
-                            await _registerUser(); // Perform the registration logic
-                          } finally {
-                            setState(() {
-                              _isSubmitting =
-                                  true; // Re-enable the button after completion
-                            });
-                          }
+                        } else {
+                          presentDistrictCode = districtCode;
                         }
-                      : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
-                  style: AppButtonStyles.elevatedButtonStyle,
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(
-                          color: Colors.white) // Show a loader
-                      : const Text(
-                          'Submit',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                      });
+                    },
+                    onPoliceStationSelected: (policeStationCode) {
+                      setState(() {
+                        if (isChecked) {
+                          permanentPoliceStationCode = policeStationCode;
+                        } else {
+                          presentPoliceStationCode = policeStationCode;
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  const Row(
+                    children: [
+                      Text(
+                        '*Note: If you are from other states,\nplease visit yourstate Police Station*',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value ?? false;
+                            //  widget.onAddressSame(isChecked);
+                            if (isChecked) {
+                              addressController.text = paddressController.text;
+                              aCountryController.text = pcountryController.text;
+                              // permanentStateCode = presentStateCode;
+                              permanentDistrictCode = presentDistrictCode;
+                              permanentPoliceStationCode =
+                                  presentPoliceStationCode;
+                            } else {
+                              // Clear the present address fields if unchecked
+                              addressController.clear();
+                              aCountryController.clear();
+                              // widget.selectedState.clear();
+                              permanentDistrictCode = null;
+                              permanentPoliceStationCode = null;
+                            }
+                          });
+                        },
+                      ),
+                      const Text('Permanent address\nsame as present address'),
+                    ],
+                  ),
+                  if (!isChecked)
+                    Column(children: [
+                      TextFormField(
+                        controller: addressController,
+                        enabled: true,
+                        decoration: InputDecoration(
+                          labelText: 'Permanent Address',
+                          prefixIcon: const Icon(Icons.home),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                ),
-              ],
+                        maxLines: 2,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your address';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      CountryPage(
+                          controller: aCountryController, enabled: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: widget.selectedState,
+                        readOnly: true, // Makes the field uneditable
+                        decoration: InputDecoration(
+                          labelText: 'State',
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DpPage(
+                        onDistrictSelected: (districtCode) {
+                          setState(() {
+                            permanentDistrictCode = districtCode;
+                          });
+                        },
+                        onPoliceStationSelected: (policeStationCode) {
+                          setState(() {
+                            permanentPoliceStationCode = policeStationCode;
+                          });
+                        },
+                      ),
+                    ]),
+                  const SizedBox(height: 10),
+                  const Text('Please Fill the Mandatory Details',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red)),
+                  const SizedBox(height: 10),
+                  const Text("Employee Relative's Details",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: relativeNameController,
+                    decoration: InputDecoration(
+                      labelText: 'Relative Full Name',
+                      prefixIcon: const Icon(Icons.person),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return ValidateRelative(value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  EmpRelationTypePage(controller: relationTypeController),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: relativeAddressController,
+                    decoration: InputDecoration(
+                      labelText: 'Address',
+                      prefixIcon: const Icon(Icons.home),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    maxLines: 2,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CountryPage(
+                    controller: relativeCountryController,
+                    enabled: true,
+                  ),
+                  const SizedBox(height: 8),
+                  StateDistrictDynamicPage(
+                    onStateSelected: (stateCode) {
+                      setState(() {
+                        relativeStateCode = stateCode;
+                      });
+                    },
+                    onDistrictSelected: (districtCode) {
+                      setState(() {
+                        relativeDistrictCode = districtCode;
+                      });
+                    },
+                    onPoliceStationSelected: (policeStationCode) {
+                      setState(() {
+                        relativePoliceStationCode = policeStationCode;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Please Fill the Mandatory Details',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red)),
+                  const SizedBox(height: 10),
+                  const Text("Current Employer Details",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: employerNameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name of the Employer',
+                      prefixIcon: const Icon(Icons.person),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter name of your current employer';
+                      }
+                      return ValidateFullName(value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: employerRoleController,
+                    decoration: InputDecoration(
+                      labelText: 'Role of the Employer',
+                      prefixIcon: const Icon(Icons.person),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter role of your current employer';
+                      }
+                      return ValidateRole(value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: employerAddressController,
+                    decoration: InputDecoration(
+                      labelText: 'Employer Address',
+                      prefixIcon: const Icon(Icons.home),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    maxLines: 2,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CountryPage(
+                    controller: employerCountryController,
+                    enabled: true,
+                  ),
+                  const SizedBox(height: 8),
+                  StateDistrictDynamicPage(
+                    onStateSelected: (stateCode) {
+                      setState(() {
+                        employerStateCode = stateCode;
+                      });
+                    },
+                    onDistrictSelected: (districtCode) {
+                      setState(() {
+                        employerDistrictCode = districtCode;
+                      });
+                    },
+                    onPoliceStationSelected: (policeStationCode) {
+                      setState(() {
+                        employerPoliceStationCode = policeStationCode;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Basic Information',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: departmentController,
+                    decoration: InputDecoration(
+                      labelText: 'Department Name',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: applicationDateController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Application Date',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Employee Personal Information',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.genderDescription,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'Gender',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: dateOfBirthController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Date of Birth',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: ageController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Age',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: placeBirthController,
+                    decoration: InputDecoration(
+                      labelText: 'Place of Birth',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text("Employee Other Details",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    initialValue: widget.addressDescription,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'Address Verification',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: docController,
+                    decoration: InputDecoration(
+                      labelText: 'Document Number',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Uploaded Files',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                            'Scan Photo of the Employee\n(Maximum file size limit 250 kb)'),
+                      ),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _uploadPhoto,
+                          icon: const Icon(Icons.upload, color: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF133371),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          label: const Text(
+                            'Choose file',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_photoFileName != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Image.file(
+                        _photoFileName!,
+                        height: 80,
+                        width: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  if (_photoWarning != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        _photoWarning!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                            'Upload Counsellor/Pradhan Report\n(Maximum file size limit 250 kb)'),
+                      ),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _uploadDocument,
+                          icon: const Icon(Icons.upload, color: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF133371),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          label: const Text(
+                            'Choose file',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_documentFileName != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        '$_documentFileName',
+                        style: const TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  if (_documentWarning != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        _documentWarning!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  const Text('Employee Affidavit Details',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: employeeAffidavitController,
+                    decoration: InputDecoration(
+                      labelText: 'Affidavit',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    maxLines: 2,
+                    enabled: false,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isAgree,
+                        onChanged: (value) {
+                          setState(() {
+                            isAgree = value!;
+                          });
+                        },
+                      ),
+                      const Text(
+                          'All the information provided in the form is true'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: (isAgree &&
+                            _PccaffidavitDetailsFormKey.currentState!
+                                .validate() &&
+                            !_isSubmitting) // Check if not already submitting
+                        ? () async {
+                            setState(() {
+                              _isSubmitting = true; // Disable the button
+                            });
+
+                            try {
+                              await _registerUser(); // Perform the registration logic
+                            } finally {
+                              setState(() {
+                                _isSubmitting =
+                                    true; // Re-enable the button after completion
+                              });
+                            }
+                          }
+                        : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
+                    style: AppButtonStyles.elevatedButtonStyle,
+                    child: _isSubmitting
+                        ? const CircularProgressIndicator(
+                            color: Colors.white) // Show a loader
+                        : const Text(
+                            'Submit',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

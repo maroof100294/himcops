@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/citizen/searchstaus/eventperformance.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -239,32 +240,21 @@ class _EventPerformanceVerificationPageState
   }
 
   Future<void> _registerUser() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     try {
       final ioc = HttpClient();
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
         final accountUrl =
             '$baseUrl/androidapi/mobile/service/eventPerformanceRequestRegistration';
         final DateTime dob = DateTime.parse(widget
@@ -281,7 +271,7 @@ class _EventPerformanceVerificationPageState
             DateFormat('dd/MM/yyyy').format(endDate);
         final payloadBody = {
           
-            "userName": loginId, //"arunkumar7796",
+            "userName": "maroofchoudhury8367",//loginId, //"arunkumar7796",
             "applicant": {
               "firstName": widget.applicantName,
               "middleName": "",
@@ -409,7 +399,7 @@ class _EventPerformanceVerificationPageState
           body: json.encode(payloadBody),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
+            'Authorization': 'Bearer $token',
           },
         );
 
@@ -435,10 +425,7 @@ class _EventPerformanceVerificationPageState
           print('Failed to enter${accountResponse.body},$loginId,$mobile2');
           _showErrorDialog('Please fill the details');
         }
-      } else {
-        print('Failed to fetch token${response.body}');
-        _showErrorDialog('Technical issue, Try again later');
-      }
+      
     } catch (e) {
       setState(() {
         print('Error occurred: $e');

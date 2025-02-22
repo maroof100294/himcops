@@ -84,14 +84,6 @@ class _CitizenGridPageState extends State<CitizenGridPage> {
     Service(label: 'citizen_tip'.tr, iconPath: 'asset/images/ctip.jpeg'),
     Service(label: 'contact_us'.tr, iconPath: 'asset/images/contact.jpeg'),
   ];
-//  final RxList<Service> services = <Service>[
-//     Service(label: 'citizen_service'.tr, iconPath: 'asset/images/cservice.jpeg'),
-//     Service(label: 'v_fir'.tr, iconPath: 'asset/images/vfir.jpeg'),
-//     Service(label: 'add_complaint'.tr, iconPath: 'asset/images/complaint.jpeg'),
-//     Service(label: 'echallan'.tr, iconPath: 'asset/images/echallan.jpeg'),
-//     Service(label: 'citizen_tip'.tr, iconPath: 'asset/images/ctip.jpeg'),
-//     Service(label: 'contact_us'.tr, iconPath: 'asset/images/contact.jpeg'),
-//   ].obs;
 
   @override
   Widget build(BuildContext context) {

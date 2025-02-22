@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/controller/police_clearance_controller/pccreqview.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -70,186 +71,149 @@ class _PoliceClearanceCertificateViewPageState
   }
 
   Future<void> fetchPccData() async {
-    const url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+      const fetchPccUrl =
+          '$baseUrl/androidapi/mobile/service/getApplicationStatusOfPcr';
+      final fetchPccResponse = await client.post(
+        Uri.parse(fetchPccUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
+        body: jsonEncode({
+          "uid": loginId,
+        }),
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-        const fetchPccUrl =
-            '$baseUrl/androidapi/mobile/service/getApplicationStatusOfPcr';
-        final fetchPccResponse = await client.post(
-          Uri.parse(fetchPccUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: jsonEncode({
-            "uid": loginId,
-          }),
-        );
+      if (fetchPccResponse.statusCode == 200) {
+        final data = jsonDecode(fetchPccResponse.body);
+        setState(() {
+          pccList = List<Map<String, String>>.from(
+            data['data'].map((item) {
+              String status = item['requestStatus']?.toString() ?? '';
+              if (status == 'Approved' ||
+                  status == 'Assigned' ||
+                  status == 'SendBack' ||
+                  status ==
+                      'Verification Report Submitted By Enquiry Officer') {
+                status = 'In Progress';
+              }
+              if (status == 'Rejected' || status == 'Complete') {
+                status = 'Completed';
+              }
+              return {
+                'serviceRequestNumber': item['reqno']?.toString() ?? '',
+                'serviceDate': item['fromDate']?.toString() ?? '',
+                'applicantName': item['fullName']?.toString() ?? '',
+                'paymentStatus': status,
+              };
+            }),
+          );
 
-        if (fetchPccResponse.statusCode == 200) {
-          final data = jsonDecode(fetchPccResponse.body);
-          setState(() {
-            pccList = List<Map<String, String>>.from(
-              data['data'].map((item) {
-                String status = item['requestStatus']?.toString() ?? '';
-                if (status == 'Approved' ||
-                    status == 'Assigned' ||
-                    status == 'SendBack' ||
-                    status ==
-                        'Verification Report Submitted By Enquiry Officer') {
-                  status = 'In Progress';
-                }
-                if (status == 'Rejected' || status == 'Complete') {
-                  status = 'Completed';
-                }
-                return {
-                  'serviceRequestNumber': item['reqno']?.toString() ?? '',
-                  'serviceDate': item['fromDate']?.toString() ?? '',
-                  'applicantName': item['fullName']?.toString() ?? '',
-                  'paymentStatus': status,
-                };
-              }),
-            );
-
-            // Calculate status counts
-            statusCount = {
-              'Registered': pccList
-                  .where((item) => item['paymentStatus'] == 'Registered')
-                  .length,
-              'In Progress': pccList
-                  .where((item) => item['paymentStatus'] == 'In Progress')
-                  .length,
-              'Completed': pccList
-                  .where((item) => item['paymentStatus'] == 'Completed')
-                  .length,
-            };
-          });
-        } else {
-          print('API failed to fetch PCC data: ${fetchPccResponse.statusCode}');
-        _showErrorDialog('Internet Connection Lost, Please check connection');
-        }
+          // Calculate status counts
+          statusCount = {
+            'Registered': pccList
+                .where((item) => item['paymentStatus'] == 'Registered')
+                .length,
+            'In Progress': pccList
+                .where((item) => item['paymentStatus'] == 'In Progress')
+                .length,
+            'Completed': pccList
+                .where((item) => item['paymentStatus'] == 'Completed')
+                .length,
+          };
+        });
       } else {
-        print('API failed: ${response.statusCode}');
-        _showErrorDialog('Technical Server issue, Try again later');
+        print('API failed to fetch PCC data: ${fetchPccResponse.statusCode}');
+        _showErrorDialog('Internet Connection Lost, Please check connection');
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
   //when requestStatus is "Approved,Rejected and Verification Report Submitted By Enquiry Officer" it will view in "Pending" as a paymentStatus with length
 
   Future<void> _openView(String reqno) async {
-    const url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final pdfUrl =
+          '$baseUrl/androidapi/mobile/service/viewCharCertApplicationDetailsforpcr';
+      final pccPdfResponse = await client.post(
+        Uri.parse(pdfUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
+        body: jsonEncode({"uid": "$loginId", "reqno": reqno}),
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
+      if (pccPdfResponse.statusCode == 200) {
+        final responseData = jsonDecode(pccPdfResponse.body);
 
-        final pdfUrl =
-            '$baseUrl/androidapi/mobile/service/viewCharCertApplicationDetailsforpcr';
-        final pccPdfResponse = await client.post(
-          Uri.parse(pdfUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: jsonEncode({"uid": "$loginId", "reqno": reqno}),
+        // Navigate to the PccViewPage with the response data
+        // if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PccReqViewPage(data: responseData),
+          ),
         );
-
-        if (pccPdfResponse.statusCode == 200) {
-          final responseData = jsonDecode(pccPdfResponse.body);
-
-          // Navigate to the PccViewPage with the response data
-          // if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PccReqViewPage(data: responseData),
-            ),
-          );
-        } else {
-          print('Failed to load PDF ${pccPdfResponse.statusCode}');
-        _showErrorDialog('Technical Server issue, Try again later');
-        }
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
   Future<void> _downloadPdf(String reqno) async {
-    const url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       // Step 1: Authenticate to get the token
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-
-        print('Access Token: $accessToken'); // Debugging token
 
         // Step 2: Fetch the PDF file
         final pdfUrl = '$baseUrl/androidapi/mobile/service/printPcc?pcc=$reqno';
@@ -258,7 +222,7 @@ class _PoliceClearanceCertificateViewPageState
         final pdfResponse = await client.get(
           Uri.parse(pdfUrl),
           headers: {
-            'Authorization': 'Bearer $accessToken',
+            'Authorization': 'Bearer $token',
             'Accept': '*/*',
           },
         );
@@ -294,14 +258,10 @@ class _PoliceClearanceCertificateViewPageState
             SnackBar(content: Text('Failed to download PDF')),
           );
         }
-      } else {
-        print(
-            'Authentication failed: ${response.statusCode}, ${response.body}');
-        _showErrorDialog('Technical Server issue, Try again later');
-      }
+      
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
@@ -339,7 +299,7 @@ class _PoliceClearanceCertificateViewPageState
   }
 
   void _showErrorDialog(String message) {
-   showDialog(
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -386,8 +346,7 @@ class _PoliceClearanceCertificateViewPageState
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },

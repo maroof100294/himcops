@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
@@ -11,10 +12,12 @@ import 'package:http/io_client.dart';
 class AddressVerificationPage extends StatefulWidget {
   final TextEditingController controller;
 
-  const AddressVerificationPage({Key? key, required this.controller}) : super(key: key);
+  const AddressVerificationPage({Key? key, required this.controller})
+      : super(key: key);
 
   @override
-  State<AddressVerificationPage> createState() => _AddressVerificationPageState();
+  State<AddressVerificationPage> createState() =>
+      _AddressVerificationPageState();
 }
 
 class _AddressVerificationPageState extends State<AddressVerificationPage> {
@@ -28,43 +31,34 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
   void initState() {
     super.initState();
     if (widget.controller.text.isNotEmpty) {
-      selectedAddressId = int.tryParse(widget.controller.text); // Initialize with codeId if available
+      selectedAddressId = int.tryParse(
+          widget.controller.text); // Initialize with codeId if available
     }
     fetchRelationType();
   }
 
   Future<void> fetchRelationType() async {
-  final url = '$baseUrl/androidapi/oauth/token';
-  String credentials =
-      'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-  String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
-  try {
-    final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
+
+    try {
+      final ioc = HttpClient();
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-    final response = await client.post(
-      Uri.parse(url),
-      headers: {
-        'Authorization': basicAuth,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'grant_type': 'password',
-        'username': 'icjsws',
-        'password': 'cctns@123',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final tokenData = json.decode(response.body);
-      String accessToken = tokenData['access_token'];
-
       final addressUrl = '$baseUrl/androidapi/mobile/service/getIdentity';
       final addressResponse = await client.get(
         Uri.parse(addressUrl),
         headers: {
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -79,7 +73,8 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
               // Filter the relation descriptions to include only codeId 1, 2, 3, and 4
               addressDescriptions = data.where((address) {
                 String codeId = address['codeId'].toString();
-                return ['1','2','3','4','5','6', '8','9'].contains(codeId);
+                return ['1', '2', '3', '4', '5', '6', '8', '9']
+                    .contains(codeId);
               }).map((address) {
                 return {
                   'codeId': address['codeId'].toString(),
@@ -91,41 +86,41 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
           } else {
             setState(() {
               isLoading = false;
-              errorMessage = 'Invalid structure: expected a list in "data" ${addressResponse.statusCode}';
-              _showErrorDialog('Internet Connection Slow, Please check your connection');
+              errorMessage =
+                  'Invalid structure: expected a list in "data" ${addressResponse.statusCode}';
+              _showErrorDialog(
+                  'Internet Connection Slow, Please check your connection');
             });
           }
         } else {
           setState(() {
             isLoading = false;
-            errorMessage = 'Key "data" not found in response. ${addressResponse.statusCode}';
-            _showErrorDialog('Internet Connection Slow, Please check your connection');
+            errorMessage =
+                'Key "data" not found in response. ${addressResponse.statusCode}';
+            _showErrorDialog(
+                'Internet Connection Slow, Please check your connection');
           });
         }
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Error fetching RelationType: ${addressResponse.statusCode}';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
+          errorMessage =
+              'Error fetching RelationType: ${addressResponse.statusCode}';
+          _showErrorDialog(
+              'Internet Connection Slow, Please check your connection');
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Error: ${response.statusCode} - ${response.body}';
+        errorMessage = 'Error occurred: $e';
         _showErrorDialog('Technical Problem, Please Try again later');
       });
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-      errorMessage = 'Error occurred: $e';
-      _showErrorDialog('Technical Problem, Please Try again later');
-    });
   }
-}
- void _showErrorDialog(String message) {
-   showDialog(
+
+  void _showErrorDialog(String message) {
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -172,8 +167,7 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -193,7 +187,6 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -205,51 +198,51 @@ class _AddressVerificationPageState extends State<AddressVerificationPage> {
         //           style: TextStyle(color: Colors.red),
         //         ),
         //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<Map<String, String>?>(
-                  value: selectedAddress.isNotEmpty
-                      ? addressDescriptions.firstWhere(
-                          (item) => item['codeDesc'] == selectedAddress,
-                          orElse: () => {'codeId': '', 'codeDesc': ''},
-                        )
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Address Verification',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: addressDescriptions.map((Map<String, String> value) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: value,
-                      child: Text(value['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (Map<String, String>? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        selectedAddress = newValue['codeDesc']!;
-                        selectedAddressId = int.tryParse(newValue['codeId']!); 
-                        // widget.controller.text = selectedAddressId.toString();
-                         widget.controller.text = jsonEncode({
-                          'codeId': selectedAddressId,
-                          'codeDesc': selectedAddress,
-                        }); 
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Address Verification';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<Map<String, String>?>(
+              value: selectedAddress.isNotEmpty
+                  ? addressDescriptions.firstWhere(
+                      (item) => item['codeDesc'] == selectedAddress,
+                      orElse: () => {'codeId': '', 'codeDesc': ''},
+                    )
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Address Verification',
+                prefixIcon: const Icon(Icons.person),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: addressDescriptions.map((Map<String, String> value) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: value,
+                  child: Text(value['codeDesc']!),
+                );
+              }).toList(),
+              onChanged: (Map<String, String>? newValue) {
+                setState(() {
+                  if (newValue != null) {
+                    selectedAddress = newValue['codeDesc']!;
+                    selectedAddressId = int.tryParse(newValue['codeId']!);
+                    // widget.controller.text = selectedAddressId.toString();
+                    widget.controller.text = jsonEncode({
+                      'codeId': selectedAddressId,
+                      'codeDesc': selectedAddress,
+                    });
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Address Verification';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }

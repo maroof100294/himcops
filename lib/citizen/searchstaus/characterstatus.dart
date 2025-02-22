@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/backgroundlayout.dart';
@@ -24,7 +25,7 @@ class _CharacterRequestStatusPageState
   final TextEditingController srnController = TextEditingController();
   String? statusMessage;
   String loginId = '';
-  String? email; 
+  String? email;
   String firstname = '';
   int? mobile2;
   String fullName = '';
@@ -57,64 +58,99 @@ class _CharacterRequestStatusPageState
   }
 
   Future<void> fetchPccData() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      // Get access token
-      final response = await client.post(
-        Uri.parse(url),
+      final fetchPccUrl =
+          '$baseUrl/androidapi/mobile/service/viewCharacterStatus?applicationNo=${srnController.text}';
+      final fetchEmpResponse = await client.get(
+        Uri.parse(fetchPccUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-        final fetchPccUrl =
-            '$baseUrl/androidapi/mobile/service/viewCharacterStatus?applicationNo=${srnController.text}';
-        final fetchEmpResponse = await client.get(
-          Uri.parse(fetchPccUrl),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (fetchEmpResponse.statusCode == 200) {
-          setState(() {
-            statusMessage =
-                'Appliction Number: ${srnController.text}\nStatus:\n${fetchEmpResponse.body}';
-          });
-          showCharacterRequestStatus('$statusMessage');
-        } else {
-          setState(() {
-            statusMessage =
-                'No record found for applicationNo: ${srnController.text}';
-          });
-          showCharacterRequestStatus('$statusMessage');
-        }
+      if (fetchEmpResponse.statusCode == 200) {
+        setState(() {
+          statusMessage =
+              'Appliction Number: ${srnController.text}\nStatus:\n${fetchEmpResponse.body}';
+        });
+        showCharacterRequestStatus('$statusMessage');
       } else {
         setState(() {
-          statusMessage = 'Internet Connection Slow, Please check your connection';
+          statusMessage =
+              'No record found for applicationNo: ${srnController.text}';
         });
+        showCharacterRequestStatus('$statusMessage');
       }
     } catch (error) {
       setState(() {
         statusMessage = 'Technical Problem, Please Try again later';
       });
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Column(
+            children: [
+              Image.asset(
+                'asset/images/hp_logo.png',
+                height: 50,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Himachal Pradesh',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Citizen Service',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CitizenGridPage(),
+                  ),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const CitizenGridPage(),
+        ),
+      );
+    });
   }
 
   void showCharacterRequestStatus(String statusMessage) {
@@ -230,21 +266,23 @@ class _CharacterRequestStatusPageState
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(children: [
-                      ElevatedButton(
-                        onPressed: fetchPccData,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF133371),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: fetchPccData,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF133371),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          child: const Text(
+                            'Know your Status',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
-                        child: const Text(
-                          'Know your Status',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],),
+                      ],
+                    ),
                   ],
                 ),
               ),

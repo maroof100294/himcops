@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
+import 'package:himcops/pages/cgridhome.dart';
 import 'package:himcops/pages/logsplash.dart';
 import 'package:http/io_client.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -19,6 +21,9 @@ class SSOPage extends StatefulWidget {
 class _SSOPageState extends State<SSOPage> {
   late final WebViewController _controller;
   final FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  bool isLoading = true;
+  String errorMessage = '';
   String? loginId;
   String? firstName;
   String? email;
@@ -101,81 +106,118 @@ class _SSOPageState extends State<SSOPage> {
   }
 
   Future<void> validateLogin(Map<String, dynamic> responseData) async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final responseOauth = await client.post(
-        Uri.parse(url),
+      final logintUrl = '$baseUrl/androidapi/service/savessouser';
+
+      final loginResponse = await client.post(
+        Uri.parse(logintUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
+        body: jsonEncode(responseData),
       );
+      if (loginResponse.statusCode == 200) {
+        final loginResponseData = jsonDecode(loginResponse.body);
+        if (loginResponseData['messages'] == 'Success') {
+          final userData = loginResponseData['data'][0];
 
-      if (responseOauth.statusCode == 200) {
-        final tokenData = json.decode(responseOauth.body);
-        String accessToken = tokenData['access_token'];
-        final logintUrl = '$baseUrl/androidapi/service/savessouser';
+          // Save only non-null values
+          await storage.write(key: 'loginId', value: userData['loginId']);
+          await storage.write(
+              key: 'firstName', value: userData['firstName'] ?? '');
+          await storage.write(key: 'email', value: userData['email'] ?? '');
+          await storage.write(
+              key: 'addressLine1', value: userData['addressLine1'] ?? '');
+          await storage.write(
+              key: 'addressLine2', value: userData['addressLine2'] ?? '');
+          await storage.write(
+              key: 'addressLine3', value: userData['addressLine3'] ?? '');
+          await storage.write(key: 'tehsil', value: userData['tehsil'] ?? '');
+          await storage.write(key: 'village', value: userData['village'] ?? '');
+          await storage.write(
+              key: 'mobile2', value: (userData['mobile2']?.toString() ?? ''));
+          await storage.write(
+              key: 'stateCd', value: (userData['stateCd']?.toString() ?? ''));
+          await storage.write(
+              key: 'districtCd',
+              value: (userData['districtCd']?.toString() ?? ''));
 
-        final loginResponse = await client.post(
-          Uri.parse(logintUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: jsonEncode(responseData),
-        );
-        if (loginResponse.statusCode == 200) {
-          final loginResponseData = jsonDecode(loginResponse.body);
-          if (loginResponseData['messages'] == 'Success') {
-            final userData = loginResponseData['data'][0];
-
-            // Save only non-null values
-            await storage.write(key: 'loginId', value: userData['loginId']);
-            await storage.write(
-                key: 'firstName', value: userData['firstName'] ?? '');
-            await storage.write(key: 'email', value: userData['email'] ?? '');
-            await storage.write(
-                key: 'addressLine1', value: userData['addressLine1'] ?? '');
-            await storage.write(
-                key: 'addressLine2', value: userData['addressLine2'] ?? '');
-            await storage.write(
-                key: 'addressLine3', value: userData['addressLine3'] ?? '');
-            await storage.write(key: 'tehsil', value: userData['tehsil'] ?? '');
-            await storage.write(
-                key: 'village', value: userData['village'] ?? '');
-            await storage.write(
-                key: 'mobile2', value: (userData['mobile2']?.toString() ?? ''));
-            await storage.write(
-                key: 'stateCd', value: (userData['stateCd']?.toString() ?? ''));
-            await storage.write(
-                key: 'districtCd',
-                value: (userData['districtCd']?.toString() ?? ''));
-
-            print('User Data Saved successfully');
-          } else {
-            print("Please Fill the Details");
-          }
+          print('User Data Saved successfully');
         } else {
-          print('User Data failed: ${loginResponse.body}');
+          print("Please Fill the Details");
         }
       } else {
-        print('failed');
+        print('User Data failed: ${loginResponse.body}');
       }
     } catch (error) {
       print('Error occurred: $error');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Column(
+            children: [
+              Image.asset(
+                'asset/images/hp_logo.png',
+                height: 50,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Himachal Pradesh',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Citizen Service',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CitizenGridPage(),
+                  ),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const CitizenGridPage(),
+        ),
+      );
+    });
   }
 
   @override

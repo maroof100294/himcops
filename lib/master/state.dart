@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
+import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -33,70 +35,56 @@ class _StatePageState extends State<StatePage> {
   }
 
   Future<void> fetchState() async {
-    final tokenUrl = '$baseUrl/androidapi/oauth/token';
     final stateUrl = '$baseUrl/androidapi/mobile/service/getState';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       // Request for access token
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final tokenResponse = await client.post(
-        Uri.parse(tokenUrl),
+
+      // Fetch states with the access token
+      final stateResponse = await client.get(
+        Uri.parse(stateUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (tokenResponse.statusCode == 200) {
-        final tokenData = json.decode(tokenResponse.body);
-        String accessToken = tokenData['access_token'];
+      if (stateResponse.statusCode == 200) {
+        final data = json.decode(stateResponse.body)['data'];
 
-        // Fetch states with the access token
-        final stateResponse = await client.get(
-          Uri.parse(stateUrl),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (stateResponse.statusCode == 200) {
-          final data = json.decode(stateResponse.body)['data'];
-
-          if (data is List) {
-            setState(() {
-              stateDescriptions = data
-                  .map((state) => {
-                        'codeId': state['codeId'].toString(),
-                        'codeDesc': state['codeDesc'].toString(),
-                      })
-                  .toList();
-              isLoading = false;
-            });
-          } else {
-            setState(() {
-              errorMessage = 'Unexpected data format received';
-              isLoading = false;
-            });
-          }
+        if (data is List) {
+          setState(() {
+            stateDescriptions = data
+                .map((state) => {
+                      'codeId': state['codeId'].toString(),
+                      'codeDesc': state['codeDesc'].toString(),
+                    })
+                .toList();
+            isLoading = false;
+          });
         } else {
           setState(() {
-            errorMessage = 'Failed to load states. Error ${stateResponse.statusCode}';
+            errorMessage = 'Unexpected data format received';
             isLoading = false;
           });
         }
       } else {
         setState(() {
-          errorMessage = 'Failed to authenticate. Error ${tokenResponse.statusCode}';
+          errorMessage =
+              'Failed to load states. Error ${stateResponse.statusCode}';
           isLoading = false;
         });
       }
@@ -106,6 +94,56 @@ class _StatePageState extends State<StatePage> {
         isLoading = false;
       });
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Column(
+            children: [
+              Image.asset(
+                'asset/images/hp_logo.png',
+                height: 50,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Himachal Pradesh',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Citizen Service',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CitizenGridPage(),
+                  ),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const CitizenGridPage(),
+        ),
+      );
+    });
   }
 
   @override

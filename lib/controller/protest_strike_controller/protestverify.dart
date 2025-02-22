@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:himcops/authservice.dart';
 // import 'package:get/get.dart';
 import 'package:himcops/citizen/searchstaus/proteststrikestatus.dart';
 import 'package:himcops/config.dart';
@@ -219,168 +220,150 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
   }
 
   Future<void> _registerUser() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     try {
       final ioc = HttpClient();
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      final accountUrl =
+          '$baseUrl/androidapi/mobile/service/protestStrikeRequestRegistration';
+      final DateTime dob = DateTime.parse(widget
+          .applicantDateOfBirth); // Parse the date string into DateTime object
+      final String formattedDob =
+          DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
+      final DateTime startDate = DateTime.parse(
+          widget.startDate); // Parse the date string into DateTime object
+      final String formattedSDate = DateFormat('dd/MM/yyyy').format(startDate);
+      final DateTime endDate = DateTime.parse(
+          widget.endDate); // Parse the date string into DateTime object
+      final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
+      final payloadBody = {
+        "userName": "maroofchoudhury8367", //loginId,
+        "applicant": {
+          "firstName": widget.applicantName, //"Maroof Ahmed Choudhury",
+          "gender": widget.applicantGenderId, //3,
+          "lastName": "",
+          "mobile1": "91",
+          "mobile2": widget.applicantMobile, //"8473951198",
+          "mRelationType": widget.applicantRelationId, //5,
+          "landLine1": "91",
+          "relativeName": widget.applicationRelativeName, //"sdfsdfsf",
+          "email": widget.applicantEmail, //"maroofahmed04@gmail.com",
+          "permanentAddressFormBean": {
+            "countryCd": 80,
+            "stateCd": 12,
+            "districtCd": isChecked //12253
+                ? int.tryParse(presentDistrictCode!)
+                : int.tryParse(permanentDistrictCode!),
+            "village": isChecked
+                ? paddressController.text
+                : addressController.text, //"per town",
+            "policeStationCd": isChecked
+                ? int.tryParse(presentPoliceStationCode!)
+                : int.tryParse(permanentPoliceStationCode!)
+          },
+          "presentAddressFormBean": {
+            "countryCd": 80,
+            "stateCd": 12,
+            "districtCd": int.tryParse(presentDistrictCode!), //12253,
+            "village": paddressController.text, //"pre town",
+            "policeStationCd": int.tryParse(presentPoliceStationCode!)
+          }
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+        "protestStrikeApplicant": {
+          "commonPaneldateOfBirth": formattedDob, //"07/02/2007",
+          "commonPanelAgeYear": widget.applicantAge
+        },
+        "isClickedSubmit": 0,
+        "sameAsPermanant": isChecked ? 'Y' : 'N', //"Y",
+        "orgName": orgNameController.text, //"SCRBgfdgfdgdf",
+        "orgPhoneNo1": "91",
+        "orgMobileNo1": "91",
+        "organization": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(orgDistrictCode!), //12253,
+          "village": orgAddressController.text, //"town",
+          "policeStationCd": int.tryParse(orgPoliceStationCode!),
+        },
+        "protestStrikeLocationAddress": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(
+              locationDistrictCode!), //12253,//issue here int.tryParse(locationDistrictCode!),
+          "village": startAddressController.text, //"striketown",
+          "policeStationCd":
+              int.tryParse(locationPoliceStationCode!), //12253025,
+          "pincode": ""
+        },
+        "targetInstituteOrPersonName": widget.instituteName, //"sdfsdfdsfsfs",
+        "protestStartTimeHH": startHoursController.text, //"6",
+        "protestStartTimeMM": startMinutesController.text, //"11",
+        "targetInstituteOrPersonPhoneNo1": "91",
+        "protestStrikeDesc":
+            widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
+        "charLimitId33": 279,
+        "targetInstituteOrPersonMobileNo1": "91",
+        "charLimitId34": 100,
+        "typeOfProtestStrike": widget.protestStrikeId, //2,//protest/strikeID
+        "locationProtestStrikeName": locationNameController.text, //"werwerewr",
+        "locationAreaDetails": widget.locationNumber, //"32",
+        "startDateProtestStrikeStr": formattedSDate, //"07/02/2025",
+        "typeStructurePlan": widget.structureNature, //"Temporary",
+        "endDateProtestStrikeStr": formattedEDate, //"08/02/2025",
+        "protestStartTimeStrHH": expectedHoursController.text, // "6",
+        "protestStartTimeStrMM": expectedMinutesController.text, //"6",
+        "charLimitId60": 90,
+        "charLimitId29": 90,
+        "charLimitId28": 90,
+        "charLimitId30": 90,
+        "charLimitId35": 90,
+        "charLimitId61": 90,
+        "charLimitId62": 90,
+        "charLimitId63": 90
+      };
+      print('Request Body: \n${json.encode(payloadBody)}');
+
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode(payloadBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-        final accountUrl =
-            '$baseUrl/androidapi/mobile/service/protestStrikeRequestRegistration';
-        final DateTime dob = DateTime.parse(widget
-            .applicantDateOfBirth); // Parse the date string into DateTime object
-        final String formattedDob =
-            DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
-        final DateTime startDate = DateTime.parse(
-            widget.startDate); // Parse the date string into DateTime object
-        final String formattedSDate =
-            DateFormat('dd/MM/yyyy').format(startDate);
-        final DateTime endDate = DateTime.parse(
-            widget.endDate); // Parse the date string into DateTime object
-        final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
-        final payloadBody = {
-          "userName": loginId,//"maroofchoudhury8367",
-          "applicant": {
-            "firstName": widget.applicantName, //"Maroof Ahmed Choudhury",
-            "gender": widget.applicantGenderId, //3,
-            "lastName": "",
-            "mobile1": "91",
-            "mobile2": widget.applicantMobile, //"8473951198",
-            "mRelationType": widget.applicantRelationId, //5,
-            "landLine1": "91",
-            "relativeName": widget.applicationRelativeName, //"sdfsdfsf",
-            "email": widget.applicantEmail, //"maroofahmed04@gmail.com",
-            "permanentAddressFormBean": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": isChecked //12253
-                  ? int.tryParse(presentDistrictCode!)
-                  : int.tryParse(permanentDistrictCode!),
-              "village": isChecked
-                  ? paddressController.text
-                  : addressController.text, //"per town",
-              "policeStationCd": isChecked
-                  ? int.tryParse(presentPoliceStationCode!)
-                  : int.tryParse(permanentPoliceStationCode!)
-            },
-            "presentAddressFormBean": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": int.tryParse(presentDistrictCode!), //12253,
-              "village": paddressController.text, //"pre town",
-              "policeStationCd": int.tryParse(presentPoliceStationCode!)
-            }
-          },
-          "protestStrikeApplicant": {
-            "commonPaneldateOfBirth": formattedDob, //"07/02/2007",
-            "commonPanelAgeYear": widget.applicantAge
-          },
-          "isClickedSubmit": 0,
-          "sameAsPermanant": isChecked ? 'Y' : 'N', //"Y",
-          "orgName": orgNameController.text, //"SCRBgfdgfdgdf",
-          "orgPhoneNo1": "91",
-          "orgMobileNo1": "91",
-          "organization": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(orgDistrictCode!), //12253,
-            "village": orgAddressController.text, //"town",
-            "policeStationCd": int.tryParse(orgPoliceStationCode!),
-          },
-          "protestStrikeLocationAddress": {
-            "countryCd": 80,
-            "stateCd": 12,
-            "districtCd": int.tryParse(
-                locationDistrictCode!), //12253,//issue here int.tryParse(locationDistrictCode!),
-            "village": startAddressController.text, //"striketown",
-            "policeStationCd":
-                int.tryParse(locationPoliceStationCode!), //12253025,
-            "pincode": ""
-          },
-          "targetInstituteOrPersonName": widget.instituteName, //"sdfsdfdsfsfs",
-          "protestStartTimeHH": startHoursController.text, //"6",
-          "protestStartTimeMM": startMinutesController.text, //"11",
-          "targetInstituteOrPersonPhoneNo1": "91",
-          "protestStrikeDesc":
-              widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
-          "charLimitId33": 279,
-          "targetInstituteOrPersonMobileNo1": "91",
-          "charLimitId34": 100,
-          "typeOfProtestStrike": widget.protestStrikeId,//2,//protest/strikeID
-          "locationProtestStrikeName":
-              locationNameController.text, //"werwerewr",
-          "locationAreaDetails": widget.locationNumber, //"32",
-          "startDateProtestStrikeStr": formattedSDate, //"07/02/2025",
-          "typeStructurePlan": widget.structureNature, //"Temporary",
-          "endDateProtestStrikeStr": formattedEDate, //"08/02/2025",
-          "protestStartTimeStrHH": expectedHoursController.text, // "6",
-          "protestStartTimeStrMM": expectedMinutesController.text, //"6",
-          "charLimitId60": 90,
-          "charLimitId29": 90,
-          "charLimitId28": 90,
-          "charLimitId30": 90,
-          "charLimitId35": 90,
-          "charLimitId61": 90,
-          "charLimitId62": 90,
-          "charLimitId63": 90
-
-        };
-        print('Request Body: \n${json.encode(payloadBody)}');
-
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode(payloadBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $rdata');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
-        } else {
-          print('Failed to enter${accountResponse.body},$loginId,$mobile2');
-          _showErrorDialog('Please fill the details');
-        }
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $rdata');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
       } else {
-        print('Failed to fetch token${response.body}');
-        _showErrorDialog('Technical issue, Try again later');
+        print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+        _showErrorDialog('Please fill the details');
       }
     } catch (e) {
       setState(() {

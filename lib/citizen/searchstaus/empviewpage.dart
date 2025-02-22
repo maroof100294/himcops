@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/controller/employee_controller/empreqview.dart';
 import 'package:himcops/drawer/drawer.dart';
@@ -70,233 +71,190 @@ class _EmployeeVerificationViewPageState
   }
 
   Future<void> _fetchEmp() async {
-    final url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final fetchEmpUrl =
+          '$baseUrl/androidapi/mobile/service/searchViewEmployeeList';
+      final fetchEmpResponse = await client.post(
+        Uri.parse(fetchEmpUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
+        body: jsonEncode({"uid": loginId}),
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-
-        final fetchEmpUrl =
-            '$baseUrl/androidapi/mobile/service/searchViewEmployeeList';
-        final fetchEmpResponse = await client.post(
-          Uri.parse(fetchEmpUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: jsonEncode({"uid": loginId}),
-        );
-
-        if (fetchEmpResponse.statusCode == 200) {
-          final data = jsonDecode(fetchEmpResponse.body);
-          setState(() {
-            pccList = List<Map<String, String>>.from(
-              data['data'].map((item) {
-                String status = item['requestStatus']?.toString() ?? '';
-                if (status == 'Approved' ||
-                    status == 'Assigned' ||
-                    status == 'SendBack' ||
-                    status == 'SavedRecord' ||
-                    status == 'SendBack By SP' ||
-                    status == 'Recommendation By SP is Pending' ||
-                    status ==
-                        'Verification Report Submitted By Enquiry Officer') {
-                  status = 'In Progress';
-                }
-                if (status == 'Rejected' ||
-                    status == 'Deleted' ||
-                    status == 'Complete') {
-                  status = 'Completed';
-                }
-                return {
-                  'serviceRequestNumber':
-                      item['serviceReqNo']?.toString() ?? '',
-                  'serviceDate': item['applicationDate']?.toString() ?? '',
-                  'applicantName': item['agency']?.toString() ?? '',
-                  'paymentStatus': status,
-                };
-              }),
-            );
-            statusCount = {
-              'Registered': pccList
-                  .where((item) => item['paymentStatus'] == 'Registered')
-                  .length,
-              'In Progress': pccList
-                  .where((item) => item['paymentStatus'] == 'In Progress')
-                  .length,
-              'Completed': pccList
-                  .where((item) => item['paymentStatus'] == 'Completed')
-                  .length,
-            };
-          });
-        } else {
-          print('API failed to fetch data: ${fetchEmpResponse.statusCode}');
-        _showErrorDialog('Internet Connection Lost, Please check connection');
-        }
+      if (fetchEmpResponse.statusCode == 200) {
+        final data = jsonDecode(fetchEmpResponse.body);
+        setState(() {
+          pccList = List<Map<String, String>>.from(
+            data['data'].map((item) {
+              String status = item['requestStatus']?.toString() ?? '';
+              if (status == 'Approved' ||
+                  status == 'Assigned' ||
+                  status == 'SendBack' ||
+                  status == 'SavedRecord' ||
+                  status == 'SendBack By SP' ||
+                  status == 'Recommendation By SP is Pending' ||
+                  status ==
+                      'Verification Report Submitted By Enquiry Officer') {
+                status = 'In Progress';
+              }
+              if (status == 'Rejected' ||
+                  status == 'Deleted' ||
+                  status == 'Complete') {
+                status = 'Completed';
+              }
+              return {
+                'serviceRequestNumber': item['serviceReqNo']?.toString() ?? '',
+                'serviceDate': item['applicationDate']?.toString() ?? '',
+                'applicantName': item['agency']?.toString() ?? '',
+                'paymentStatus': status,
+              };
+            }),
+          );
+          statusCount = {
+            'Registered': pccList
+                .where((item) => item['paymentStatus'] == 'Registered')
+                .length,
+            'In Progress': pccList
+                .where((item) => item['paymentStatus'] == 'In Progress')
+                .length,
+            'Completed': pccList
+                .where((item) => item['paymentStatus'] == 'Completed')
+                .length,
+          };
+        });
       } else {
-        print('API failed: ${response.statusCode}');
-        _showErrorDialog('Technical Server issue, Try again later');
+        print('API failed to fetch data: ${fetchEmpResponse.statusCode}');
+        _showErrorDialog('Internet Connection Lost, Please check connection');
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
   Future<void> _openView(String reqno) async {
-    const url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final pdfUrl =
+          '$baseUrl/androidapi/mobile/service/searchViewEmployeeDetails';
+      final empPdfResponse = await client.post(
+        Uri.parse(pdfUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
-        },
+        body: jsonEncode({"uid": "$loginId", "tempreqno": reqno}),
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
-
-        final pdfUrl =
-            '$baseUrl/androidapi/mobile/service/searchViewEmployeeDetails';
-        final empPdfResponse = await client.post(
-          Uri.parse(pdfUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: jsonEncode({"uid": "$loginId", "tempreqno": reqno}),
+      if (empPdfResponse.statusCode == 200) {
+        final responseData = jsonDecode(empPdfResponse.body);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EmpReqViewPage(data: responseData),
+          ),
         );
-
-        if (empPdfResponse.statusCode == 200) {
-          final responseData = jsonDecode(empPdfResponse.body);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EmpReqViewPage(data: responseData),
-            ),
-          );
-        } else {
-          print('Failed to load PDF ${empPdfResponse.statusCode}');
-        _showErrorDialog('Technical Server issue, Try again later');
-        }
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
   Future<void> _downloadPdf(String reqno) async {
-    const url = '$baseUrl/androidapi/oauth/token';
-    String credentials =
-        'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
+
+    if (token == null) {
+      setState(() {
+        // isLoading = false;
+        // errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
 
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final pdfUrl =
+          '$baseUrl/androidapi/mobile/service/printEmployeeRegistration?uid=$loginId&tempreqno=$reqno';
+      final pdfResponse = await client.get(
+        Uri.parse(pdfUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Authorization': 'Bearer $token',
+          'Accept': '*/*',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
+      print('PDF Response Status: ${pdfResponse.statusCode}');
+      print('PDF Content-Type: ${pdfResponse.headers['content-type']}');
+      print('Response Length: ${pdfResponse.bodyBytes.length}');
 
-        final pdfUrl =
-            '$baseUrl/androidapi/mobile/service/printEmployeeRegistration?uid=$loginId&tempreqno=$reqno';
-        final pdfResponse = await client.get(
-          Uri.parse(pdfUrl),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-            'Accept': '*/*',
-          },
-        );
+      if (pdfResponse.statusCode == 200) {
+        if (pdfResponse.bodyBytes.isNotEmpty) {
+          final directory = '/storage/emulated/0/Download';
+          final filePath = '$directory/Employee_Verification_$reqno.pdf';
 
-        print('PDF Response Status: ${pdfResponse.statusCode}');
-        print('PDF Content-Type: ${pdfResponse.headers['content-type']}');
-        print('Response Length: ${pdfResponse.bodyBytes.length}');
+          // Step 4: Save the file
+          final file = File(filePath);
+          await file.writeAsBytes(pdfResponse.bodyBytes);
+          print('File saved to: $filePath');
 
-        if (pdfResponse.statusCode == 200) {
-          if (pdfResponse.bodyBytes.isNotEmpty) {
-              final directory = '/storage/emulated/0/Download';
-              final filePath = '$directory/Employee_Verification_$reqno.pdf';
-
-              // Step 4: Save the file
-              final file = File(filePath);
-              await file.writeAsBytes(pdfResponse.bodyBytes);
-              print('File saved to: $filePath');
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('PDF downloaded to $filePath')),
-              );
-              OpenFilex.open(filePath);
-          } else {
-            print('Empty file response received.');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text('Failed to download: Empty file received')),
-            );
-          }
-        } else {
-          print(
-              'PDF API Error: ${pdfResponse.statusCode}, ${pdfResponse.body}');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to download PDF')),
+            SnackBar(content: Text('PDF downloaded to $filePath')),
+          );
+          OpenFilex.open(filePath);
+        } else {
+          print('Empty file response received.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to download: Empty file received')),
           );
         }
       } else {
-        print(
-            'Authentication failed: ${response.statusCode}, ${response.body}');
-        _showErrorDialog('Technical Server issue, Try again later');
+        print('PDF API Error: ${pdfResponse.statusCode}, ${pdfResponse.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to download PDF')),
+        );
       }
     } catch (error) {
       print('Error occurred: $error');
-        _showErrorDialog('Technical Server issue, Try again later');
+      _showErrorDialog('Technical Server issue, Try again later');
     }
   }
 
@@ -331,9 +289,9 @@ class _EmployeeVerificationViewPageState
   bool get hasPreviousPage {
     return currentPage > 0;
   }
-  
-void _showErrorDialog(String message) {
-   showDialog(
+
+  void _showErrorDialog(String message) {
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -380,8 +338,7 @@ void _showErrorDialog(String message) {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },

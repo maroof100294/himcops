@@ -15,13 +15,16 @@ class EventReqViewPage extends StatelessWidget {
         data['applicant'] as Map<String, dynamic>? ?? {};
     final Map<String, String> labels = {
       'firstName': 'Full Name',
-      'genderDesc': 'Gender',
-      'mRelationTypeDesc': 'Relation',
       'relativeName': 'Relative Name',
       'email': 'Email ID',
       'mobile2': 'Mobile Number'
     };
-
+final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
+    final Map<String, String> applicantlabels = {
+      
+      'applicantGenderCdDesc': 'Gender',
+      'mRelationTypeDesc': 'Relation'
+    };
     final Map<String, dynamic> nestedData =
         viewEventVerificationDetails['eventPerformanceRegApplicant']
                 as Map<String, dynamic>? ??
@@ -123,6 +126,29 @@ class EventReqViewPage extends StatelessWidget {
                 final value =
                     viewEventVerificationDetails[entry.key]?.toString() ??
                         'N/A';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
+              ...applicantlabels.entries.map((entry) {
+                final value =
+                    viewEEventVerificationDetails[entry.key]?.toString() ?? 'N/A';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -268,7 +294,7 @@ class EventReqViewPage extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewEventlocationDetails['locationArea'] ?? 'N/A'} : ${viewEventlocationDetails['locationAreaCd'] ?? 'N/A'}",
+                      "${viewEventlocationDetails['locationArea'] ?? 'N/A'}  ${viewEventlocationDetails['locationAreaCd'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Location Area',
                     labelStyle: const TextStyle(

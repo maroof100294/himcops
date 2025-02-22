@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:himcops/authservice.dart';
 import 'package:himcops/config.dart';
 import 'package:himcops/pages/cgridhome.dart';
 // import 'package:http/http.dart' as http;
@@ -22,94 +23,85 @@ class _LanguagesSpokenPageState extends State<LanguagesSpokenPage> {
   int? selectedLanguagesId;
   List<Map<String, String>> LanguagesDescriptions = [];
   bool isLoading = true;
-  String errorMessage = ''; 
+  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-     if (widget.controller.text.isNotEmpty) {
-      selectedLanguagesId = int.tryParse(widget.controller.text); // Initialize with codeId if available
-    } 
+    if (widget.controller.text.isNotEmpty) {
+      selectedLanguagesId = int.tryParse(
+          widget.controller.text); // Initialize with codeId if available
+    }
 
     fetchLanguages();
   }
 
   Future<void> fetchLanguages() async {
-    final url = '$baseUrl/androidapi/oauth/token'; 
-    String credentials = 'cctnsws:ea5be3a221d5761d0aab36bd13357b93-28920be3928b4a02611051d04a2dcef9-f1e961fadf11b03227fa71bc42a2a99a-8f3918bc211a5f27198b04cd92c9d8fe-bfa8eb4f98e1668fc608c4de2946541a';
-    String basicAuth = 'Basic ${base64Encode(utf8.encode(credentials)).trim()}';
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to retrieve access token.';
+      });
+      _showErrorDialog('Technical Problem, Please Try again later');
+      return;
+    }
     try {
       final ioc = HttpClient();
-      ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      final response = await client.post(
-        Uri.parse(url),
+
+      final languagesUrl =
+          '$baseUrl/androidapi/mobile/service/getLanguageDialect';
+      final languagesResponse = await client.get(
+        Uri.parse(languagesUrl),
         headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'grant_type': 'password',
-          'username': 'icjsws',
-          'password': 'cctns@123',
+          'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
-        final tokenData = json.decode(response.body);
-        String accessToken = tokenData['access_token'];
+      if (languagesResponse.statusCode == 200) {
+        final jsonResponse = json.decode(languagesResponse.body);
 
-        final languagesUrl = '$baseUrl/androidapi/mobile/service/getLanguageDialect'; 
-        final languagesResponse = await client.get(
-          Uri.parse(languagesUrl),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        );
-
-        if (languagesResponse.statusCode == 200) {
-          final jsonResponse = json.decode(languagesResponse.body);
-
-          if (jsonResponse.containsKey('data')) {
-            final data = jsonResponse['data'];
-            if (data is List) {
-              setState(() {
-                LanguagesDescriptions = data.map((languages) {
-                  return {
-                    'codeId': languages['codeId'].toString(),
-                    'codeDesc': languages['codeDesc'].toString(),
-                  };
-                }).toList();
-                isLoading = false;
-              });
-            } else {
-              setState(() {
-                isLoading = false;
-                errorMessage = 'Invalid structure: expected a list in "data" ${languagesResponse.statusCode}';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
-              });
-            }
+        if (jsonResponse.containsKey('data')) {
+          final data = jsonResponse['data'];
+          if (data is List) {
+            setState(() {
+              LanguagesDescriptions = data.map((languages) {
+                return {
+                  'codeId': languages['codeId'].toString(),
+                  'codeDesc': languages['codeDesc'].toString(),
+                };
+              }).toList();
+              isLoading = false;
+            });
           } else {
             setState(() {
               isLoading = false;
-              errorMessage = 'Key "data" not found in response. ${languagesResponse.statusCode}';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
+              errorMessage =
+                  'Invalid structure: expected a list in "data" ${languagesResponse.statusCode}';
+              _showErrorDialog(
+                  'Internet Connection Slow, Please check your connection');
             });
           }
         } else {
           setState(() {
             isLoading = false;
             errorMessage =
-                'Error fetching languages: ${languagesResponse.statusCode}';
-          _showErrorDialog('Internet Connection Slow, Please check your connection');
+                'Key "data" not found in response. ${languagesResponse.statusCode}';
+            _showErrorDialog(
+                'Internet Connection Slow, Please check your connection');
           });
         }
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Error: ${response.statusCode} - ${response.body}';
-        _showErrorDialog('Technical Problem, Please Try again later');
+          errorMessage =
+              'Error fetching languages: ${languagesResponse.statusCode}';
+          _showErrorDialog(
+              'Internet Connection Slow, Please check your connection');
         });
       }
     } catch (e) {
@@ -120,8 +112,9 @@ class _LanguagesSpokenPageState extends State<LanguagesSpokenPage> {
       });
     }
   }
+
   void _showErrorDialog(String message) {
-   showDialog(
+    showDialog(
       context: context,
       barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) {
@@ -168,8 +161,7 @@ class _LanguagesSpokenPageState extends State<LanguagesSpokenPage> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CitizenGridPage(),
+                      builder: (context) => const CitizenGridPage(),
                     ),
                   );
                 },
@@ -200,51 +192,51 @@ class _LanguagesSpokenPageState extends State<LanguagesSpokenPage> {
         //           style: TextStyle(color: Colors.red),
         //         ),
         //       )
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),  
-                child: DropdownButtonFormField<Map<String, String>?>(
-                  value: selectedLanguages.isNotEmpty
-                      ? LanguagesDescriptions.firstWhere(
-                          (item) => item['codeDesc'] == selectedLanguages,
-                          orElse: () => {'codeId': '', 'codeDesc': ''},
-                        )
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Languages Spoken',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: LanguagesDescriptions.map((Map<String, String> value) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: value,
-                      child: Text(value['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (Map<String, String>? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        selectedLanguages = newValue['codeDesc']!;
-                        selectedLanguagesId = int.tryParse(newValue['codeId']!); 
-                        // widget.controller.text = selectedLanguagesId.toString();
-                        widget.controller.text = jsonEncode({
-                          'codeId': selectedLanguagesId,
-                          'codeDesc': selectedLanguages,
-                        }); 
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a Language';
-                    }
-                    return null;
-                  },
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: DropdownButtonFormField<Map<String, String>?>(
+              value: selectedLanguages.isNotEmpty
+                  ? LanguagesDescriptions.firstWhere(
+                      (item) => item['codeDesc'] == selectedLanguages,
+                      orElse: () => {'codeId': '', 'codeDesc': ''},
+                    )
+                  : null,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Languages Spoken',
+                prefixIcon: const Icon(Icons.person),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
+              ),
+              items: LanguagesDescriptions.map((Map<String, String> value) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: value,
+                  child: Text(value['codeDesc']!),
+                );
+              }).toList(),
+              onChanged: (Map<String, String>? newValue) {
+                setState(() {
+                  if (newValue != null) {
+                    selectedLanguages = newValue['codeDesc']!;
+                    selectedLanguagesId = int.tryParse(newValue['codeId']!);
+                    // widget.controller.text = selectedLanguagesId.toString();
+                    widget.controller.text = jsonEncode({
+                      'codeId': selectedLanguagesId,
+                      'codeDesc': selectedLanguages,
+                    });
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a Language';
+                }
+                return null;
+              },
+            ),
+          );
   }
 }
