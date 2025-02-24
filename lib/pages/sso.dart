@@ -20,7 +20,7 @@ class SSOPage extends StatefulWidget {
 
 class _SSOPageState extends State<SSOPage> {
   late final WebViewController _controller;
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  final FlutterSecureStorage storage = FlutterSecureStorage();
 
   bool isLoading = true;
   String errorMessage = '';
@@ -240,3 +240,20 @@ class _SSOPageState extends State<SSOPage> {
     );
   }
 }
+//Exception encountered java.lang.NullPointerException: Attempt to invoke interface method 'byte[] com.it_nomads.fluttersecurestorage.ciphers.StorageCipher.encrypt(byte[])' on a null object reference
+	// at com.it_nomads.fluttersecurestorage.FlutterSecureStorage.write(FlutterSecureStorage.java:114)
+	// at com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin$MethodRunner.run(FlutterSecureStoragePlugin.java:137)
+	// at android.os.Handler.handleCallback(Handler.java:958)
+	// at android.os.Handler.dispatchMessage(Handler.java:99)
+	// at android.os.Looper.loopOnce(Looper.java:205)
+	// at android.os.Looper.loop(Looper.java:294)
+	// at android.os.HandlerThread.run(HandlerThread.java:67)
+/* PlatformException (PlatformException(Exception encountered, write, java.lang.NullPointerException: Attempt to invoke interface method 'byte[] com.it_nomads.fluttersecurestorage.ciphers.StorageCipher.encrypt(byte[])' on a null object reference
+	at com.it_nomads.fluttersecurestorage.FlutterSecureStorage.write(FlutterSecureStorage.java:114)
+	at com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin$MethodRunner.run(FlutterSecureStoragePlugin.java:137)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:294)
+	at android.os.HandlerThread.run(HandlerThread.java:67)
+, null)) */
