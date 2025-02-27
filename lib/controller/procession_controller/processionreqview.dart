@@ -15,15 +15,14 @@ class ProcessionReqViewPage extends StatelessWidget {
         data['applicant'] as Map<String, dynamic>? ?? {};
     final Map<String, String> labels = {
       'firstName': 'Full Name',
-      'genderDesc': 'Gender', //this is needed
+      'applicantGenderCdDesc': 'Gender', //this is needed
       'mRelationTypeDesc': 'Relation', //this is needed
       'relativeName': 'Relative Name',
-      'email': 'Email ID',
       'mobile2': 'Mobile Number'
     };
 
     final Map<String, dynamic> nestedData =
-        viewProtestVerificationDetails['protestStrikeApplicant']
+        viewProtestVerificationDetails['processionRequestRegApplicant']
                 as Map<String, dynamic>? ??
             {};
     if (nestedData.containsKey('commonPanelAgeYear')) {
@@ -32,22 +31,22 @@ class ProcessionReqViewPage extends StatelessWidget {
       labels['commonPanelAgeYear'] = 'Age';
     }
 
-    final Map<String, dynamic> perAddressData =
-        viewProtestVerificationDetails['permanentAddressFormBean']
-                as Map<String, dynamic>? ??
-            {};
-    if (perAddressData.containsKey('village')) {
-      viewProtestVerificationDetails['village'] = perAddressData['village'];
-      labels['village'] = 'Permanent Address';
-    }
+    // final Map<String, dynamic> perAddressData =
+    //     viewProtestVerificationDetails['permanentAddressFormBean']
+    //             as Map<String, dynamic>? ??
+    //         {};
+    // if (perAddressData.containsKey('village')) {
+    //   viewProtestVerificationDetails['village'] = perAddressData['village'];
+    //   labels['village'] = 'Permanent Address';
+    // }
 
-    final viewProtestPermanentDetails = data.isNotEmpty ? data : {};
-    final Map<String, String> permanentlabels = {
-      'applicantPerAddCountryCdDesc': 'Country',
-      'applicantPerAddStateCdDesc': 'State',
-      'applicantPerAddDistCdDesc': 'District', // District needed
-      'applicantPerAddPSCdDesc': 'Police Station'//police station
-    };
+    // final viewProtestPermanentDetails = data.isNotEmpty ? data : {};
+    // final Map<String, String> permanentlabels = {
+    //   'applicantPerAddCountryCdDesc': 'Country',
+    //   'applicantPerAddStateCdDesc': 'State',
+    //   'applicantPerAddDistCdDesc': 'District', // District needed
+    //   'applicantPerAddPSCdDesc': 'Police Station'//police station
+    // };
 
     final Map<String, dynamic> preAddressData =
         viewProtestVerificationDetails['presentAddressFormBean']
@@ -70,8 +69,7 @@ class ProcessionReqViewPage extends StatelessWidget {
 
     final viewProtestOrgDetails =data.isNotEmpty ? data : {};
     final Map<String, String> orglabels = {
-      'targetInstituteOrPersonName': 'Target Institute/Person Name',
-      'orgnizationName': 'Organization Name',
+      'orgName': 'Organization Name',
       
     };
     final Map<String, dynamic> orgAddressData = viewProtestOrgDetails['organization'] as Map<String ,dynamic>? ??
@@ -90,28 +88,30 @@ class ProcessionReqViewPage extends StatelessWidget {
     };
     final viewProtestlocationDetails = data.isNotEmpty ? data : {};
     final Map<String, String> locationlabels = {
-      'locationProtestStrikeName': 'Protest Location Name',
-      'typeOfProtestStrikeDesc': 'Protest/Strike Type', // need event type
-      'startDateProtestStrikeStr': 'Start Date of Protest',
-      'endDateProtestStrikeStr': 'End Date of Protest',
+      'procesionTypeDesc': 'ProcessionType', // need event type
+      'processionStartDtStr': 'Start Date of Procession',
+      'processionEndDtStr': 'End Date of Procession',
+      'expectedCrowd': 'Expected Crowd'
     };
     
-
-    final Map<String, dynamic> locationAddressData =
-        viewProtestlocationDetails['protestStrikeLocationAddress'] as Map<String, dynamic>? ??
-            {};
-    if (locationAddressData.containsKey('village')) {
-      viewProtestlocationDetails['village'] = locationAddressData['village'];
-      locationlabels['village'] = 'Protest Location Address';
-    }
-
-    final viewProtestLocAddressDetails = data.isNotEmpty ? data : {};
-    final Map<String, String> locationAddlabels = {
-      'locAddCountryCdDesc': 'Country',
-      'locAddStateCdDesc': 'State',
-      'locAddDistCdDesc': 'District',
-      'locAddPSCdDesc': 'Police Station'
+       final viewProStartinglocationDetails =
+        data['startPointAddr'] as Map<String, dynamic>? ?? {};
+    final Map<String, String> startingAddLabels = {
+      'village': 'Starting Address',
+      'countryValue': 'Country', //this is needed
+      'stateValue': 'State', //this is needed
+      'districtValue': 'District'
     };
+
+final viewProEndinglocationDetails =
+        data['endPointAddr'] as Map<String, dynamic>? ?? {};
+    final Map<String, String> endingAddLabels = {
+      'village': 'End route Address',
+      'countryValue': 'Country', //this is needed
+      'stateValue': 'State', //this is needed
+      'districtValue': 'District'
+    };
+
 
     final viewProtestStatusDetails = data.isNotEmpty ? data : {};
     final Map<String, String> statusLabels = {
@@ -120,7 +120,7 @@ class ProcessionReqViewPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Protest/Strike Details'),
+        title: const Text('Procession Request Details'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
@@ -139,29 +139,6 @@ class ProcessionReqViewPage extends StatelessWidget {
                 final value =
                     viewProtestVerificationDetails[entry.key]?.toString() ??
                         'N/A';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: TextFormField(
-                    initialValue: value,
-                    decoration: InputDecoration(
-                      labelText: entry.value,
-                      labelStyle: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 2.0),
-                      ),
-                    ),
-                    enabled: false,
-                  ),
-                );
-              }).toList(),
-              ...permanentlabels.entries.map((entry) {
-                final value =
-                    viewProtestPermanentDetails[entry.key]?.toString() ?? 'N/A';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -259,7 +236,7 @@ class ProcessionReqViewPage extends StatelessWidget {
               }).toList(),
               const SizedBox(height: 16.0),
               const Text(
-                'Event Location Details',
+                'Procession Information',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8.0),
@@ -286,49 +263,6 @@ class ProcessionReqViewPage extends StatelessWidget {
                   ),
                 );
               }).toList(),
-              ...locationAddlabels.entries.map((entry) {
-                final value =
-                    viewProtestLocAddressDetails[entry.key]?.toString() ?? 'N/A';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: TextFormField(
-                    initialValue: value,
-                    decoration: InputDecoration(
-                      labelText: entry.value,
-                      labelStyle: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 2.0),
-                      ),
-                    ),
-                    enabled: false,
-                  ),
-                );
-              }).toList(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: TextFormField(
-                  initialValue:
-                      "${viewProtestlocationDetails['locationAreaDetails'] ?? 'N/A'} : ${viewProtestlocationDetails['locationAreaCd'] ?? 'Sq. Mts.'}",
-                  decoration: InputDecoration(
-                    labelText: 'Location Area',
-                    labelStyle: const TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide:
-                          const BorderSide(color: Colors.black, width: 2.0),
-                    ),
-                  ),
-                  enabled: false,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
@@ -353,9 +287,9 @@ class ProcessionReqViewPage extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStartTimeStrHH'] ?? 'N/A'} : ${viewProtestlocationDetails['protestStartTimeStrMM'] ?? 'N/A'}",
-                  decoration: InputDecoration(
-                    labelText: 'Event Start/End Time',
+                      "${viewProtestlocationDetails['processionStartTimeStrHH'] ?? ' '} : ${viewProtestlocationDetails['processionStartTimeStrMM'] ?? ' '}",
+                  decoration: InputDecoration( 
+                    labelText: 'Procession Start/End Time',
                     labelStyle: const TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                     fillColor: Colors.white,
@@ -373,7 +307,7 @@ class ProcessionReqViewPage extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStrikeDesc'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['briefSynopsis'] ?? 'N/A'}",
                   decoration: InputDecoration(
                     labelText: 'Brief Description',
                     labelStyle: const TextStyle(
@@ -390,6 +324,52 @@ class ProcessionReqViewPage extends StatelessWidget {
                   maxLines: 3,
                 ),
               ),
+              ...startingAddLabels.entries.map((entry) {
+                final value =
+                    viewProStartinglocationDetails[entry.key]?.toString() ?? 'N/A';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
+              ...endingAddLabels.entries.map((entry) {
+                final value =
+                    viewProEndinglocationDetails[entry.key]?.toString() ?? 'N/A';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
               const SizedBox(height: 16.0),
               const Text(
                 'Request Status',

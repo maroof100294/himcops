@@ -225,7 +225,7 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           children: [
             Expanded(
               child: Text(
-                'Location area details',
+                'Location area details in Sq.Mts.',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -252,10 +252,6 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                   return null;
                 },
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: LocationAreaPage(controller: widget.locationAreaController, enabled: true)
             ),
           ],
         ),
@@ -396,7 +392,6 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
             ),
           ],
         ),
-        
       ],
     );
   }

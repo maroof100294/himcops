@@ -60,6 +60,7 @@ class _PoliceClearanceCertificatePageState
   String? permanentDistrictDesc;
   String? permanentPoliceStationDesc;
 
+  // ignore: unused_element
   void _showWarning(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));

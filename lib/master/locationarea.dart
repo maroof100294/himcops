@@ -34,7 +34,7 @@ class _LocationAreaPageState extends State<LocationAreaPage> {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      items: <String>['Sq. Mts.','Sq. Feet'] // Api call here for master country
+      items: <String>['Sq.Mts.','Sq.Feet'] // Api call here for master country
           .map((String value) {
         return DropdownMenuItem<String>(
           value: value,

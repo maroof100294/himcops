@@ -12,7 +12,7 @@ import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 // import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:open_filex/open_filex.dart';
+// import 'package:open_filex/open_filex.dart';
 
 class DomesticHelpVerificationViewPage extends StatefulWidget {
   const DomesticHelpVerificationViewPage({super.key});
@@ -236,7 +236,7 @@ class _DomesticHelpVerificationViewPageState
           );
 
           // Step 5: Open the file
-          OpenFilex.open(filePath);
+          // OpenFilex.open(filePath);
         } else {
           print('Empty file response received.');
           ScaffoldMessenger.of(context).showSnackBar(

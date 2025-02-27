@@ -342,7 +342,7 @@ class _EventPerformanceVerificationPageState
             "free3mtrDetail": "",
             "charLimitId24": 179,
             "locationArea": locationNumberController.text,
-            "locationAreaCd": "Sq. Mts.",
+            "locationAreaCd": locationAreaController.text,//"Sq.Mts.",
             "structureNature": "P", //isStrutureNature
             "nearChimneyDetail": "",
             "charLimitId23": 178,

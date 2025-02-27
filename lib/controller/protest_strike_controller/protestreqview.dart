@@ -38,22 +38,22 @@ final viewPPProtestVerificationDetails =
       labels['commonPanelAgeYear'] = 'Age';
     }
 
-    final Map<String, dynamic> perAddressData =
-        viewProtestVerificationDetails['permanentAddressFormBean']
-                as Map<String, dynamic>? ??
-            {};
-    if (perAddressData.containsKey('village')) {
-      viewProtestVerificationDetails['village'] = perAddressData['village'];
-      labels['village'] = 'Permanent Address';
-    }
+    // final Map<String, dynamic> perAddressData =
+    //     viewProtestVerificationDetails['permanentAddressFormBean']
+    //             as Map<String, dynamic>? ??
+    //         {};
+    // if (perAddressData.containsKey('village')) {
+    //   viewProtestVerificationDetails['village'] = perAddressData['village'];
+    //   labels['village'] = 'Permanent Address';
+    // }
 
-    final viewProtestPermanentDetails = data.isNotEmpty ? data : {};
-    final Map<String, String> permanentlabels = {
-      'applicantPerAddCountryCdDesc': 'Country',
-      'applicantPerAddStateCdDesc': 'State',
-      'applicantPerAddDistCdDesc': 'District', // District needed
-      'applicantPerAddPSCdDesc': 'Police Station'//police station
-    };
+    // final viewProtestPermanentDetails = data.isNotEmpty ? data : {};
+    // final Map<String, String> permanentlabels = {
+    //   'applicantPerAddCountryCdDesc': 'Country',
+    //   'applicantPerAddStateCdDesc': 'State',
+    //   'applicantPerAddDistCdDesc': 'District', // District needed
+    //   'applicantPerAddPSCdDesc': 'Police Station'//police station
+    // };
 
     final Map<String, dynamic> preAddressData =
         viewProtestVerificationDetails['presentAddressFormBean']
@@ -91,7 +91,7 @@ final viewPPProtestVerificationDetails =
       'orgCountryCdDesc': 'Country',
       'orgStateCdDesc': 'State',
       'orgDistCdDesc':'District',
-      'orgPsCdDesc':'Police Station'//its needed
+      'orgPSCdDesc':'Police Station'//its needed
       
     };
     final viewProtestlocationDetails = data.isNotEmpty ? data : {};
@@ -165,29 +165,29 @@ final viewPPProtestVerificationDetails =
                   ),
                 );
               }).toList(),
-              ...permanentlabels.entries.map((entry) {
-                final value =
-                    viewProtestPermanentDetails[entry.key]?.toString() ?? 'N/A';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: TextFormField(
-                    initialValue: value,
-                    decoration: InputDecoration(
-                      labelText: entry.value,
-                      labelStyle: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 2.0),
-                      ),
-                    ),
-                    enabled: false,
-                  ),
-                );
-              }).toList(),
+              // ...permanentlabels.entries.map((entry) {
+              //   final value =
+              //       viewProtestPermanentDetails[entry.key]?.toString() ?? 'N/A';
+              //   return Padding(
+              //     padding: const EdgeInsets.only(bottom: 16.0),
+              //     child: TextFormField(
+              //       initialValue: value,
+              //       decoration: InputDecoration(
+              //         labelText: entry.value,
+              //         labelStyle: const TextStyle(
+              //             color: Colors.black, fontWeight: FontWeight.bold),
+              //         fillColor: Colors.white,
+              //         filled: true,
+              //         border: OutlineInputBorder(
+              //           borderRadius: BorderRadius.circular(10),
+              //           borderSide:
+              //               const BorderSide(color: Colors.black, width: 2.0),
+              //         ),
+              //       ),
+              //       enabled: false,
+              //     ),
+              //   );
+              // }).toList(),
               ...presentlabels.entries.map((entry) {
                 final value =
                     viewProtestPresentDetails[entry.key]?.toString() ?? 'N/A';
@@ -365,7 +365,7 @@ final viewPPProtestVerificationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['locationAreaDetails'] ?? 'N/A'} : ${viewProtestlocationDetails['locationAreaCd'] ?? 'Sq. Mts.'}",
+                      "${viewProtestlocationDetails['locationAreaDetails'] ?? 'N/A'} :  'Sq.Mts.'}",
                   decoration: InputDecoration(
                     labelText: 'Location Area',
                     labelStyle: const TextStyle(

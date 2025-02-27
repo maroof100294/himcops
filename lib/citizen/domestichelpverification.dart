@@ -44,6 +44,7 @@ class _DomesticHelpVerificationPageState
   String? onPhotoUploadedFileName;
   String? onDocumentUploadedFileName;
 
+  // ignore: unused_element
   void _showWarning(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));

@@ -39,7 +39,7 @@
             <!-- Flutter's Normal Theme -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme" />
+                android:resource="@style/NormalTheme"/>
 
             <!-- Intent Filters for Launch -->
             <intent-filter>
@@ -55,6 +55,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" /> -->
 
         <!-- Example Metadata for Google Services (Remove if not used) -->
         <!--

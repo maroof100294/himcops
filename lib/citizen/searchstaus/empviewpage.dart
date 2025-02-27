@@ -12,7 +12,7 @@ import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 // import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:open_filex/open_filex.dart';
+// import 'package:open_filex/open_filex.dart';
 
 class EmployeeVerificationViewPage extends StatefulWidget {
   const EmployeeVerificationViewPage({super.key});
@@ -239,7 +239,7 @@ class _EmployeeVerificationViewPageState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('PDF downloaded to $filePath')),
           );
-          OpenFilex.open(filePath);
+          // OpenFilex.open(filePath);
         } else {
           print('Empty file response received.');
           ScaffoldMessenger.of(context).showSnackBar(

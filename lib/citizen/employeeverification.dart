@@ -59,6 +59,7 @@ class _EmployeeVerificationPageState extends State<EmployeeVerificationPage> {
   String? relativeDistrictCode;
   String? relativePoliceStationCode;
 
+  // ignore: unused_element
   void _showWarning(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));

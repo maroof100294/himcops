@@ -10,7 +10,7 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:open_filex/open_filex.dart';
+// import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 
 class TenantVerificaitonStatusPage extends StatefulWidget {
@@ -241,7 +241,7 @@ class _TenantVerificaitonStatusPageState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('PDF downloaded to $filePath')),
           );
-          OpenFilex.open(filePath);
+          // OpenFilex.open(filePath);
         } else {
           print('Empty file response received.');
           ScaffoldMessenger.of(context).showSnackBar(

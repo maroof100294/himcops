@@ -52,7 +52,7 @@ class TenantReqViewPage extends StatelessWidget {
       'tenantPresentCountryDesc': 'Country',
       'tenantPresentStateDesc': 'State',
       'tenantPresentDistrictDesc':'District',
-      'tenentPresentPoliceStaionDesc': 'PoliceStation'
+      'tenantPresentPoliceStationDesc': 'PoliceStation'
     };
 
     final viewTenentPermanentAddressDetails =
@@ -62,7 +62,7 @@ class TenantReqViewPage extends StatelessWidget {
       'tenantPermanentCountryDesc': 'Country',
       'tenantPermanentStateDesc': 'State',
       'tenantPermanentDistrictDesc':'District',
-      'tenentPermanentPoliceStaionDesc': 'PoliceStation'
+      'tenantPermanentPoliceStationDesc': 'PoliceStation'
     };
 
     final viewTenentStatusDetails = viewTenentVerificationDetails;

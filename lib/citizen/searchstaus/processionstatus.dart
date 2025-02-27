@@ -10,7 +10,7 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:open_filex/open_filex.dart';
+// import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 
 class ProcessionStatusPage extends StatefulWidget {
@@ -90,7 +90,7 @@ class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "userName": "maroofchoudhury8367", //loginId, "arunkumar7796"
+          "userName": loginId, //"arunkumar7796"
         }),
       );
 
@@ -169,7 +169,7 @@ class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
             'Authorization': 'Bearer $token',
           },
           body: jsonEncode({
-            "userName": "maroofchoudhury8367", // loginId, "arunkumar7796",
+            "userName": loginId, //"arunkumar7796",
             "regProcessionNum": regProcessionNum //"122532500003"
           }),
         );
@@ -237,7 +237,7 @@ class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('PDF downloaded to $filePath')),
             );
-            OpenFilex.open(filePath);
+            // OpenFilex.open(filePath);
           } else {
             print('Empty file response received.');
             ScaffoldMessenger.of(context).showSnackBar(

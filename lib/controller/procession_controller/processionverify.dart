@@ -132,7 +132,7 @@ class _ProcessionVerificationPageState
         majorParticipants.add({
           'name': majorParticipantNameController.text,
           'address':
-              '${majorAddressController.text},$selectedStateName,$selectedDistrictName,$selectedPoliceName,$selectedCountry',
+              '${majorAddressController.text}', //,$selectedStateName,$selectedDistrictName,$selectedPoliceName,$selectedCountry
         });
 
         // Clear fields
@@ -303,7 +303,7 @@ class _ProcessionVerificationPageState
           widget.endDate); // Parse the date string into DateTime object
       final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
       final payloadBody = {
-        "userName": "maroofchoudhury8367", //loginId,
+        "userName": loginId,
         "applicant": {
           "firstName": widget.applicantName, //"Arun",
           "middleName": "",
@@ -1263,14 +1263,14 @@ class _ProcessionVerificationPageState
                   onCountrySelected: _updateCountry, // Pass callback function
                 ),
 
-                if (selectedCountry != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Selected Country: $selectedCountry',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                // if (selectedCountry != null)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 8.0),
+                //     child: Text(
+                //       'Selected Country: $selectedCountry',
+                //       style: const TextStyle(fontWeight: FontWeight.bold),
+                //     ),
+                //   ),
 
                 const SizedBox(height: 10),
 
@@ -1280,30 +1280,30 @@ class _ProcessionVerificationPageState
                   onPoliceStationSelected: _updatePolice,
                 ),
 
-                if (selectedStateName != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Selected State: $selectedStateName',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                if (selectedDistrictName != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Selected District: $selectedDistrictName',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                if (selectedPoliceName != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Selected Police Station: $selectedPoliceName',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                // if (selectedStateName != null)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 8.0),
+                //     child: Text(
+                //       'Selected State: $selectedStateName',
+                //       style: const TextStyle(fontWeight: FontWeight.bold),
+                //     ),
+                //   ),
+                // if (selectedDistrictName != null)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 8.0),
+                //     child: Text(
+                //       'Selected District: $selectedDistrictName',
+                //       style: const TextStyle(fontWeight: FontWeight.bold),
+                //     ),
+                //   ),
+                // if (selectedPoliceName != null)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 8.0),
+                //     child: Text(
+                //       'Selected Police Station: $selectedPoliceName',
+                //       style: const TextStyle(fontWeight: FontWeight.bold),
+                //     ),
+                //   ),
 
                 const SizedBox(height: 10),
                 ElevatedButton(
