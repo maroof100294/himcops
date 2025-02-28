@@ -10,7 +10,7 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io';
 
 class ProtestStrikeStatusPage extends StatefulWidget {
@@ -104,7 +104,7 @@ class _ProtestStrikeStatusPageState extends State<ProtestStrikeStatusPage> {
                 status = 'In Progress';
               }
               if (status == 'Rejected' || status == 'Approved') {
-                status = 'Complete';
+                status = 'Completed';
               }
               return {
                 'serviceRequestNumber':
@@ -166,7 +166,7 @@ class _ProtestStrikeStatusPageState extends State<ProtestStrikeStatusPage> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "userName": "maroofchoudhury8367", //loginId, //"arunkumar7796",
+          "userName": loginId, //"arunkumar7796",
           "regProtestStrikeNum": regProtestStrikeNum //"122532500003"
         }),
       );
@@ -235,6 +235,8 @@ class _ProtestStrikeStatusPageState extends State<ProtestStrikeStatusPage> {
               SnackBar(content: Text('PDF downloaded to $filePath')),
             );
             // OpenFilex.open(filePath);
+            OpenFile.open(filePath);
+
           } else {
             print('Empty file response received.');
             ScaffoldMessenger.of(context).showSnackBar(

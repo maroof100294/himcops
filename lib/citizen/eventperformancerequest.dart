@@ -73,13 +73,13 @@ class _EventPerformanceRequestPageState
   bool isOtherFormVisible = false;
   bool isPersonalFormVisible = true;
   bool isPerformanceFormVisible = false;
-   String selectedState = 'HIMACHAL PRADESH';
+  String selectedState = 'HIMACHAL PRADESH';
   bool _criminalChanged = false;
   bool _convictedChanged = false;
   bool _preceedingChanged = false;
   bool _blacklistedChanged = false;
   bool isChecked = true;
-  bool isMovingForward = true; 
+  bool isMovingForward = true;
   String loginId = '';
   String firstName = '';
   String fullName = '';
@@ -121,6 +121,8 @@ class _EventPerformanceRequestPageState
       mobileController.text = mobile2 != null ? mobile2.toString() : '';
     });
   }
+
+
   @override
   void initState() {
     super.initState();
@@ -130,7 +132,7 @@ class _EventPerformanceRequestPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar:AppBar(
+      appBar: AppBar(
         title: const Text(
           'Event Performanace Request',
           style: TextStyle(
@@ -245,8 +247,7 @@ class _EventPerformanceRequestPageState
           ),
           const SizedBox(width: 20),
           Visibility(
-            visible: !isPersonalFormVisible &&
-                !isOtherFormVisible,
+            visible: !isPersonalFormVisible && !isOtherFormVisible,
             child: Positioned(
               bottom: 20,
               right: 20,
@@ -280,7 +281,7 @@ class _EventPerformanceRequestPageState
   void _nextSection() {
     setState(() {
       if (isMovingForward) {
-         if (_getCurrentFormKey().currentState!.validate()) {
+        if (_getCurrentFormKey().currentState!.validate()) {
           if (isPersonalFormVisible) {
             isPersonalFormVisible = false;
             isOtherFormVisible = true;
@@ -288,7 +289,7 @@ class _EventPerformanceRequestPageState
             isOtherFormVisible = false;
             isPerformanceFormVisible = true;
           }
-         }
+        }
       } else {
         if (isPerformanceFormVisible) {
           isPerformanceFormVisible = false;
@@ -308,15 +309,19 @@ class _EventPerformanceRequestPageState
   }
 
   void _verifyDetails() {
+
     final genderData = jsonDecode(genderController.text);
     final selectedGenderCodeId = genderData['codeId'];
     final selectedGenderCodeDesc = genderData['codeDesc'];
+
     final relationData = jsonDecode(relationController.text);
     final selectedRelationCodeId = relationData['codeId'];
     final selectedRelationCodeDesc = relationData['codeDesc'];
+
     final eventData = jsonDecode(eventPerformanceTypeController.text);
     final selectedEventCodeId = eventData['codeId'];
     final selectedEventCodeDesc = eventData['codeDesc'];
+
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => EventPerformanceVerificationPage(
         applicantName: nameController.text,
@@ -335,7 +340,7 @@ class _EventPerformanceRequestPageState
         preceeding: preceedingController.text,
         blacklisted: blacklistedController.text,
         eventPerformanceType: selectedEventCodeDesc,
-        eventPerformanceId: selectedEventCodeId, 
+        eventPerformanceId: selectedEventCodeId,
         startDate: startDateController.text,
         endDate: endDateController.text,
         briefDescription: briefDescriptionController.text,

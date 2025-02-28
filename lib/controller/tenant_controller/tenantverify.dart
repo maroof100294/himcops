@@ -25,10 +25,12 @@ class TvrVerificationPage extends StatefulWidget {
   final int tenantId;
   final String relativeName;
   final String affidavit;
+  final String commercial;
   final String tenantOccupation;
   final String tenancy;
   final String age;
   final String selectedState;
+  final String selectedTenancy;
   final int genderId;
   final bool isCriminal;
 
@@ -42,10 +44,12 @@ class TvrVerificationPage extends StatefulWidget {
     required this.tenantId,
     required this.relativeName,
     required this.affidavit,
+    required this.commercial,
     required this.tenantOccupation,
     required this.tenancy,
     required this.age,
     required this.selectedState,
+    required this.selectedTenancy,
     required this.genderId,
     required this.isCriminal,
   });
@@ -248,6 +252,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
   late TextEditingController dateOfBirthController;
   late TextEditingController ageController;
   late TextEditingController affidavitController;
+  late TextEditingController commercialDetailsController;
 
   @override
   void initState() {
@@ -264,6 +269,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
     dateOfBirthController = TextEditingController(text: widget.dateOfBirth);
     ageController = TextEditingController(text: widget.age);
     affidavitController = TextEditingController(text: widget.affidavit);
+    commercialDetailsController = TextEditingController(text: widget.commercial);
 
     _fetchLoginId();
   }
@@ -376,8 +382,8 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
           "orRecord": 1,
           "fileTypeCd": [1, 2],
           "filedescription": ["photo", "aadhar ration"],
-          "tenancypurpose": "C",
-          "commercialDetails": "gjgjhgjhgjhgjh",
+          "tenancypurpose":  widget.selectedTenancy == "Residential" ? "R" : "C",//"C",
+          "commercialDetails": widget.selectedTenancy == "Commercial" ? widget.commercial : "",//"gjgjhgjhgjhgjh",
           "submittenant": "submit",
           "tenantVerificationTenant": {
             "commonPaneldateOfBirth": formattedDob,
@@ -953,6 +959,30 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                     readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Age',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.selectedTenancy,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'Tenancy',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),const SizedBox(height: 8),
+                  TextFormField(
+                    controller: commercialDetailsController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Commercial',
                       filled: true,
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(

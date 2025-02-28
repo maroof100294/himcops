@@ -1,16 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-// import 'package:himcops/controller/domestic_controller/dmvaffidavit.dart';
 import 'package:himcops/controller/tenant_controller/tenantaffidavit.dart';
-// import 'package:himcops/controller/domestic_controller/dmvotherdetails.dart';
-// import 'package:himcops/controller/tenant_controller/tenantaddressdetails.dart';
-// import 'package:himcops/controller/tenant_controller/tenantownerdetails.dart';
 import 'package:himcops/controller/tenant_controller/tenantpersonaldetails.dart';
 import 'package:himcops/controller/tenant_controller/tenantverify.dart';
 import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/backgroundlayout.dart';
-// import 'package:himcops/layout/formlayout.dart';
 
 class TenantVerificationPage extends StatefulWidget {
   const TenantVerificationPage({super.key});
@@ -24,61 +18,48 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
   final _affidavitFormKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  final TextEditingController dateDobController = TextEditingController();
+  TextEditingController dateDobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController relationController = TextEditingController();
   TextEditingController relativeNameController = TextEditingController();
-  TextEditingController paddressController = TextEditingController();
-  TextEditingController pcountryController = TextEditingController();
-  TextEditingController pstateController = TextEditingController();
-  TextEditingController pdistrictController = TextEditingController();
-  TextEditingController ppoliceStationController = TextEditingController();
-  TextEditingController aCountryController = TextEditingController();
-  TextEditingController aStateController = TextEditingController();
-  TextEditingController aDistrictController = TextEditingController();
-  TextEditingController aPoliceStationController = TextEditingController();
   TextEditingController affidavitController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController mobileController = TextEditingController();
-  TextEditingController occupationController = TextEditingController();
-  TextEditingController oAddressController = TextEditingController();
-  TextEditingController oCountryController = TextEditingController();
-  TextEditingController oStateController = TextEditingController();
-  TextEditingController oDistrictController = TextEditingController();
-  TextEditingController oPoliceStationController = TextEditingController();
   TextEditingController tOccupationController = TextEditingController();
   TextEditingController tenancyController = TextEditingController();
   TextEditingController ageController = TextEditingController();
-  TextEditingController oNameController = TextEditingController();
+  TextEditingController commercialDetailsController = TextEditingController();
 
-  // bool isOwnerFormVisible = true;
   bool isPersonalFormVisible = true;
-  String selectedState = 'HIMACHAL PRADESH';
-  // bool isAddressFormVisible = false;
-  // bool isOtherDetailsFormVisible = false;
   bool isAffidavitFormVisible = false;
-  bool isChecked = true;
-
-  bool _criminalChanged = false;
   bool isMovingForward = true;
+  bool _criminalChanged = false;
 
+  String selectedState = 'HIMACHAL PRADESH';
+  String selectedTenancy = '';
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Ensure tenancyController.text stores 'Commercial' or 'Residential'
+    if (tenancyController.text == 'C') {
+      tenancyController.text = 'Commercial';
+    } else if (tenancyController.text == 'R') {
+      tenancyController.text = 'Residential';
+    }
+
+    selectedTenancy = tenancyController.text; // Assign correct value
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(
+      appBar: AppBar(
         title: const Text(
           'Tenant Verification Request',
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 255, 255, 255)),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 12, 100, 233),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Set the menu icon color to white
-        ),
+        backgroundColor: const Color.fromARGB(255, 12, 100, 233),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       drawer: const AppDrawer(),
       body: Stack(
@@ -86,16 +67,11 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
           const BackgroundPage(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Container(  
+            child: Container(
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 233, 240, 221),
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                  ),
-                ],
+                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
               ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -106,20 +82,10 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
                     children: [
                       Text(
                         _getFormTitle(),
-                        style: const TextStyle(
-                          color: Color(0xFF133371),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
+                        style: const TextStyle(color: Color(0xFF133371), fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       const SizedBox(height: 5),
-                      const Text(
-                        'All fields are mandatory',
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 12),
-                      ),
+                      const Text('All fields are mandatory', style: TextStyle(color: Colors.red, fontSize: 12)),
                       const SizedBox(height: 16),
                       if (isPersonalFormVisible)
                         TenantDetailsFormPage(
@@ -131,6 +97,7 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
                           relationController: relationController,
                           relativeNameController: relativeNameController,
                           tenancyController: tenancyController,
+                          commercialDetailsController: commercialDetailsController,
                         ),
                       if (isAffidavitFormVisible)
                         TenantaffidavitForm(
@@ -152,16 +119,12 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
               right: 20,
               child: FloatingActionButton(
                 onPressed: _nextSection,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 backgroundColor: Colors.yellow[700],
-                child:
-                    const Text('Next', style: TextStyle(color: Colors.white)),
+                child: const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
-          const SizedBox(width: 20),
           Visibility(
             visible: !isPersonalFormVisible,
             child: Positioned(
@@ -169,11 +132,9 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
               right: 20,
               child: FloatingActionButton(
                 onPressed: _verifyDetails,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 backgroundColor: Colors.yellow[700],
-                child:
-                    const Text('Next', style: TextStyle(color: Colors.white)),
+                child: const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -183,13 +144,11 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
   }
 
   GlobalKey<FormState> _getCurrentFormKey() {
-    if (isAffidavitFormVisible) return _affidavitFormKey;
-    return _personalFormKey;
+    return isAffidavitFormVisible ? _affidavitFormKey : _personalFormKey;
   }
 
   String _getFormTitle() {
-    if (isAffidavitFormVisible) return 'Affidavit Information';
-    return 'Tenant Personal Details';
+    return isAffidavitFormVisible ? 'Affidavit Information' : 'Tenant Personal Details';
   }
 
   void _nextSection() {
@@ -217,15 +176,28 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
   }
 
   void _verifyDetails() {
+    // Ensure tenancyController.text contains valid value before navigating
+    if (tenancyController.text == 'C') {
+      tenancyController.text = 'Commercial';
+    } else if (tenancyController.text == 'R') {
+      tenancyController.text = 'Residential';
+    }
+
+    selectedTenancy = tenancyController.text;
+
+    // Extract necessary values from controllers
     final genderData = jsonDecode(genderController.text);
     final selectedGenderCodeId = genderData['codeId'];
     final selectedGenderCodeDesc = genderData['codeDesc'];
+
     final occupationData = jsonDecode(tOccupationController.text);
     final selectedOccupationCodeId = occupationData['codeId'];
     final selectedOccupationCodeDesc = occupationData['codeDesc'];
+
     final relationData = jsonDecode(relationController.text);
     final selectedRelationCodeId = relationData['codeId'];
     final selectedRelationCodeDesc = relationData['codeDesc'];
+
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => TvrVerificationPage(
         name: nameController.text,
@@ -235,6 +207,8 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
         relationId: selectedRelationCodeId,
         relativeName: relativeNameController.text,
         affidavit: affidavitController.text,
+        commercial: commercialDetailsController.text,
+        selectedTenancy: selectedTenancy,
         tenantOccupation: selectedOccupationCodeDesc,
         isCriminal: _criminalChanged,
         tenantId: selectedOccupationCodeId,

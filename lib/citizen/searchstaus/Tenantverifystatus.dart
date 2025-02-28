@@ -10,7 +10,7 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io';
 
 class TenantVerificaitonStatusPage extends StatefulWidget {
@@ -108,7 +108,7 @@ class _TenantVerificaitonStatusPageState
                 status = 'In Progress';
               }
               if (status == 'Rejected' || status == 'Completed') {
-                status = 'Complete';
+                status = 'Completed';
               }
               return {
                 'serviceRequestNumber':
@@ -242,6 +242,8 @@ class _TenantVerificaitonStatusPageState
             SnackBar(content: Text('PDF downloaded to $filePath')),
           );
           // OpenFilex.open(filePath);
+          OpenFile.open(filePath);
+
         } else {
           print('Empty file response received.');
           ScaffoldMessenger.of(context).showSnackBar(

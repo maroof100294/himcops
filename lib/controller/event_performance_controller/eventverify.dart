@@ -10,7 +10,7 @@ import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/master/country.dart';
 import 'package:himcops/master/locationarea.dart';
-import 'package:himcops/master/natureofstructure.dart';
+// import 'package:himcops/master/natureofstructure.dart';
 import 'package:himcops/master/sdp.dart';
 import 'package:himcops/master/typeofstructure.dart';
 import 'package:himcops/pages/cgridhome.dart';
@@ -130,6 +130,8 @@ class _EventPerformanceVerificationPageState
   String tehsil = '';
   String village = '';
   int? mobile2;
+  String selectedNature = '';
+  String selectedType = '';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<void> _fetchLoginId() async {
@@ -237,6 +239,20 @@ class _EventPerformanceVerificationPageState
         TextEditingController(text: widget.expectedMinutes);
 
     _fetchLoginId();
+
+    if (structureNatureController.text == 'T') {
+      structureNatureController.text = 'Temporary';
+    } else if (structureNatureController.text == 'P') {
+      structureNatureController.text = 'Permanent';
+    }
+    selectedNature = structureNatureController.text;
+
+    if (structureTypeController.text == 'C') {
+      structureTypeController.text = 'Close';
+    } else if (structureTypeController.text == 'O') {
+      structureTypeController.text = 'Open';
+    }
+    selectedType = structureTypeController.text;
   }
 
   Future<void> _registerUser() async {
@@ -255,177 +271,171 @@ class _EventPerformanceVerificationPageState
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-        final accountUrl =
-            '$baseUrl/androidapi/mobile/service/eventPerformanceRequestRegistration';
-        final DateTime dob = DateTime.parse(widget
-            .applicantDateOfBirth); // Parse the date string into DateTime object
-        final String formattedDob =
-            DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
-         final DateTime startDate = DateTime.parse(widget
-            .startDate); // Parse the date string into DateTime object
-        final String formattedSDate =
-            DateFormat('dd/MM/yyyy').format(startDate);
-            final DateTime endDate = DateTime.parse(widget
-            .endDate); // Parse the date string into DateTime object
-        final String formattedEDate =
-            DateFormat('dd/MM/yyyy').format(endDate);
-        final payloadBody = {
-          
-            "userName": "maroofchoudhury8367",//loginId, //"arunkumar7796",
-            "applicant": {
-              "firstName": widget.applicantName,
-              "middleName": "",
-              "gender": widget.applicantGenderId,
-              "lastName": "",
-              "mobile1": "91",
-              "mobile2": widget.applicantMobile,
-              "mRelationType": widget.applicantRelationId,
-              "relativeName": widget.applicationRelativeName,
-              "email": widget.applicantEmail,
-              "permanentAddressFormBean": {
-                "countryCd": isChecked
-                    ? int.tryParse(pcountryController.text)
-                    : int.tryParse(aCountryController.text), //80,
-                "stateCd": 12,
-                "districtCd": isChecked
-                    ? int.tryParse(presentDistrictCode!)
-                    : int.tryParse(permanentDistrictCode!), //12253,
-                "village": isChecked
-                    ? paddressController.text
-                    : addressController.text,
-                "policeStationCd": isChecked
-                    ? int.tryParse(presentPoliceStationCode!)
-                    : int.tryParse(permanentPoliceStationCode!), //12253025
-              },
-              "presentAddressFormBean": {
-                "countryCd": int.tryParse(pcountryController.text), //80,
-                "stateCd": 12,
-                "districtCd": int.tryParse(presentDistrictCode!), //12253,
-                "village": paddressController.text,
-                "policeStationCd":
-                    int.tryParse(presentPoliceStationCode!), //12253025
-              }
-            },
-            "eventPerformanceRegApplicant": {
-              "commonPaneldateOfBirth": formattedDob,
-              "commonPanelAgeYear": widget.applicantAge,
-              // "commonPanelAgeMonth": 7,
-              // "commonPanelyearOfBirth": 1993
-            },
-            "isClickedSubmit": 0,
-            "isSameAsPermanent": isChecked ? 'Y' : 'N',
-            "isApplCriminal": widget.isCriminal ? 'Y' : 'N',
-            "anyPreventiveProceeds": widget.isPreceeding ? 'Y' : 'N',
-            "charLimitId": 200,
-            "charLimitId1": 200,
-            "isApplConvict": widget.isConvicted ? 'Y' : 'N',
-            "isApplBlacklisted": widget.isBlacklisted ? 'Y' : 'N',
-            "orgnizationName": widget.orgName,
-            "organizationPhone1": "91",
-            "organizationMobile1": "91",
-            "organization": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": 12253,
-              "policeStationCd": null
-            },
-            "locationAddress": {
-              "countryCd": 80,
-              "stateCd": 12,
-              "districtCd": int.tryParse(locationDistrictCode!),
-              "village": locationAddressController.text,
-              "policeStationCd": int.tryParse(locationPoliceStationCode!),
-              "pincode": ""
-            },
-            "locationName": locationNameController.text,
-            "fireResistantLimit": 4,
-            "free3mtrDetail": "",
-            "charLimitId24": 179,
-            "locationArea": locationNumberController.text,
-            "locationAreaCd": locationAreaController.text,//"Sq.Mts.",
-            "structureNature": "P", //isStrutureNature
-            "nearChimneyDetail": "",
-            "charLimitId23": 178,
-            "isStructureOpen": "O", //isStructureType
-            "charLimitId22": 200,
-            "charLimitId26": 15,
-            "charLimitId27": 180,
-            "materialNature": ["", "", ""],
-            "fireRetardantTreat": ["", "", ""],
-            "langCd": 99,
-            "eventStartDtStr": formattedSDate,
-            "eventStartTimeStrHH": startHoursController.text,
-            "eventStartTimeStrMM": startMinutesController.text,
-            "eventEndDtStr": formattedEDate,
-            "proposedTimeLmtHH": expectedHoursController.text,
-            "proposedTimeLmtMM": expectedMinutesController.text,
-            "briefSynopsis": briefDescriptionController.text,
-            "charLimitId18": 182,
-            "isLoudspeakerUsed": "N",
-            "eventTypeCd": widget.eventPerformanceId,//3, //eventPerformanceId
-            "isParkingAvail": "N",
-            "isFireDeptClearance": "Y", //isFireClearance
-            "securityRoomDetail": "",
-            "charLimitId10": 171,
-            "exitGateWidthDesc": "",
-            "charLimitId13": 181,
-            "wiringFittingDetail": "",
-            "charLimitId14": 183,
-            "firstAidFacility": "",
-            "charLimitId7": 172,
-            "gangwaysDetails": "",
-            "charLimitId12": 30,
-            "fireDeptClearance": "",
-            "charLimitId16": 171,
-            "fireFightDetail": "",
-            "charLimitId15": 188,
-            "standbyAmbulance": "",
-            "charLimitId5": 179,
-            "standbyFireService": "",
-            "charLimitId9": 185,
-            "nearbyHospital": "",
-            "charLimitId4": 176,
-            "fireCntrlRoomDetail": "",
-            "charLimitId11": 181,
-            "publicFacilityAvail": "",
-            "charLimitId8": 179,
-            "medAttendants": ""
-          
-        };
-        print('Request Body: \n${json.encode(payloadBody)}');
-
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode(payloadBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
+      final accountUrl =
+          '$baseUrl/androidapi/mobile/service/eventPerformanceRequestRegistration';
+      final DateTime dob = DateTime.parse(widget
+          .applicantDateOfBirth); // Parse the date string into DateTime object
+      final String formattedDob =
+          DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
+      final DateTime startDate = DateTime.parse(
+          widget.startDate); // Parse the date string into DateTime object
+      final String formattedSDate = DateFormat('dd/MM/yyyy').format(startDate);
+      final DateTime endDate = DateTime.parse(
+          widget.endDate); // Parse the date string into DateTime object
+      final String formattedEDate = DateFormat('dd/MM/yyyy').format(endDate);
+      final payloadBody = {
+        "userName": loginId, //"arunkumar7796",
+        "applicant": {
+          "firstName": widget.applicantName,
+          "middleName": "",
+          "gender": widget.applicantGenderId,
+          "lastName": "",
+          "mobile1": "91",
+          "mobile2": widget.applicantMobile,
+          "mRelationType": widget.applicantRelationId,
+          "relativeName": widget.applicationRelativeName,
+          "email": widget.applicantEmail,
+          "permanentAddressFormBean": {
+            "countryCd": isChecked
+                ? int.tryParse(pcountryController.text)
+                : int.tryParse(aCountryController.text), //80,
+            "stateCd": 12,
+            "districtCd": isChecked
+                ? int.tryParse(presentDistrictCode!)
+                : int.tryParse(permanentDistrictCode!), //12253,
+            "village":
+                isChecked ? paddressController.text : addressController.text,
+            "policeStationCd": isChecked
+                ? int.tryParse(presentPoliceStationCode!)
+                : int.tryParse(permanentPoliceStationCode!), //12253025
           },
-        );
+          "presentAddressFormBean": {
+            "countryCd": int.tryParse(pcountryController.text), //80,
+            "stateCd": 12,
+            "districtCd": int.tryParse(presentDistrictCode!), //12253,
+            "village": paddressController.text,
+            "policeStationCd":
+                int.tryParse(presentPoliceStationCode!), //12253025
+          }
+        },
+        "eventPerformanceRegApplicant": {
+          "commonPaneldateOfBirth": formattedDob,
+          "commonPanelAgeYear": widget.applicantAge,
+          // "commonPanelAgeMonth": 7,
+          // "commonPanelyearOfBirth": 1993
+        },
+        "isClickedSubmit": 0,
+        "isSameAsPermanent": isChecked ? 'Y' : 'N',
+        "isApplCriminal": widget.isCriminal ? 'Y' : 'N',
+        "anyPreventiveProceeds": widget.isPreceeding ? 'Y' : 'N',
+        "charLimitId": 200,
+        "charLimitId1": 200,
+        "isApplConvict": widget.isConvicted ? 'Y' : 'N',
+        "isApplBlacklisted": widget.isBlacklisted ? 'Y' : 'N',
+        "orgnizationName": widget.orgName,
+        "organizationPhone1": "91",
+        "organizationMobile1": "91",
+        "organization": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": 12253,
+          "policeStationCd": null
+        },
+        "locationAddress": {
+          "countryCd": 80,
+          "stateCd": 12,
+          "districtCd": int.tryParse(locationDistrictCode!),
+          "village": locationAddressController.text,
+          "policeStationCd": int.tryParse(locationPoliceStationCode!),
+          "pincode": ""
+        },
+        "locationName": locationNameController.text,
+        "fireResistantLimit": 4,
+        "free3mtrDetail": "",
+        "charLimitId24": 179,
+        "locationArea": locationNumberController.text,
+        "locationAreaCd": locationAreaController.text, //"Sq.Mts.",
+        "structureNature": selectedNature == "Temporary" ? "T" : "P", //"P", //isStrutureNature
+        "nearChimneyDetail": "",
+        "charLimitId23": 178,
+        "isStructureOpen": selectedType == "Close" ? "C" : "O",//"O", //isStructureType
+        "charLimitId22": 200,
+        "charLimitId26": 15,
+        "charLimitId27": 180,
+        "materialNature": ["", "", ""],
+        "fireRetardantTreat": ["", "", ""],
+        "langCd": 99,
+        "eventStartDtStr": formattedSDate,
+        "eventStartTimeStrHH": startHoursController.text,
+        "eventStartTimeStrMM": startMinutesController.text,
+        "eventEndDtStr": formattedEDate,
+        "proposedTimeLmtHH": expectedHoursController.text,
+        "proposedTimeLmtMM": expectedMinutesController.text,
+        "briefSynopsis": briefDescriptionController.text,
+        "charLimitId18": 182,
+        "isLoudspeakerUsed": "N",
+        "eventTypeCd": widget.eventPerformanceId, //3, //eventPerformanceId
+        "isParkingAvail": "N",
+        "isFireDeptClearance": widget.fireClearance == "Yes" ? "Y" : "N", //isFireClearance
+        "securityRoomDetail": "",
+        "charLimitId10": 171,
+        "exitGateWidthDesc": "",
+        "charLimitId13": 181,
+        "wiringFittingDetail": "",
+        "charLimitId14": 183,
+        "firstAidFacility": "",
+        "charLimitId7": 172,
+        "gangwaysDetails": "",
+        "charLimitId12": 30,
+        "fireDeptClearance": "",
+        "charLimitId16": 171,
+        "fireFightDetail": "",
+        "charLimitId15": 188,
+        "standbyAmbulance": "",
+        "charLimitId5": 179,
+        "standbyFireService": "",
+        "charLimitId9": 185,
+        "nearbyHospital": "",
+        "charLimitId4": 176,
+        "fireCntrlRoomDetail": "",
+        "charLimitId11": 181,
+        "publicFacilityAvail": "",
+        "charLimitId8": 179,
+        "medAttendants": ""
+      };
+      print('Request Body: \n${json.encode(payloadBody)}');
 
-        if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $rdata');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
-        } else {
-          print('Failed to enter${accountResponse.body},$loginId,$mobile2');
-          _showErrorDialog('Please fill the details');
-        }
-      
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode(payloadBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $rdata');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
+      } else {
+        print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+        _showErrorDialog('Please fill the details');
+      }
     } catch (e) {
       setState(() {
         print('Error occurred: $e');
@@ -602,7 +612,7 @@ class _EventPerformanceVerificationPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar:AppBar(
+      appBar: AppBar(
         title: const Text(
           'Event Performanace Request',
           style: TextStyle(
@@ -742,38 +752,38 @@ class _EventPerformanceVerificationPageState
                         controller: addressController,
                         enabled: true,
                         decoration: InputDecoration(
-                    label: RichText(
-                      text: TextSpan(
-                        text: 'Permanent Address',
-                        style: TextStyle(
-                            color: Colors.black), // Normal label color
-                        children: [
-                          TextSpan(
-                            text: ' *',
-                            style:
-                                TextStyle(color: Colors.red), // Red color for *
+                          label: RichText(
+                            text: TextSpan(
+                              text: 'Permanent Address',
+                              style: TextStyle(
+                                  color: Colors.black), // Normal label color
+                              children: [
+                                TextSpan(
+                                  text: ' *',
+                                  style: TextStyle(
+                                      color: Colors.red), // Red color for *
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                    prefixIcon: const Icon(Icons.home),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                  ),
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
+                          prefixIcon: const Icon(Icons.home),
+                          filled: true,
+                          fillColor: Colors.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                        ),
+                        maxLines: 3,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your address';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 8),
                       CountryPage(
@@ -889,7 +899,7 @@ class _EventPerformanceVerificationPageState
                     ),
                   ],
                 ),
-                 const SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextFormField(
                   initialValue: widget.selectedState,
                   readOnly: true, // Makes the field uneditable
@@ -958,11 +968,77 @@ class _EventPerformanceVerificationPageState
                   ],
                 ),
                 const SizedBox(height: 10),
-                NatureStructurePage(
-                    controller: structureNatureController, enabled: true),
+                // NatureStructurePage(
+                //     controller: structureNatureController, enabled: true),
+                DropdownButtonFormField<String>(
+                  value: structureNatureController.text.isNotEmpty
+                      ? structureNatureController.text
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: 'Nature of Structure',
+                    prefixIcon: const Icon(Icons.nature),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  items: <String>['Temporary', 'Permanent'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      structureNatureController.text =
+                          newValue ?? ''; // Save full text
+                      selectedNature = newValue ?? '';
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a nature of structure';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 10),
-                StructureTypePage(
-                    controller: structureTypeController, enabled: true),
+                // StructureTypePage(
+                //     controller: structureTypeController, enabled: true),
+                DropdownButtonFormField<String>(
+                  value: structureTypeController.text.isNotEmpty
+                      ? structureTypeController.text
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: 'Type of Structure',
+                    prefixIcon: const Icon(Icons.nature),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  items: <String>['Close', 'Open'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      structureTypeController.text =
+                          newValue ?? ''; // Save full text
+                      selectedType = newValue ?? '';
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a Type of structure';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
                 const Text('Applicant Personal Information',
                     style:
@@ -1290,104 +1366,103 @@ class _EventPerformanceVerificationPageState
                         borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
-                 const SizedBox(height: 20),
-                  const Text('Affidavit Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: criminalController,
-                    decoration: InputDecoration(
-                      labelText: 'Criminal Details',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    enabled: false,
+                const SizedBox(height: 20),
+                const Text('Affidavit Details',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: criminalController,
+                  decoration: InputDecoration(
+                    labelText: 'Criminal Details',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: convictedController,
-                    decoration: InputDecoration(
-                      labelText: 'Convicted Details',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    enabled: false,
+                  enabled: false,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: convictedController,
+                  decoration: InputDecoration(
+                    labelText: 'Convicted Details',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                   const SizedBox(height: 8),
-                  TextFormField(
-                    controller: preceedingController,
-                    decoration: InputDecoration(
-                      labelText: 'preceeding Details',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    enabled: false,
+                  enabled: false,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: preceedingController,
+                  decoration: InputDecoration(
+                    labelText: 'preceeding Details',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                   const SizedBox(height: 8),
-                  TextFormField(
-                    controller: blacklistedController,
-                    decoration: InputDecoration(
-                      labelText: 'Blacklist Details',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    enabled: false,
+                  enabled: false,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: blacklistedController,
+                  decoration: InputDecoration(
+                    labelText: 'Blacklist Details',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: isAgree,
-                        onChanged: (value) {
+                  enabled: false,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isAgree,
+                      onChanged: (value) {
+                        setState(() {
+                          isAgree = value!;
+                        });
+                      },
+                    ),
+                    const Text(
+                        'All the information provided in the form is true'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: (isAgree &&
+                          _affidavitDetailsFormKey.currentState!.validate() &&
+                          !_isSubmitting) // Check if not already submitting
+                      ? () async {
                           setState(() {
-                            isAgree = value!;
+                            _isSubmitting = true; // Disable the button
                           });
-                        },
-                      ),
-                      const Text(
-                          'All the information provided in the form is true'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: (isAgree &&
-                            _affidavitDetailsFormKey.currentState!.validate() &&
-                            !_isSubmitting) // Check if not already submitting
-                        ? () async {
-                            setState(() {
-                              _isSubmitting = true; // Disable the button
-                            });
 
-                            try {
-                              await _registerUser(); // Perform the registration logic
-                            } finally {
-                              setState(() {
-                                _isSubmitting =
-                                    true; // Re-enable the button after completion
-                              });
-                            }
+                          try {
+                            await _registerUser(); // Perform the registration logic
+                          } finally {
+                            setState(() {
+                              _isSubmitting =
+                                  true; // Re-enable the button after completion
+                            });
                           }
-                        : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
-                    style: AppButtonStyles.elevatedButtonStyle,
-                    child: _isSubmitting
-                        ? const CircularProgressIndicator(
-                            color: Colors.white) // Show a loader
-                        : const Text(
-                            'Submit',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                  ),
+                        }
+                      : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
+                  style: AppButtonStyles.elevatedButtonStyle,
+                  child: _isSubmitting
+                      ? const CircularProgressIndicator(
+                          color: Colors.white) // Show a loader
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                ),
               ],
             ),
           ),

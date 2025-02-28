@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:himcops/master/country.dart';
 import 'package:himcops/master/locationarea.dart';
-import 'package:himcops/master/natureofstructure.dart';
+// import 'package:himcops/master/natureofstructure.dart';
 import 'package:himcops/master/typeofstructure.dart';
 
 class EventLocationDetailsForm extends StatefulWidget {
@@ -38,12 +38,25 @@ class EventLocationDetailsForm extends StatefulWidget {
 
 class _EventLocationDetailsFormState extends State<EventLocationDetailsForm> {
   int? selectedStateId;
+  String selectedNature = '';
 
   String? ValidateFullName(String value) {
     if (!RegExp(r"^[a-zA-Z\s]{1,50}$").hasMatch(value)) {
       return "Full name should only contain alphabets and spaces\nand not exceed 50 words";
     }
     return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Ensure structureNatureController.text has the correct value
+    if (widget.structureNatureController.text == 'T') {
+      widget.structureNatureController.text = 'Temporary';
+    } else if (widget.structureNatureController.text == 'P') {
+      widget.structureNatureController.text = 'Permanent';
+    }
   }
 
   @override
@@ -156,9 +169,45 @@ class _EventLocationDetailsFormState extends State<EventLocationDetailsForm> {
           ],
         ),
         const SizedBox(height: 10),
-        NatureStructurePage(controller: widget.structureNatureController, enabled: true),
+        // NatureStructurePage(controller: widget.structureNatureController, enabled: true),
+        
+        DropdownButtonFormField<String>(
+          value: selectedNature.isNotEmpty ? selectedNature : null,
+          decoration: InputDecoration(
+            labelText: 'Nature of Structure',
+            prefixIcon: const Icon(Icons.nature),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          items: <String>[
+            'Temporary',
+            'Permanent'
+          ] // Api call here for master country
+              .map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedNature = newValue!;
+              // widget.controller.text = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select a nature of structure';
+            }
+            return null;
+          },
+        ),
         const SizedBox(height: 10),
-        StructureTypePage(controller: widget.structureTypeController, enabled: true),
+        StructureTypePage(
+            controller: widget.structureTypeController, enabled: true),
       ],
     );
   }

@@ -292,6 +292,8 @@ class _ProcessionVerificationPageState
       final client = IOClient(ioc);
       final accountUrl =
           '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
+      List<String> participantNames =
+          majorParticipants.map((participant) => participant['name']!).toList();
       final DateTime dob = DateTime.parse(widget
           .applicantDateOfBirth); // Parse the date string into DateTime object
       final String formattedDob =
@@ -385,8 +387,11 @@ class _ProcessionVerificationPageState
         "procesionType": widget.processionTypeId, //2,//ProcessiontypeId
         "processionStartTimeHH": startHoursController.text, //"6",
         "processionStartTimeMM": startMinutesController.text, //"11",
-        "processionMajorParticipantName": ["major participent"],
-        "processionMajorParticipantStatus": ["C"],
+        // "processionMajorParticipantName": [majorParticipantNameController.text],
+        // "processionMajorParticipantStatus": ["C"],
+        "processionMajorParticipantName": participantNames, // Send all names
+        "processionMajorParticipantStatus":
+            List.filled(participantNames.length, "C"),
         "briefSynopsis":
             widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
         "charLimitId42": 74,

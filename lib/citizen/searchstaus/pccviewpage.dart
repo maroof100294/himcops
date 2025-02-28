@@ -11,7 +11,7 @@ import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 // import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io'; // Import this for file handling
 // import 'package:path_provider/path_provider.dart';
 // import 'package:permission_handler/permission_handler.dart';
@@ -244,6 +244,8 @@ class _PoliceClearanceCertificateViewPageState
               SnackBar(content: Text('PDF downloaded to $filePath')),
             );
             // OpenFilex.open(filePath);
+            OpenFile.open(filePath);
+
           } else {
             print('Empty file response received.');
             ScaffoldMessenger.of(context).showSnackBar(

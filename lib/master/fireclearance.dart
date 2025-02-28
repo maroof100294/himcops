@@ -10,7 +10,7 @@ class FireClearancePage extends StatefulWidget {
 }
 
 class _FireClearancePageState extends State<FireClearancePage> {
-  String selectedFireClearance = 'No';
+  String selectedFireClearance = '';
 
   @override
   void initState() {

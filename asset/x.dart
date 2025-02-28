@@ -1,374 +1,334 @@
-// List<Map<String, String>> firDetailsList = [
-//     {
-//       "firNo": "12345",
-//       "firDate": "2023-01-01",
-//       "gdNo": "12345110",
-//       "district": "District A",
-//       "policeStation": "Police A",
-//       "ioName": "IO A",
-//     },
-//     {
-//       "firNo": "12346",
-//       "firDate": "2023-01-02",
-//       "gdNo": "12346111",
-//       "district": "District B",
-//       "policeStation": "Police B",
-//       "ioName": "IO B",
-//     },
-//     {
-//       "firNo": "12347",
-//       "firDate": "2023-01-03",
-//       "gdNo": "12347112",
-//       "district": "District A",
-//       "policeStation": "Police A",
-//       "ioName": "IO A",
-//     },
-//     {
-//       "firNo": "12348",
-//       "firDate": "2023-01-04",
-//       "gdNo": "12348113",
-//       "district": "District A",
-//       "policeStation": "Police A",
-//       "ioName": "IO A",
-//     },
-//     {
-//       "firNo": "12349",
-//       "firDate": "2023-01-05",
-//       "gdNo": "12349114",
-//       "district": "District A",
-//       "policeStation": "Police A",
-//       "ioName": "IO A",
-//     },
-//   ];
-//   List<Map<String, String>> filteredFirList = [];
+// import 'dart:convert';
+// import 'dart:io';
 
-// //FIRFilter begin
-//   void _showFirDialog(BuildContext context) {
-//     showDialog(
-//       context: context,
-//       builder: (context) => Dialog(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             children: [
-//               const Text(
-//                 'Filter Options',
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-//               ),
-//               const SizedBox(height: 20),
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: firNumController,
-//                       decoration: InputDecoration(
-//                         labelText: 'FIR Number',
-//                         prefixIcon: const Icon(Icons.note),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
+// import 'package:flutter/material.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:himcops/authservice.dart';
+// import 'package:himcops/citizen/searchstaus/processionstatus.dart';
+// import 'package:himcops/config.dart';
+// import 'package:himcops/drawer/drawer.dart';
+// import 'package:himcops/layout/buttonstyle.dart';
+// import 'package:himcops/master/country.dart';
+// import 'package:himcops/master/majcountry.dart';
+// import 'package:himcops/master/majstatedistrict.dart';
+// import 'package:himcops/master/sdp.dart';
+// import 'package:himcops/pages/cgridhome.dart';
+// import 'package:http/io_client.dart';
+// import 'package:intl/intl.dart';
+
+// class ProcessionVerificationPage extends StatefulWidget {
+
+//   const ProcessionVerificationPage({
+//     super.key,
+//   });
+
+//   @override
+//   _ProcessionVerificationPageState createState() =>
+//       _ProcessionVerificationPageState();
+// }
+
+// class _ProcessionVerificationPageState
+//     extends State<ProcessionVerificationPage> {
+//   final TextEditingController majorParticipantNameController =
+//       TextEditingController();
+//   final TextEditingController majorAddressController = TextEditingController();
+//   final TextEditingController majorCountryController = TextEditingController();
+//   final GlobalKey<FormState> _affidavitDetailsFormKey = GlobalKey<FormState>();
+//   bool isAgree = false; // Checkbox state
+//   bool _isSubmitting = false;
+//   bool isChecked = false;
+//   List<Map<String, String>> majorParticipants = [];
+
+//   void _addParticipant() {
+//     if (majorParticipantNameController.text.isNotEmpty &&
+//         majorAddressController.text.isNotEmpty &&
+//         selectedCountry != null) {
+//       setState(() {
+//         majorParticipants.add({
+//           'name': majorParticipantNameController.text,
+//           'address':
+//               '${majorAddressController.text}', //,$selectedStateName,$selectedDistrictName,$selectedPoliceName,$selectedCountry
+//         });
+
+//         // Clear fields
+//         majorParticipantNameController.clear();
+//         majorAddressController.clear();
+//         // majorCountryController.clear();
+//         selectedCountry = 'INDIA';
+//       });
+//     }
+//   }
+
+//   void _updateCountry(String country) {
+//     setState(() {
+//       selectedCountry = country;
+//     });
+//   }
+
+//   void _updateState(String? stateName) {
+//     setState(() {
+//       selectedStateName = stateName;
+//     });
+//   }
+
+//   void _updateDistrict(String? districtName) {
+//     setState(() {
+//       selectedDistrictName = districtName;
+//     });
+//   }
+
+//   void _updatePolice(String? policeStationName) {
+//     setState(() {
+//       selectedPoliceName = policeStationName;
+//     });
+//   }
+
+
+
+//   Future<void> _registerUser() async {
+//     final token = await AuthService.getAccessToken(); // Fetch the token
+
+//     if (token == null) {
+//       setState(() {
+//         isLoading = false;
+//         errorMessage = 'Failed to retrieve access token.';
+//       });
+//       return;
+//     }
+
+//     try {
+//       final ioc = HttpClient();
+//       ioc.badCertificateCallback =
+//           (X509Certificate cert, String host, int port) => true;
+//       final client = IOClient(ioc);
+//       final accountUrl =
+//           '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
+//       final payloadBody = {
+//         "processionMajorParticipantName": [majorParticipantNameController.text],
+//         "processionMajorParticipantStatus": ["C"],
+//         "enRouteAddress": {
+//           "countryCd": 80,
+//           "stateCd": 12,
+//           "districtCd": 12246,
+//           "policeStationCd": 12246002,
+//           "RecordStatus": "C"
+//         },
+//       };
+//       print('Request Body: \n${json.encode(payloadBody)}');
+
+//       final accountResponse = await client.post(
+//         Uri.parse(accountUrl),
+//         body: json.encode(payloadBody),
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': 'Bearer $token',
+//         },
+//       );
+
+//       if (accountResponse.statusCode == 200) {
+//         _showConfirmationDialog();
+
+//       } else {
+//         print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+//       }
+//     } catch (e) {
+//       setState(() {
+//         print('Error occurred: $e ');
+//       });
+//     }
+//   }
+
+
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text(
+//           'Procession Request',
+//           style: TextStyle(
+//               fontSize: 20,
+//               fontWeight: FontWeight.bold,
+//               color: Color.fromARGB(255, 255, 255, 255)),
+//         ),
+//         backgroundColor: Color.fromARGB(255, 12, 100, 233),
+//         iconTheme: const IconThemeData(
+//           color: Colors.white, // Set the menu icon color to white
+//         ),
+//       ),
+//       drawer: const AppDrawer(),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: SingleChildScrollView(
+//           child: Form(
+//             key: _affidavitDetailsFormKey,
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Row(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     const Expanded(
+//                       child: Text(
+//                         'Major Head Participant Details',
+//                         style: TextStyle(fontWeight: FontWeight.bold),
 //                       ),
 //                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 10),
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateFirFromController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range From',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selectfirfromDate(context);
-//                       },
+//                   ],
+//                 ),
+//                 const SizedBox(height: 14),
+//                 TextFormField(
+//                   controller: majorParticipantNameController,
+//                   decoration: InputDecoration(
+//                     labelText: 'Name of Major Participant',
+//                     prefixIcon: const Icon(Icons.person),
+//                     filled: true,
+//                     fillColor: Colors.white,
+//                     border: OutlineInputBorder(
+//                       borderRadius: BorderRadius.circular(10),
 //                     ),
 //                   ),
-//                   const SizedBox(width: 8),
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateFirToController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range To',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
+//                 ),
+//                 const SizedBox(height: 10),
+//                 TextFormField(
+//                   controller: majorAddressController,
+//                   decoration: InputDecoration(
+//                     label: RichText(
+//                       text: TextSpan(
+//                         text: 'Address',
+//                         style: TextStyle(
+//                             color: Colors.black), // Normal label color
+//                         children: [
+//                           TextSpan(
+//                             text: ' *',
+//                             style:
+//                                 TextStyle(color: Colors.red), // Red color for *
+//                           ),
+//                         ],
 //                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selectfirtoDate(context);
-//                       },
+//                     ),
+//                     prefixIcon: const Icon(Icons.home),
+//                     filled: true,
+//                     fillColor: Colors.white,
+//                     enabledBorder: OutlineInputBorder(
+//                       borderRadius: BorderRadius.circular(10),
+//                     ),
+//                     focusedBorder: OutlineInputBorder(
+//                       borderRadius: BorderRadius.circular(10),
+//                       borderSide: BorderSide(color: Colors.red),
 //                     ),
 //                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 8),
-//               PolDpPage(
-//                 onDistrictSelected: (districtCode) {
-//                   setState(() {
-//                     dsiFirDistrictCode = districtCode;
-//                   });
-//                 },
-//                 onPoliceStationSelected: (policeStationCode) {
-//                   setState(() {
-//                     dsiFirPoliceStationCode = policeStationCode;
-//                   });
-//                 },
-//               ),
-//               const SizedBox(height: 16),
-//               Row(
-//                 children: [
-                
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       setState(() {
-//                         isFirDetailsVisible = true;
-//                         isGraphDetailsVisible = false;
-//                         filteredFirList = firDetailsList.where((fir) {
-//                           bool matchesFirNo = firNumController.text.isEmpty ||
-//                               fir['firNo'] == firNumController.text;
+//                   maxLines: 3,
+//                 ),
+//                 const SizedBox(height: 10),
+//                 // Country selection
+//                 MajCountryPage(
+//                   controller: majorCountryController,
+//                   enabled: true,
+//                   onCountrySelected: _updateCountry, // Pass callback function
+//                 ),
+//                 const SizedBox(height: 10),
 
-                          
-//                           return matchesFirNo;
-//                         }).toList();
-//                       });
+//                 MajStateDistrictDynamicPage(
+//                   onStateSelected: _updateState,
+//                   onDistrictSelected: _updateDistrict,
+//                   onPoliceStationSelected: _updatePolice,
+//                 ),
+//                 const SizedBox(height: 10),
+//                 ElevatedButton(
+//                   onPressed: _addParticipant,
+//                   child: const Text('Add Participant'),
+//                 ),
+//                 const SizedBox(height: 20),
 
-//                       Navigator.pop(context);
+//                 if (majorParticipants.isNotEmpty)
+//                   Table(
+//                     border: TableBorder.all(),
+//                     columnWidths: const {
+//                       0: FlexColumnWidth(2),
+//                       1: FlexColumnWidth(4),
 //                     },
-//                     child: const Text('Search'),
+//                     children: [
+//                       TableRow(
+//                         decoration: BoxDecoration(color: Colors.grey[300]),
+//                         children: const [
+//                           Padding(
+//                               padding: EdgeInsets.all(8),
+//                               child: Text('Name',
+//                                   style:
+//                                       TextStyle(fontWeight: FontWeight.bold))),
+//                           Padding(
+//                               padding: EdgeInsets.all(8),
+//                               child: Text('Address',
+//                                   style:
+//                                       TextStyle(fontWeight: FontWeight.bold))),
+//                         ],
+//                       ),
+//                       ...majorParticipants.map(
+//                         (participant) => TableRow(
+//                           children: [
+//                             Padding(
+//                                 padding: EdgeInsets.all(8),
+//                                 child: Text(participant['name']!)),
+//                             Padding(
+//                                 padding: EdgeInsets.all(8),
+//                                 child: Text(participant['address']!)),
+//                           ],
+//                         ),
+//                       ),
+//                     ],
 //                   ),
+//                 const SizedBox(height: 20),
+//                 Row(
+//                   children: [
+//                     Checkbox(
+//                       value: isAgree,
+//                       onChanged: (value) {
+//                         setState(() {
+//                           isAgree = value!;
+//                         });
+//                       },
+//                     ),
+//                     const Text(
+//                         'All the information provided in the form is true'),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 20),
+//                 ElevatedButton(
+//                   onPressed: (isAgree &&
+//                           _affidavitDetailsFormKey.currentState!.validate() &&
+//                           !_isSubmitting) // Check if not already submitting
+//                       ? () async {
+//                           setState(() {
+//                             _isSubmitting = true; // Disable the button
+//                           });
 
-//                   const SizedBox(width: 10),
-//                   ElevatedButton(
-//                     onPressed: () => Navigator.pop(context),
-//                     child: const Text('Close'),
-//                   ),
-//                 ],
-//               ),
-//             ],
+//                           try {
+//                             await _registerUser(); // Perform the registration logic
+//                           } finally {
+//                             setState(() {
+//                               _isSubmitting =
+//                                   true; // Re-enable the button after completion
+//                             });
+//                           }
+//                         }
+//                       : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
+//                   style: AppButtonStyles.elevatedButtonStyle,
+//                   child: _isSubmitting
+//                       ? const CircularProgressIndicator(
+//                           color: Colors.white) // Show a loader
+//                       : const Text(
+//                           'Submit',
+//                           style: TextStyle(
+//                               color: Colors.white, fontWeight: FontWeight.bold),
+//                         ),
+//                 ),
+//               ],
+//             ),
 //           ),
 //         ),
 //       ),
 //     );
 //   }
-
-//   Widget _buildFirDetails() {
-//     return Column(
-//       children: [
-//         Row(
-//           children: [
-//             Expanded(
-//               child: TextFormField(
-//                 controller: firNumController,
-//                 decoration: InputDecoration(
-//                   labelText: 'FIR Number',
-//                   prefixIcon: const Icon(Icons.note),
-//                   filled: true,
-//                   fillColor: Colors.white,
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 10),
-//         Row(
-//           children: [
-//             Expanded(
-//               child: TextFormField(
-//                 controller: _dateFirFromController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Date Range From',
-//                   prefixIcon: const Icon(Icons.calendar_month),
-//                   filled: true,
-//                   fillColor: Colors.white,
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                 ),
-//                 readOnly: true,
-//                 onTap: () {
-//                   FocusScope.of(context).requestFocus(FocusNode());
-//                   _selectfirfromDate(context);
-//                 },
-//               ),
-//             ),
-//             const SizedBox(width: 8),
-//             Expanded(
-//               child: TextFormField(
-//                 controller: _dateFirToController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Date Range To',
-//                   prefixIcon: const Icon(Icons.calendar_month),
-//                   filled: true,
-//                   fillColor: Colors.white,
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                 ),
-//                 readOnly: true,
-//                 onTap: () {
-//                   FocusScope.of(context).requestFocus(FocusNode());
-//                   _selectfirtoDate(context);
-//                 },
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 8),
-//         PolDpPage(
-//           onDistrictSelected: (districtCode) {
-//             setState(() {
-//               dsiFirDistrictCode = districtCode;
-//             });
-//           },
-//           onPoliceStationSelected: (policeStationCode) {
-//             setState(() {
-//               dsiFirPoliceStationCode = policeStationCode;
-//             });
-//           },
-//         ),
-//         const SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   Widget _buildFirList() {
-//     int startIndex = currentPage * itemsPerPage;
-//     int endIndex = (startIndex + itemsPerPage).clamp(0, filteredFirList.length);
-//     List<Map<String, String>> paginatedList =
-//         filteredFirList.sublist(startIndex, endIndex);
-
-//     return Column(
-//       children: [
-//         ListView.builder(
-//           shrinkWrap: true,
-//           physics: NeverScrollableScrollPhysics(),
-//           itemCount: paginatedList.length,
-//           itemBuilder: (context, index) {
-//             return buildDsiFirCard(paginatedList[index]);
-//           },
-//         ),
-//         const SizedBox(height: 10),
-//         _buildPaginationControls(),
-//       ],
-//     );
-//   }
-// Widget _buildPaginationControls() {
-//   int totalPages = (firDetailsList.length / itemsPerPage).ceil();
-
-//   // Hide pagination controls when there's only one page
-//   if (totalPages <= 1) return const SizedBox.shrink();
-
-//   return Row(
-//     mainAxisAlignment: MainAxisAlignment.center,
-//     children: [
-//       IconButton(
-//         icon: const Icon(Icons.arrow_back),
-//         onPressed: currentPage > 0
-//             ? () {
-//                 setState(() {
-//                   currentPage--;
-//                 });
-//               }
-//             : null,
-//       ),
-//       Text('Page ${currentPage + 1} of $totalPages'),
-//       IconButton(
-//         icon: const Icon(Icons.arrow_forward),
-//         onPressed: currentPage < totalPages - 1
-//             ? () {
-//                 setState(() {
-//                   currentPage++;
-//                 });
-//               }
-//             : null,
-//       ),
-//     ],
-//   );
 // }
-//   Widget buildDsiFirCard(Map<String, String> dsiFirItem) {
-//     return Card(
-//       child: Padding(
-//         padding: const EdgeInsets.all(8.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               'FIR Details:-',
-//               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-//             ),
-//             const SizedBox(height: 10),
-//             Table(
-//               border: TableBorder.all(color: Colors.black),
-//               columnWidths: const {
-//                 0: FlexColumnWidth(2),
-//                 1: FlexColumnWidth(3),
-//                 2: FlexColumnWidth(2),
-//                 3: FlexColumnWidth(3),
-//               },
-//               children: [
-//                 _buildTableRow('FIR No.', dsiFirItem['firNo'] ?? '', 'FIR Date',
-//                     dsiFirItem['firDate'] ?? ''),
-//                 _buildTableRow('GD No.', dsiFirItem['gdNo'] ?? '', 'GD Date',
-//                     dsiFirItem['gdDate'] ?? ''),
-//                 _buildTableRow('District', dsiFirItem['district'] ?? '',
-//                     'Police Station', dsiFirItem['policeStation'] ?? ''),
-//                 _buildTableRow('IO Name', dsiFirItem['ioName'] ?? '',
-//                     'IO Mobile', dsiFirItem['ioMobile'] ?? ''),
-//               ],
-//             ),
-//             const SizedBox(height: 10),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       showComplaintDetailsDialog(context);
-//                     },
-//                     child: Text('Complaint Details')),
-//                 const SizedBox(width: 16),
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       showActSectionDetailsDialog(context);
-//                     },
-//                     child: Text('Fir Act and Section'))
-//               ],
-//             ),
-//             const SizedBox(height: 8),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       showFirContentDetailsDialog(context);
-//                     },
-//                     child: Text('Fir Content')),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// here i want that when i search with FIR Number only fir details of that number should display and with that pagination will define or get disable
+// // now in here i want when i add major participant name in textform field and click on add participant in the table if the is on name then it will add on the aPI body and if it is mor than one name then all the name will be added in the body

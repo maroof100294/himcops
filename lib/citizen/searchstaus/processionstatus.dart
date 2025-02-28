@@ -10,7 +10,7 @@ import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io';
 
 class ProcessionStatusPage extends StatefulWidget {
@@ -105,7 +105,7 @@ class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
               }
               if (status == 'Rejected and sent to E-District' ||
                   status == 'Approved') {
-                status = 'Complete';
+                status = 'Completed';
               }
               return {
                 'serviceRequestNumber':
@@ -238,6 +238,8 @@ class _ProcessionStatusPageState extends State<ProcessionStatusPage> {
               SnackBar(content: Text('PDF downloaded to $filePath')),
             );
             // OpenFilex.open(filePath);
+            OpenFile.open(filePath);
+
           } else {
             print('Empty file response received.');
             ScaffoldMessenger.of(context).showSnackBar(
