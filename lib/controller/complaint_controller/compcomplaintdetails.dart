@@ -113,6 +113,7 @@ class _CompComplaintDetailsFormState
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          maxLength: 3,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your complaint';

@@ -5,19 +5,25 @@ class ComplaintIncidentDetailsForm extends StatefulWidget {
   final TextEditingController incidentDateTimeFromController;
   final TextEditingController incidentDateTimeToController;
   final TextEditingController incidentPlaceController;
+  final TextEditingController dateController;
+  final TextEditingController complaintDescriptionController;
 
   const ComplaintIncidentDetailsForm({
     super.key,
     required this.incidentDateTimeFromController,
     required this.incidentDateTimeToController,
     required this.incidentPlaceController,
+    required this.dateController,
+    required this.complaintDescriptionController,
   });
 
   @override
-  _ComplaintIncidentDetailsFormState createState() => _ComplaintIncidentDetailsFormState();
+  _ComplaintIncidentDetailsFormState createState() =>
+      _ComplaintIncidentDetailsFormState();
 }
 
-class _ComplaintIncidentDetailsFormState extends State<ComplaintIncidentDetailsForm> {
+class _ComplaintIncidentDetailsFormState
+    extends State<ComplaintIncidentDetailsForm> {
   Future<void> _selectDateTime(TextEditingController controller) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -44,6 +50,34 @@ class _ComplaintIncidentDetailsFormState extends State<ComplaintIncidentDetailsF
         controller.text = DateFormat('yyyy-MM-dd HH:mm').format(finalDateTime);
       }
     }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime initialDate = DateTime.now();
+    final DateTime firstDate = DateTime(1924);
+    final DateTime lastDate = DateTime.now();
+
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        widget.dateController.text =
+            DateFormat('yyyy-MM-dd').format(pickedDate);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the current date as the initial value
+    widget.dateController.text =
+        DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
 
   bool isIncident = false;
@@ -156,6 +190,50 @@ class _ComplaintIncidentDetailsFormState extends State<ComplaintIncidentDetailsF
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your incident place';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 8),
+        Divider(),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: widget.dateController,
+          decoration: InputDecoration(
+            labelText: 'Date of Complaint',
+            prefixIcon: const Icon(Icons.calendar_month),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          onTap: () {
+            _selectDate(context);
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your complaint date';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: widget.complaintDescriptionController,
+          decoration: InputDecoration(
+            labelText: 'Complaint Description',
+            prefixIcon: const Icon(Icons.place),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          maxLength: 3,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your complaint';
             }
             return null;
           },

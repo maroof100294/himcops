@@ -34,15 +34,20 @@ class ComplaintPersonalDetailsForm extends StatefulWidget {
 class _ComplaintPersonalDetailsFormState
     extends State<ComplaintPersonalDetailsForm> {
   Future<void> _selectDob(BuildContext context) async {
-    final DateTime initialDate = DateTime.now();
-    final DateTime firstDate = DateTime(1924);
-    final DateTime lastDate = DateTime.now();
+    // Calculate the last eligible date (18 years before today)
+    final DateTime today = DateTime.now();
+    final DateTime lastEligibleDate =
+        DateTime(today.year - 18, today.month, today.day);
+
+    final DateTime firstDate = DateTime(1924); // Arbitrary earliest date
+    final DateTime initialDate =
+        lastEligibleDate; // Default to the last eligible date
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: firstDate,
-      lastDate: lastDate,
+      lastDate: lastEligibleDate,
     );
 
     if (pickedDate != null) {
@@ -50,9 +55,9 @@ class _ComplaintPersonalDetailsFormState
         widget.dateDobController.text =
             DateFormat('yyyy-MM-dd').format(pickedDate);
 
-        final int age = DateTime.now().year - pickedDate.year;
-        if (DateTime.now().isBefore(
-            DateTime(DateTime.now().year, pickedDate.month, pickedDate.day))) {
+        final int age = today.year - pickedDate.year;
+        if (today
+            .isBefore(DateTime(today.year, pickedDate.month, pickedDate.day))) {
           widget.ageController.text = (age - 1).toString();
         } else {
           widget.ageController.text = age.toString();
@@ -88,6 +93,46 @@ class _ComplaintPersonalDetailsFormState
               return 'Please enter your name';
             }
             return ValidateFullName(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: widget.mobileController,
+          decoration: InputDecoration(
+            labelText: 'Mobile Number',
+            prefixIcon: const Icon(Icons.person),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          keyboardType: TextInputType.number,
+          maxLength: 10,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your mobile';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: widget.emailController,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            prefixIcon: const Icon(Icons.person),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your name';
+            }
+            return null;
           },
         ),
         const SizedBox(height: 10),
@@ -133,47 +178,8 @@ class _ComplaintPersonalDetailsFormState
           },
         ),
         const SizedBox(height: 10),
-        TextFormField(
-          controller: widget.mobileController,
-          decoration: InputDecoration(
-            labelText: 'Mobile Number',
-            prefixIcon: const Icon(Icons.person),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          keyboardType: TextInputType.number,
-          maxLength: 10,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your mobile';
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 10),
-        TextFormField(
-          controller: widget.emailController,
-          decoration: InputDecoration(
-            labelText: 'Email',
-            prefixIcon: const Icon(Icons.person),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your name';
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 10),
-        NatureComplaintPage(controller: widget.complaintNatureController, enabled: true),
+        NatureComplaintPage(
+            controller: widget.complaintNatureController, enabled: true),
         const SizedBox(height: 10),
         IdentificationTypePage(controller: widget.identifyController),
         const SizedBox(height: 10),
