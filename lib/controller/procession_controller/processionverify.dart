@@ -131,8 +131,10 @@ class _ProcessionVerificationPageState
       setState(() {
         majorParticipants.add({
           'name': majorParticipantNameController.text,
-          'address':
-              '${majorAddressController.text}', //,$selectedStateName,$selectedDistrictName,$selectedPoliceName,$selectedCountry
+          'address': '${majorAddressController.text}',
+          // 'state': '$selectedStateName',
+          // 'district': '$selectedDistrictName',
+          // 'ps': '$selectedPoliceName'
         });
 
         // Clear fields
@@ -292,8 +294,25 @@ class _ProcessionVerificationPageState
       final client = IOClient(ioc);
       final accountUrl =
           '$baseUrl/androidapi/mobile/service/processionRequestRegistration';
+
       List<String> participantNames =
           majorParticipants.map((participant) => participant['name']!).toList();
+
+      List<String> participantAddress = majorParticipants
+          .map((participant) => participant['address']!)
+          .toList();
+
+      // List<String> participantState =
+      //     majorParticipants.map((participant) => participant['state']!).toList();
+
+      // List<String> participantDistrict = majorParticipants
+      //     .map((participant) => participant['district']!)
+      //     .toList();
+
+      // List<String> participantPs =
+      //     majorParticipants.map((participant) => participant['ps']!).toList();
+
+
       final DateTime dob = DateTime.parse(widget
           .applicantDateOfBirth); // Parse the date string into DateTime object
       final String formattedDob =
@@ -354,6 +373,7 @@ class _ProcessionVerificationPageState
           "stateCd": 12,
           "districtCd": int.tryParse(orgDistrictCode!), //12253,
           "village": orgAddressController.text, //"town",
+          "policeStationCd": int.tryParse(orgPoliceStationCode!),
         },
         "startPointAddr": {
           "countryCd": 80,
@@ -387,11 +407,22 @@ class _ProcessionVerificationPageState
         "procesionType": widget.processionTypeId, //2,//ProcessiontypeId
         "processionStartTimeHH": startHoursController.text, //"6",
         "processionStartTimeMM": startMinutesController.text, //"11",
-        // "processionMajorParticipantName": [majorParticipantNameController.text],
-        // "processionMajorParticipantStatus": ["C"],
         "processionMajorParticipantName": participantNames, // Send all names
         "processionMajorParticipantStatus":
             List.filled(participantNames.length, "C"),
+        "processionMajorParticipantCountryCd":
+            List.filled(participantNames.length, "80"),
+        "processionMajorParticipantStateCd": 
+        // participantState,
+           List.filled(participantNames.length, selectedStateName),
+        "processionMajorParticipantDistrictCd":
+        // participantDistrict,
+            List.filled(participantNames.length, selectedDistrictName),
+        "processionMajorParticipantVillage": 
+        participantAddress,
+        "processionMajorParticipantPoliceStationCd":
+        // participantPs,
+            List.filled(participantNames.length, selectedPoliceName),
         "briefSynopsis":
             widget.briefDescription, //"erererewerwerwerfsdfdsdfsdf",
         "charLimitId42": 74,
@@ -623,7 +654,15 @@ class _ProcessionVerificationPageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+  onWillPop: () async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+    );
+    return false; // Prevent default back navigation
+  },
+    child: Scaffold(
       appBar: AppBar(
         title: const Text(
           'Procession Request',
@@ -1321,8 +1360,11 @@ class _ProcessionVerificationPageState
                   Table(
                     border: TableBorder.all(),
                     columnWidths: const {
-                      0: FlexColumnWidth(2),
-                      1: FlexColumnWidth(4),
+                      0: FlexColumnWidth(3),
+                      1: FlexColumnWidth(3),
+                      // 2: FlexColumnWidth(1),
+                      // 3: FlexColumnWidth(1),
+                      // 4: FlexColumnWidth(1),
                     },
                     children: [
                       TableRow(
@@ -1338,6 +1380,21 @@ class _ProcessionVerificationPageState
                               child: Text('Address',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
+                          // Padding(
+                          //     padding: EdgeInsets.all(8),
+                          //     child: Text('State',
+                          //         style:
+                          //             TextStyle(fontWeight: FontWeight.bold))),
+                          // Padding(
+                          //     padding: EdgeInsets.all(8),
+                          //     child: Text('District',
+                          //         style:
+                          //             TextStyle(fontWeight: FontWeight.bold))),
+                          // Padding(
+                          //     padding: EdgeInsets.all(8),
+                          //     child: Text('PS',
+                          //         style:
+                          //             TextStyle(fontWeight: FontWeight.bold))),
                         ],
                       ),
                       ...majorParticipants.map(
@@ -1349,6 +1406,15 @@ class _ProcessionVerificationPageState
                             Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Text(participant['address']!)),
+                            // Padding(
+                            //     padding: EdgeInsets.all(8),
+                            //     child: Text(participant['state']!)),
+                            // Padding(
+                            //     padding: EdgeInsets.all(8),
+                            //     child: Text(participant['district']!)),
+                            // Padding(
+                            //     padding: EdgeInsets.all(8),
+                            //     child: Text(participant['ps']!)),
                           ],
                         ),
                       ),
@@ -1683,6 +1749,7 @@ class _ProcessionVerificationPageState
           ),
         ),
       ),
+    ),
     );
   }
 }

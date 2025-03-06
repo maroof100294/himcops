@@ -3,11 +3,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:himcops/citizen/domestichelpverification.dart';
 import 'package:himcops/citizen/employeeverification.dart';
+import 'package:himcops/citizen/eventperformancerequest.dart';
 import 'package:himcops/citizen/policeclearance.dart';
+import 'package:himcops/citizen/processionrequest.dart';
+import 'package:himcops/citizen/proteststrikerequest.dart';
+import 'package:himcops/citizen/searchstaus/Tenantverifystatus.dart';
 import 'package:himcops/citizen/searchstaus/characterstatus.dart';
 import 'package:himcops/citizen/searchstaus/dmvviewpage.dart';
 import 'package:himcops/citizen/searchstaus/empviewpage.dart';
+import 'package:himcops/citizen/searchstaus/eventperformance.dart';
 import 'package:himcops/citizen/searchstaus/pccviewpage.dart';
+import 'package:himcops/citizen/searchstaus/processionstatus.dart';
+import 'package:himcops/citizen/searchstaus/proteststrikestatus.dart';
+import 'package:himcops/citizen/tenantverification.dart';
 import 'package:himcops/pages/cgridhome.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -86,15 +94,19 @@ class _AppDrawerState extends State<AppDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'wc' .tr,
-                      style: TextStyle(fontSize: 12, color: Colors.white,
-                        fontWeight: FontWeight.bold,),
+                      'wc'.tr,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       // ignore: unnecessary_string_interpolations
                       '$firstName',
                       style: TextStyle(
-                        fontSize: 14,//MediaQuery.of(context).size.width * 0.033,
+                        fontSize:
+                            14, //MediaQuery.of(context).size.width * 0.033,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(214, 252, 225, 185),
                       ),
@@ -106,7 +118,8 @@ class _AppDrawerState extends State<AppDrawer> {
                       text: TextSpan(
                         text: 'cn'.tr,
                         style: TextStyle(
-                          fontSize: 14, //MediaQuery.of(context).size.width * 0.030,
+                          fontSize:
+                              14, //MediaQuery.of(context).size.width * 0.030,
                           fontWeight: FontWeight.bold,
                           color: const Color.fromARGB(255, 255, 255, 255),
                         ),
@@ -148,7 +161,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ExpansionTile(
             leading: const Icon(Icons.add),
             title: Text(
-              'apply_service' .tr,
+              'apply_service'.tr,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             initiallyExpanded: _expandedTileIndex == 1,
@@ -190,45 +203,40 @@ class _AppDrawerState extends State<AppDrawer> {
               ListTile(
                 title: Text('tv'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const TenantVerificationPage()));
                 },
               ),
               ListTile(
                 title: Text('epr'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const EventPerformanceRequestPage()));
                 },
               ),
               ListTile(
                 title: Text('psr'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const ProtestStrikeRequestPage()));
                 },
               ),
               ListTile(
                 title: Text('pr'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProcessionRequestPage()));
                 },
               ),
             ],
@@ -287,55 +295,50 @@ class _AppDrawerState extends State<AppDrawer> {
                   );
                 },
               ),
-               ListTile(
+              ListTile(
                 title: Text('tvs'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const TenantVerificaitonStatusPage()));
                 },
               ),
               ListTile(
                 title: Text('eprs'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const EventPerformanceStatusPage()));
                 },
               ),
               ListTile(
                 title: Text('psrs'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const ProtestStrikeStatusPage()));
                 },
               ),
               ListTile(
                 title: Text('prs'.tr),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const DomesticHelpVerificationPage()),
-                  // );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProcessionStatusPage()));
                 },
               ),
             ],
           ),
           ListTile(
             leading: const Icon(Icons.logout),
-            title:  Text(
+            title: Text(
               'logout'.tr,
               style: const TextStyle(
                 // fontSize: 14,
@@ -348,21 +351,19 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ),
           SizedBox(height: 10),
-           ElevatedButton(
-                      onPressed: () {
-                        var locale = Get.locale!.languageCode == 'en'
-                            ? const Locale('hi',
-                                'IN') // Switch to Hindi if currently in English
-                            : const Locale('en',
-                                'US'); // Switch to English if currently in Hindi
+          ElevatedButton(
+            onPressed: () {
+              var locale = Get.locale!.languageCode == 'en'
+                  ? const Locale(
+                      'hi', 'IN') // Switch to Hindi if currently in English
+                  : const Locale(
+                      'en', 'US'); // Switch to English if currently in Hindi
 
-                        // Update locale dynamically
-                        Get.updateLocale(locale);
-                      },
-                      child: Text('change_language'
-                          .tr), // Translated text for the button
-                    ),
-          
+              // Update locale dynamically
+              Get.updateLocale(locale);
+            },
+            child: Text('change_language'.tr), // Translated text for the button
+          ),
         ],
       ),
     );

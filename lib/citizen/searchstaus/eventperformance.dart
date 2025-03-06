@@ -111,7 +111,7 @@ class _EventPerformanceStatusPageState
               }
               return {
                 'serviceRequestNumber': item['eventSrNum']?.toString() ?? '',
-                'serviceDate': item['eventStartDtStrOut']?.toString() ?? '',
+                'serviceDate': item['applicationDate']?.toString() ?? '',
                 'applicantName': item['applicantName']?.toString() ?? '',
                 'paymentStatus': status,
               };

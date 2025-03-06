@@ -144,7 +144,7 @@ final viewPPProtestVerificationDetails =
               ...labels.entries.map((entry) {
                 final value =
                     viewProtestVerificationDetails[entry.key]?.toString() ??
-                        'N/A';
+                        ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -167,7 +167,7 @@ final viewPPProtestVerificationDetails =
               }).toList(),
               // ...permanentlabels.entries.map((entry) {
               //   final value =
-              //       viewProtestPermanentDetails[entry.key]?.toString() ?? 'N/A';
+              //       viewProtestPermanentDetails[entry.key]?.toString() ?? ' ';
               //   return Padding(
               //     padding: const EdgeInsets.only(bottom: 16.0),
               //     child: TextFormField(
@@ -190,7 +190,7 @@ final viewPPProtestVerificationDetails =
               // }).toList(),
               ...presentlabels.entries.map((entry) {
                 final value =
-                    viewProtestPresentDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestPresentDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -213,7 +213,7 @@ final viewPPProtestVerificationDetails =
               }).toList(),
               ...applicantlabels.entries.map((entry) {
                 final value =
-                    viewPProtestVerificationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewPProtestVerificationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -236,7 +236,7 @@ final viewPPProtestVerificationDetails =
               }).toList(),
               ...applabels.entries.map((entry) {
                 final value =
-                    viewPPProtestVerificationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewPPProtestVerificationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -265,7 +265,7 @@ final viewPPProtestVerificationDetails =
               const SizedBox(height: 8.0),
               ...orglabels.entries.map((entry) {
                 final value =
-                    viewProtestOrgDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestOrgDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -288,7 +288,7 @@ final viewPPProtestVerificationDetails =
               }).toList(),
               ...orgAddlabels.entries.map((entry) {
                 final value =
-                    viewProtestOrgAddDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestOrgAddDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -317,7 +317,7 @@ final viewPPProtestVerificationDetails =
               const SizedBox(height: 8.0),
               ...locationlabels.entries.map((entry) {
                 final value =
-                    viewProtestlocationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestlocationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -340,7 +340,7 @@ final viewPPProtestVerificationDetails =
               }).toList(),
               ...locationAddlabels.entries.map((entry) {
                 final value =
-                    viewProtestLocAddressDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestLocAddressDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -365,7 +365,7 @@ final viewPPProtestVerificationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['locationAreaDetails'] ?? 'N/A'} :  'Sq.Mts.'}",
+                      "${viewProtestlocationDetails['locationAreaDetails'] ?? ' '} :  Sq.Mts.",
                   decoration: InputDecoration(
                     labelText: 'Location Area',
                     labelStyle: const TextStyle(
@@ -385,7 +385,7 @@ final viewPPProtestVerificationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStartTimeHH'] ?? 'N/A'} : ${viewProtestlocationDetails['protestStartTimeMM'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['protestStartTimeStrHH'] ?? ' '} : ${viewProtestlocationDetails['protestStartTimeStrMM'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Proposed Time',
                     labelStyle: const TextStyle(
@@ -405,9 +405,9 @@ final viewPPProtestVerificationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStartTimeStrHH'] ?? 'N/A'} : ${viewProtestlocationDetails['protestStartTimeStrMM'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['protestStartTimeHH'] ?? ' '} : ${viewProtestlocationDetails['protestStartTimeMM'] ?? ' '}",
                   decoration: InputDecoration(
-                    labelText: 'Event Start/End Time',
+                    labelText: 'Event Start Time',
                     labelStyle: const TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                     fillColor: Colors.white,
@@ -425,7 +425,7 @@ final viewPPProtestVerificationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStrikeDesc'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['protestStrikeDesc'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Brief Description',
                     labelStyle: const TextStyle(
@@ -450,7 +450,7 @@ final viewPPProtestVerificationDetails =
               const SizedBox(height: 8.0),
               ...statusLabels.entries.map((entry) {
                 final value =
-                    viewProtestStatusDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestStatusDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(

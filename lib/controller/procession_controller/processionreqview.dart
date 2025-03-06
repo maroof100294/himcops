@@ -83,7 +83,7 @@ class ProcessionReqViewPage extends StatelessWidget {
       'orgCountryCdDesc': 'Country',
       'orgStateCdDesc': 'State',
       'orgDistCdDesc':'District',
-      'orgPsCdDesc':'Police Station'//its needed
+      'orgPSCdDesc':'Police Station'//its needed
       
     };
     final viewProtestlocationDetails = data.isNotEmpty ? data : {};
@@ -138,7 +138,7 @@ final viewProEndinglocationDetails =
               ...labels.entries.map((entry) {
                 final value =
                     viewProtestVerificationDetails[entry.key]?.toString() ??
-                        'N/A';
+                        '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -161,7 +161,7 @@ final viewProEndinglocationDetails =
               }).toList(),
               ...presentlabels.entries.map((entry) {
                 final value =
-                    viewProtestPresentDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestPresentDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -190,7 +190,7 @@ final viewProEndinglocationDetails =
               const SizedBox(height: 8.0),
               ...orglabels.entries.map((entry) {
                 final value =
-                    viewProtestOrgDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestOrgDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -213,7 +213,7 @@ final viewProEndinglocationDetails =
               }).toList(),
               ...orgAddlabels.entries.map((entry) {
                 final value =
-                    viewProtestOrgAddDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestOrgAddDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -242,7 +242,7 @@ final viewProEndinglocationDetails =
               const SizedBox(height: 8.0),
               ...locationlabels.entries.map((entry) {
                 final value =
-                    viewProtestlocationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestlocationDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -267,7 +267,7 @@ final viewProEndinglocationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['protestStartTimeHH'] ?? 'N/A'} : ${viewProtestlocationDetails['protestStartTimeMM'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['processionStartTimeHH'] ?? '  '} : ${viewProtestlocationDetails['processionStartTimeMM'] ?? '  '}",
                   decoration: InputDecoration(
                     labelText: 'Proposed Time',
                     labelStyle: const TextStyle(
@@ -307,7 +307,7 @@ final viewProEndinglocationDetails =
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewProtestlocationDetails['briefSynopsis'] ?? 'N/A'}",
+                      "${viewProtestlocationDetails['briefSynopsis'] ?? '  '}",
                   decoration: InputDecoration(
                     labelText: 'Brief Description',
                     labelStyle: const TextStyle(
@@ -326,7 +326,7 @@ final viewProEndinglocationDetails =
               ),
               ...startingAddLabels.entries.map((entry) {
                 final value =
-                    viewProStartinglocationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProStartinglocationDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -349,7 +349,7 @@ final viewProEndinglocationDetails =
               }).toList(),
               ...endingAddLabels.entries.map((entry) {
                 final value =
-                    viewProEndinglocationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProEndinglocationDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -378,7 +378,7 @@ final viewProEndinglocationDetails =
               const SizedBox(height: 8.0),
               ...statusLabels.entries.map((entry) {
                 final value =
-                    viewProtestStatusDetails[entry.key]?.toString() ?? 'N/A';
+                    viewProtestStatusDetails[entry.key]?.toString() ?? '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(

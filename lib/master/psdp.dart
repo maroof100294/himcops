@@ -72,13 +72,30 @@ class _PolDpPageState extends State<PolDpPage> {
           if (data is List) {
             setState(() {
               districtDescriptions = [
-                {'codeId': 'ALL', 'codeDesc': 'ALL'} // Add "ALL" option
-              ];
-              districtDescriptions.addAll(data.map((district) => {
-                    'codeId': district['codeId'].toString(),
-                    'codeDesc': district['codeDesc'].toString()
-                  }));
+                {'codeId': 'ALL', 'codeDesc': 'ALL'}, // Add "ALL" option
+                ...data.map((district) {
+                  String codeDesc = district['codeDesc'].toString();
 
+                  // Replace long names with shorter versions for UI
+                  if (codeDesc.contains(
+                      "STATE VIGILANCE AND ANTI-CORRUPTION  BUREAU (SV & ACB)")) {
+                    codeDesc = "SV&ACB";
+                  } else if (codeDesc.contains("POLICE DISTRICT NURPUR")) {
+                    codeDesc = "NURPUR";
+                  } else if (codeDesc.contains("LAHAUL & SPITI")) {
+                    codeDesc = "L&S";
+                  } else if (codeDesc.contains("GOVT. RLY POLICE")) {
+                    codeDesc = "GRP";
+                  } else if (codeDesc.contains("BADDI POLICE DISTT")) {
+                    codeDesc = "BADDI";
+                  }
+
+                  return {
+                    'codeId': district['codeId'].toString(),
+                    'codeDesc': codeDesc
+                  };
+                })
+              ];
               selectedDistrict = 'ALL';
               isLoading = false;
             });
@@ -116,7 +133,7 @@ class _PolDpPageState extends State<PolDpPage> {
   }
 
   Future<void> fetchPolice(String districtCodeId) async {
-   final token = await AuthService.getAccessToken(); // Fetch the token
+    final token = await AuthService.getAccessToken(); // Fetch the token
 
     if (token == null) {
       setState(() {
@@ -266,69 +283,81 @@ class _PolDpPageState extends State<PolDpPage> {
         ? Center(child: CircularProgressIndicator())
         : Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<String>(
-                  value: selectedDistrict,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'District',
-                    prefixIcon: const Icon(Icons.location_city),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  items: districtDescriptions.map((district) {
-                    return DropdownMenuItem<String>(
-                      value: district['codeId'],
-                      child: Text(district['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) async {
-                    setState(() {
-                      selectedDistrict = newValue;
-                      policeDescriptions = [];
-                      selectedPolice = 'ALL'; // Reset police selection
-                      widget.onDistrictSelected(newValue);
-                      isLoading = true;
-                    });
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      child: DropdownButtonFormField<String>(
+                        value: selectedDistrict,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'District',
+                          prefixIcon: const Icon(Icons.location_city),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12), // Adjust padding
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: districtDescriptions.map((district) {
+                          return DropdownMenuItem<String>(
+                            value: district['codeId'],
+                            child: Text(district['codeDesc']!),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) async {
+                          setState(() {
+                            selectedDistrict = newValue;
+                            policeDescriptions = [];
+                            selectedPolice = 'ALL'; // Reset police selection
+                            widget.onDistrictSelected(newValue);
+                            isLoading = true;
+                          });
 
-                    if (newValue != null && newValue != 'ALL') {
-                      await fetchPolice(newValue);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: DropdownButtonFormField<String>(
-                  value: selectedPolice,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Police Station',
-                    prefixIcon: const Icon(Icons.local_police),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                          if (newValue != null && newValue != 'ALL') {
+                            await fetchPolice(newValue);
+                          }
+                        },
+                      ),
                     ),
                   ),
-                  items: policeDescriptions.map((police) {
-                    return DropdownMenuItem<String>(
-                      value: police['codeId'],
-                      child: Text(police['codeDesc']!),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedPolice = newValue;
-                      widget.onPoliceStationSelected(newValue);
-                    });
-                  },
-                ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      child: DropdownButtonFormField<String>(
+                        value: selectedPolice,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Police Station',
+                          prefixIcon: const Icon(Icons.local_police),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: policeDescriptions.map((police) {
+                          return DropdownMenuItem<String>(
+                            value: police['codeId'],
+                            child: Text(police['codeDesc']!),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedPolice = newValue;
+                            widget.onPoliceStationSelected(newValue);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           );

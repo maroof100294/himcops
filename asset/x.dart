@@ -106,13 +106,13 @@
 //       final payloadBody = {
 //         "processionMajorParticipantName": [majorParticipantNameController.text],
 //         "processionMajorParticipantStatus": ["C"],
-//         "enRouteAddress": {
-//           "countryCd": 80,
-//           "stateCd": 12,
-//           "districtCd": 12246,
-//           "policeStationCd": 12246002,
-//           "RecordStatus": "C"
-//         },
+//         "processionMajorParticipantCountryCd": [80],
+//         "processionMajorParticipantStateCd": [12],
+//         "processionMajorParticipantDistrictCd": [12253],
+//         "processionMajorParticipantVillage": [
+//           "parti town post"
+//         ],
+//         "processionMajorParticipantPoliceStationCd": [12246002],
 //       };
 //       print('Request Body: \n${json.encode(payloadBody)}');
 
@@ -331,4 +331,5 @@
 //     );
 //   }
 // }
-// // now in here i want when i add major participant name in textform field and click on add participant in the table if the is on name then it will add on the aPI body and if it is mor than one name then all the name will be added in the body
+// now like processionMajorParticipantName and processionMajorParticipantStatus i want also in processionMajorParticipantCountryCd for country processionMajorParticipantStateCd for state
+// processionMajorParticipantDistrictCd for district ,processionMajorParticipantVillage for address and processionMajorParticipantPoliceStationCd for police station

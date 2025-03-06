@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:himcops/citizen/searchstaus/complaintstatus.dart';
 import 'package:himcops/citizen/searchstaus/viewfir.dart';
 import 'package:himcops/drawer/pdrawer.dart';
+import 'package:himcops/police/casediary.dart';
 import 'package:himcops/police/dsi.dart';
 import 'package:himcops/police/ekyc.dart';
 
@@ -137,7 +138,7 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                           color: Color.fromARGB(211, 11, 72, 151),
                         ),
                       ),
-                       TextSpan(
+                      TextSpan(
                         text:
                             ' / ', //Police User Full Name with district and Police station
                         style: TextStyle(
@@ -226,9 +227,12 @@ class _PoliceHomePageState extends State<PoliceHomePage> {
                                             const ComplaintStatusPage()));
                                 break;
                               case 3:
-                                // showComplaintDialog(context);
-                                //   _launchURL(
-                                //       'https://echallan.parivahan.gov.in/index/accused-challan');
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CaseDiaryPage()));
+
                                 break;
                               case 4:
                                 Navigator.push(

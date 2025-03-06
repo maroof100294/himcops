@@ -14,16 +14,19 @@ class EventReqViewPage extends StatelessWidget {
     final viewEventVerificationDetails =
         data['applicant'] as Map<String, dynamic>? ?? {};
     final Map<String, String> labels = {
-      'firstName': 'Full Name',
+      'firstName': 'Full Name'
+    };
+    final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
+    final Map<String, String> applicantlabels = {
+      'applicantGenderCdDesc': 'Gender',
+      'mRelationTypeDesc': 'Relation'
+    };
+     final viewEEEventVerificationDetails =
+        data['applicant'] as Map<String, dynamic>? ?? {};
+    final Map<String, String> applabels = {
       'relativeName': 'Relative Name',
       'email': 'Email ID',
       'mobile2': 'Mobile Number'
-    };
-final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
-    final Map<String, String> applicantlabels = {
-      
-      'applicantGenderCdDesc': 'Gender',
-      'mRelationTypeDesc': 'Relation'
     };
     final Map<String, dynamic> nestedData =
         viewEventVerificationDetails['eventPerformanceRegApplicant']
@@ -35,22 +38,22 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
       labels['commonPanelAgeYear'] = 'Age';
     }
 
-    final Map<String, dynamic> perAddressData =
-        viewEventVerificationDetails['permanentAddressFormBean']
-                as Map<String, dynamic>? ??
-            {};
-    if (perAddressData.containsKey('village')) {
-      viewEventVerificationDetails['village'] = perAddressData['village'];
-      labels['village'] = 'Permanent Address';
-    }
+    // final Map<String, dynamic> perAddressData =
+    //     viewEventVerificationDetails['permanentAddressFormBean']
+    //             as Map<String, dynamic>? ??
+    //         {};
+    // if (perAddressData.containsKey('village')) {
+    //   viewEventVerificationDetails['village'] = perAddressData['village'];
+    //   labels['village'] = 'Permanent Address';
+    // }
 
-    final viewEventPermanentDetails = data.isNotEmpty ? data : {};
-    final Map<String, String> permanentlabels = {
-      'applicantPerAddCountryCdDesc': 'Country',
-      'applicantPerAddStateCdDesc': 'State',
-      'applicantPerAddDistCdDesc': 'District', // District needed
-      'applicantPerAddPSCdDesc': 'Police Station'
-    };
+    // final viewEventPermanentDetails = data.isNotEmpty ? data : {};
+    // final Map<String, String> permanentlabels = {
+    //   'applicantPerAddCountryCdDesc': 'Country',
+    //   'applicantPerAddStateCdDesc': 'State',
+    //   'applicantPerAddDistCdDesc': 'District', // District needed
+    //   'applicantPerAddPSCdDesc': 'Police Station'
+    // };
 
     final Map<String, dynamic> preAddressData =
         viewEventVerificationDetails['presentAddressFormBean']
@@ -69,9 +72,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
       'applicantPreAddPSCdDesc': 'Police Station'
     };
 
-    
-
-    final viewEventOrgDetails =data.isNotEmpty ? data : {};
+    final viewEventOrgDetails = data.isNotEmpty ? data : {};
     final Map<String, String> orglabels = {
       'orgnizationName': 'Organization Name',
     };
@@ -124,8 +125,30 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
               const SizedBox(height: 8.0),
               ...labels.entries.map((entry) {
                 final value =
-                    viewEventVerificationDetails[entry.key]?.toString() ??
-                        'N/A';
+                    viewEventVerificationDetails[entry.key]?.toString() ?? ' ';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: entry.value,
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    enabled: false,
+                  ),
+                );
+              }).toList(),
+                ...presentlabels.entries.map((entry) {
+                final value =
+                    viewEventPresentDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -148,7 +171,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
               }).toList(),
               ...applicantlabels.entries.map((entry) {
                 final value =
-                    viewEEventVerificationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewEEventVerificationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -168,10 +191,10 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                     enabled: false,
                   ),
                 );
-              }).toList(),
-              ...permanentlabels.entries.map((entry) {
+              }).toList(),  
+              ...applabels.entries.map((entry) {
                 final value =
-                    viewEventPermanentDetails[entry.key]?.toString() ?? 'N/A';
+                    viewEEEventVerificationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -192,32 +215,32 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                   ),
                 );
               }).toList(),
-              ...presentlabels.entries.map((entry) {
-                final value =
-                    viewEventPresentDetails[entry.key]?.toString() ?? 'N/A';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: TextFormField(
-                    initialValue: value,
-                    decoration: InputDecoration(
-                      labelText: entry.value,
-                      labelStyle: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 2.0),
-                      ),
-                    ),
-                    enabled: false,
-                  ),
-                );
-              }).toList(),
+              // ...permanentlabels.entries.map((entry) {
+              //   final value =
+              //       viewEventPermanentDetails[entry.key]?.toString() ?? ' ';
+              //   return Padding(
+              //     padding: const EdgeInsets.only(bottom: 16.0),
+              //     child: TextFormField(
+              //       initialValue: value,
+              //       decoration: InputDecoration(
+              //         labelText: entry.value,
+              //         labelStyle: const TextStyle(
+              //             color: Colors.black, fontWeight: FontWeight.bold),
+              //         fillColor: Colors.white,
+              //         filled: true,
+              //         border: OutlineInputBorder(
+              //           borderRadius: BorderRadius.circular(10),
+              //           borderSide:
+              //               const BorderSide(color: Colors.black, width: 2.0),
+              //         ),
+              //       ),
+              //       enabled: false,
+              //     ),
+              //   );
+              // }).toList(),
+            
               ...orglabels.entries.map((entry) {
-                final value =
-                    viewEventOrgDetails[entry.key]?.toString() ?? 'N/A';
+                final value = viewEventOrgDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -246,7 +269,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
               const SizedBox(height: 8.0),
               ...locationlabels.entries.map((entry) {
                 final value =
-                    viewEventlocationDetails[entry.key]?.toString() ?? 'N/A';
+                    viewEventlocationDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -269,7 +292,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
               }).toList(),
               ...locationAddlabels.entries.map((entry) {
                 final value =
-                    viewEventLocAddressDetails[entry.key]?.toString() ?? 'N/A';
+                    viewEventLocAddressDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -294,7 +317,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewEventlocationDetails['locationArea'] ?? 'N/A'}  ${viewEventlocationDetails['locationAreaCd'] ?? ' '}",
+                      "${viewEventlocationDetails['locationArea'] ?? ' '}  ${viewEventlocationDetails['locationAreaCd'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Location Area',
                     labelStyle: const TextStyle(
@@ -314,7 +337,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewEventlocationDetails['proposedTimeLmtHH'] ?? 'N/A'} : ${viewEventlocationDetails['proposedTimeLmtMM'] ?? 'N/A'}",
+                      "${viewEventlocationDetails['proposedTimeLmtHH'] ?? ' '} : ${viewEventlocationDetails['proposedTimeLmtMM'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Proposed Time',
                     labelStyle: const TextStyle(
@@ -334,7 +357,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewEventlocationDetails['eventStartTimeStrHH'] ?? 'N/A'} : ${viewEventlocationDetails['eventStartTimeStrMM'] ?? 'N/A'}",
+                      "${viewEventlocationDetails['eventStartTimeStrHH'] ?? ' '} : ${viewEventlocationDetails['eventStartTimeStrMM'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Event Start/End Time',
                     labelStyle: const TextStyle(
@@ -354,7 +377,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextFormField(
                   initialValue:
-                      "${viewEventlocationDetails['briefSynopsis'] ?? 'N/A'}",
+                      "${viewEventlocationDetails['briefSynopsis'] ?? ' '}",
                   decoration: InputDecoration(
                     labelText: 'Brief Description',
                     labelStyle: const TextStyle(
@@ -379,7 +402,7 @@ final viewEEventVerificationDetails = data.isNotEmpty ? data : {};
               const SizedBox(height: 8.0),
               ...statusLabels.entries.map((entry) {
                 final value =
-                    viewEventStatusDetails[entry.key]?.toString() ?? 'N/A';
+                    viewEventStatusDetails[entry.key]?.toString() ?? ' ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(

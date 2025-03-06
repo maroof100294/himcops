@@ -7,6 +7,7 @@ import 'package:himcops/master/district.dart';
 import 'package:himcops/master/officename.dart';
 import 'package:himcops/master/policestation.dart';
 import 'package:himcops/master/sdp.dart';
+import 'package:himcops/pages/cgridhome.dart';
 
 class ComplaintVerificationPage extends StatefulWidget {
   final String name;
@@ -177,434 +178,388 @@ class _ComplaintVerificationPageState extends State<ComplaintVerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Add Complaint Details',
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 255, 255, 255)),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+        );
+        return false; // Prevent default back navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Add Complaint Details',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255)),
+          ),
+          backgroundColor: Color.fromARGB(255, 12, 100, 233),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the menu icon color to white
+          ),
         ),
-        backgroundColor: Color.fromARGB(255, 12, 100, 233),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Set the menu icon color to white
-        ),
-      ),
-      drawer: const AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _affidavitDetailsFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Please Fill the Mandatory Details first',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red)),
-                const SizedBox(height: 20),
-                const Text('Complainant Personal Information',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: nameController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Full Name',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: mobileController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Mobile Number',
-                    prefixIcon: const Icon(Icons.phone),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: emailController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: dateDobController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Date of Birth',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: ageController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Age',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: widget.identify,
-                  readOnly: true, // Makes the field uneditable
-                  decoration: InputDecoration(
-                    labelText: 'Identification Type',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: idNumberController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Identification Number',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: paddressController,
-                  decoration: InputDecoration(
-                    label: RichText(
-                      text: TextSpan(
-                        text: 'Present Address',
-                        style: TextStyle(
-                            color: Colors.black), // Normal label color
-                        children: [
-                          TextSpan(
-                            text: ' *',
-                            style:
-                                TextStyle(color: Colors.red), // Red color for *
-                          ),
-                        ],
+        drawer: const AppDrawer(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _affidavitDetailsFormKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Please Fill the Mandatory Details first',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red)),
+                  const SizedBox(height: 20),
+                  const Text('Complainant Personal Information',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: nameController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    prefixIcon: const Icon(Icons.home),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.red),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: mobileController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number',
+                      prefixIcon: const Icon(Icons.phone),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                CountryPage(
-                  controller: pcountryController,
-                  enabled: false,
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: widget.selectedState,
-                  readOnly: true, // Makes the field uneditable
-                  decoration: InputDecoration(
-                    labelText: 'State',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: emailController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                DpPage(
-                  onDistrictSelected: (districtCode) {
-                    setState(() {
-                      if (isChecked) {
-                        permanentDistrictCode = districtCode;
-                      } else {
-                        presentDistrictCode = districtCode;
-                      }
-                    });
-                  },
-                  onPoliceStationSelected: (policeStationCode) {
-                    setState(() {
-                      if (isChecked) {
-                        permanentPoliceStationCode = policeStationCode;
-                      } else {
-                        presentPoliceStationCode = policeStationCode;
-                      }
-                    });
-                  },
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value ?? false;
-                          // widget.onAddressSame(isChecked);
-                          if (isChecked) {
-                            addressController.text = paddressController.text;
-                            aCountryController.text = pcountryController.text;
-                            permanentDistrictCode = presentDistrictCode;
-                            permanentPoliceStationCode =
-                                presentPoliceStationCode;
-                          } else {
-                            addressController.clear();
-                            aCountryController.clear();
-                            permanentDistrictCode = null;
-                            permanentPoliceStationCode = null;
-                          }
-                        });
-                      },
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: dateDobController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Date of Birth',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    const Text('Permanent address same as present address'),
-                  ],
-                ),
-                if (!isChecked)
-                  Column(
-                    children: [
-                      TextFormField(
-                        controller: addressController,
-                        enabled: true,
-                        decoration: InputDecoration(
-                          label: RichText(
-                            text: TextSpan(
-                              text: 'Permanent Address',
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: ageController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Age',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.identify,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'Identification Type',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: idNumberController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Identification Number',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: paddressController,
+                    decoration: InputDecoration(
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Present Address',
+                          style: TextStyle(
+                              color: Colors.black), // Normal label color
+                          children: [
+                            TextSpan(
+                              text: ' *',
                               style: TextStyle(
-                                  color: Colors.black), // Normal label color
-                              children: [
-                                TextSpan(
-                                  text: ' *',
-                                  style: TextStyle(
-                                      color: Colors.red), // Red color for *
-                                ),
-                              ],
+                                  color: Colors.red), // Red color for *
                             ),
-                          ),
-                          prefixIcon: const Icon(Icons.home),
-                          filled: true,
-                          fillColor: Colors.white,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                        ),
-                        maxLines: 3,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your address';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      CountryPage(
-                          controller: aCountryController, enabled: false),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        initialValue: widget.selectedState,
-                        readOnly: true, // Makes the field uneditable
-                        decoration: InputDecoration(
-                          labelText: 'State',
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      DpPage(
-                        onDistrictSelected: (districtCode) {
+                      prefixIcon: const Icon(Icons.home),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CountryPage(
+                    controller: pcountryController,
+                    enabled: false,
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.selectedState,
+                    readOnly: true, // Makes the field uneditable
+                    decoration: InputDecoration(
+                      labelText: 'State',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DpPage(
+                    onDistrictSelected: (districtCode) {
+                      setState(() {
+                        if (isChecked) {
+                          permanentDistrictCode = districtCode;
+                        } else {
+                          presentDistrictCode = districtCode;
+                        }
+                      });
+                    },
+                    onPoliceStationSelected: (policeStationCode) {
+                      setState(() {
+                        if (isChecked) {
+                          permanentPoliceStationCode = policeStationCode;
+                        } else {
+                          presentPoliceStationCode = policeStationCode;
+                        }
+                      });
+                    },
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
                           setState(() {
-                            permanentDistrictCode = districtCode;
-                          });
-                        },
-                        onPoliceStationSelected: (policeStationCode) {
-                          setState(() {
-                            permanentPoliceStationCode = policeStationCode;
+                            isChecked = value ?? false;
+                            // widget.onAddressSame(isChecked);
+                            if (isChecked) {
+                              addressController.text = paddressController.text;
+                              aCountryController.text = pcountryController.text;
+                              permanentDistrictCode = presentDistrictCode;
+                              permanentPoliceStationCode =
+                                  presentPoliceStationCode;
+                            } else {
+                              addressController.clear();
+                              aCountryController.clear();
+                              permanentDistrictCode = null;
+                              permanentPoliceStationCode = null;
+                            }
                           });
                         },
                       ),
+                      const Text('Permanent address same as present address'),
                     ],
                   ),
-                const SizedBox(height: 20),
-                const Text('Complaint/Incident Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: incidentDateTimeFromController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: incidentDateTimeFromController.text.isEmpty
-                        ? 'Not Known'
-                        : widget.incidentDateTimeFrom,
-                    // hintText: incidentDateTimeFromController.text.isEmpty
-                    //     ? 'Not Known'
-                    //     : widget.incidentDateTimeFrom,
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  if (!isChecked)
+                    Column(
+                      children: [
+                        TextFormField(
+                          controller: addressController,
+                          enabled: true,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Permanent Address',
+                                style: TextStyle(
+                                    color: Colors.black), // Normal label color
+                                children: [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(
+                                        color: Colors.red), // Red color for *
+                                  ),
+                                ],
+                              ),
+                            ),
+                            prefixIcon: const Icon(Icons.home),
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.red),
+                            ),
+                          ),
+                          maxLines: 3,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your address';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        CountryPage(
+                            controller: aCountryController, enabled: false),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          initialValue: widget.selectedState,
+                          readOnly: true, // Makes the field uneditable
+                          decoration: InputDecoration(
+                            labelText: 'State',
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        DpPage(
+                          onDistrictSelected: (districtCode) {
+                            setState(() {
+                              permanentDistrictCode = districtCode;
+                            });
+                          },
+                          onPoliceStationSelected: (policeStationCode) {
+                            setState(() {
+                              permanentPoliceStationCode = policeStationCode;
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: incidentDateTimeToController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: incidentDateTimeToController.text.isEmpty
-                        ? 'Not Known'
-                        : widget.incidentDateTimeTo,
-                    // hintText: incidentDateTimeToController.text.isEmpty
-                    //     ? 'Not Known'
-                    //     : widget.incidentDateTimeTo,
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: incidentPlaceController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Place of Incident',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: complaintDescriptionController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Complaint Description',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  maxLength: 3,
-                ),
-                const SizedBox(height: 20),
-                const Text('Complaint Submission Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Do you know your police station?',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 20),
+                  const Text('Complaint/Incident Details',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: incidentDateTimeFromController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: incidentDateTimeFromController.text.isEmpty
+                          ? 'Not Known'
+                          : widget.incidentDateTimeFrom,
+                      // hintText: incidentDateTimeFromController.text.isEmpty
+                      //     ? 'Not Known'
+                      //     : widget.incidentDateTimeFrom,
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RadioListTile<bool>(
-                        value: true,
-                        groupValue: isPoliceKnown,
-                        onChanged: (val) {
-                          setState(() {
-                            isPoliceKnown = val!;
-                          });
-                        },
-                        title: const Text('Yes'),
-                      ),
-                    ),
-                    Expanded(
-                      child: RadioListTile<bool>(
-                        value: false,
-                        groupValue: isPoliceKnown,
-                        onChanged: (val) {
-                          setState(() {
-                            isPoliceKnown = val!;
-                          });
-                        },
-                        title: const Text("No"),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (isPoliceKnown) ...[
-                  DistrictPage(
-                      controller: (districtCode) {
-                        setState(() {
-                          complaintDistrictCode = districtCode;
-                        });
-                      },
-                      enabled: true),
-                  const SizedBox(height: 10),
-                  PoliceStationPage(
-                    controller: submissionPoliceController,
-                    enabled: true,
                   ),
-                ] else ...[
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: incidentDateTimeToController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: incidentDateTimeToController.text.isEmpty
+                          ? 'Not Known'
+                          : widget.incidentDateTimeTo,
+                      // hintText: incidentDateTimeToController.text.isEmpty
+                      //     ? 'Not Known'
+                      //     : widget.incidentDateTimeTo,
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: incidentPlaceController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Place of Incident',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: complaintDescriptionController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Complaint Description',
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    maxLength: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Complaint Submission Details',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
                   const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
-                          'Do you know your district ?',
+                          'Do you know your police station?',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -615,10 +570,10 @@ class _ComplaintVerificationPageState extends State<ComplaintVerificationPage> {
                       Expanded(
                         child: RadioListTile<bool>(
                           value: true,
-                          groupValue: isDistrictKnown,
+                          groupValue: isPoliceKnown,
                           onChanged: (val) {
                             setState(() {
-                              isDistrictKnown = val!;
+                              isPoliceKnown = val!;
                             });
                           },
                           title: const Text('Yes'),
@@ -627,10 +582,10 @@ class _ComplaintVerificationPageState extends State<ComplaintVerificationPage> {
                       Expanded(
                         child: RadioListTile<bool>(
                           value: false,
-                          groupValue: isDistrictKnown,
+                          groupValue: isPoliceKnown,
                           onChanged: (val) {
                             setState(() {
-                              isDistrictKnown = val!;
+                              isPoliceKnown = val!;
                             });
                           },
                           title: const Text("No"),
@@ -639,7 +594,7 @@ class _ComplaintVerificationPageState extends State<ComplaintVerificationPage> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  if (isDistrictKnown) ...[
+                  if (isPoliceKnown) ...[
                     DistrictPage(
                         controller: (districtCode) {
                           setState(() {
@@ -648,59 +603,117 @@ class _ComplaintVerificationPageState extends State<ComplaintVerificationPage> {
                         },
                         enabled: true),
                     const SizedBox(height: 10),
-                    OfficeNamePage(
-                        controller: submissionOfficeController, enabled: true),
-                  ] else ...[
-                    OfficeNamePage(
-                        controller: submissionOfficeController, enabled: true),
-                  ]
-                ],
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isAgree,
-                      onChanged: (value) {
-                        setState(() {
-                          isAgree = value!;
-                        });
-                      },
+                    PoliceStationPage(
+                      controller: submissionPoliceController,
+                      enabled: true,
                     ),
-                    const Text(
-                        'All the information provided in the form is true'),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: (isAgree &&
-                          _affidavitDetailsFormKey.currentState!.validate() &&
-                          !_isSubmitting) // Check if not already submitting
-                      ? () async {
-                          setState(() {
-                            _isSubmitting = true; // Disable the button
-                          });
-
-                          try {
-                            //await _registerUser(); // Perform the registration logic
-                          } finally {
-                            setState(() {
-                              _isSubmitting =
-                                  true; // Re-enable the button after completion
-                            });
-                          }
-                        }
-                      : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
-                  style: AppButtonStyles.elevatedButtonStyle,
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(
-                          color: Colors.white) // Show a loader
-                      : const Text(
-                          'Submit',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                  ] else ...[
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Do you know your district ?',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
-                ),
-              ],
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            value: true,
+                            groupValue: isDistrictKnown,
+                            onChanged: (val) {
+                              setState(() {
+                                isDistrictKnown = val!;
+                              });
+                            },
+                            title: const Text('Yes'),
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            value: false,
+                            groupValue: isDistrictKnown,
+                            onChanged: (val) {
+                              setState(() {
+                                isDistrictKnown = val!;
+                              });
+                            },
+                            title: const Text("No"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    if (isDistrictKnown) ...[
+                      DistrictPage(
+                          controller: (districtCode) {
+                            setState(() {
+                              complaintDistrictCode = districtCode;
+                            });
+                          },
+                          enabled: true),
+                      const SizedBox(height: 10),
+                      OfficeNamePage(
+                          controller: submissionOfficeController,
+                          enabled: true),
+                    ] else ...[
+                      OfficeNamePage(
+                          controller: submissionOfficeController,
+                          enabled: true),
+                    ]
+                  ],
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isAgree,
+                        onChanged: (value) {
+                          setState(() {
+                            isAgree = value!;
+                          });
+                        },
+                      ),
+                      const Text(
+                          'All the information provided in the form is true'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: (isAgree &&
+                            _affidavitDetailsFormKey.currentState!.validate() &&
+                            !_isSubmitting) // Check if not already submitting
+                        ? () async {
+                            setState(() {
+                              _isSubmitting = true; // Disable the button
+                            });
+
+                            try {
+                              //await _registerUser(); // Perform the registration logic
+                            } finally {
+                              setState(() {
+                                _isSubmitting =
+                                    true; // Re-enable the button after completion
+                              });
+                            }
+                          }
+                        : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
+                    style: AppButtonStyles.elevatedButtonStyle,
+                    child: _isSubmitting
+                        ? const CircularProgressIndicator(
+                            color: Colors.white) // Show a loader
+                        : const Text(
+                            'Submit',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

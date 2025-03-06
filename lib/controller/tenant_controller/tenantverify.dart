@@ -6,7 +6,6 @@ import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/master/occupationMain.dart';
 import 'package:himcops/master/sdp.dart';
 import 'package:himcops/pages/cgridhome.dart';
-import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/master/country.dart';
 import 'package:http/io_client.dart';
 // import 'package:himcops/payment/payment_page.dart';
@@ -269,7 +268,8 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
     dateOfBirthController = TextEditingController(text: widget.dateOfBirth);
     ageController = TextEditingController(text: widget.age);
     affidavitController = TextEditingController(text: widget.affidavit);
-    commercialDetailsController = TextEditingController(text: widget.commercial);
+    commercialDetailsController =
+        TextEditingController(text: widget.commercial);
 
     _fetchLoginId();
   }
@@ -290,162 +290,163 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
       ioc.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       final client = IOClient(ioc);
-      
-        final accountUrl =
-            '$baseUrl/androidapi/mobile/service/addTenantPgVerification';
-        final DateTime dob = DateTime.parse(
-            widget.dateOfBirth); // Parse the date string into DateTime object
-        final String formattedDob =
-            DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
-        final payloadBody = {
-          "userName": loginId,
-          "ownerFirstName": firstName,
-          "ownerMiddleName": "",
-          "ownerLastName": "",
-          "ownerOccupation": int.tryParse(occupationController.text),
-          "ownerEmailId": email,
-          "ownerHouseNo": "",
-          "ownerStreetName": "",
-          "ownerColony": "",
-          "ownerVillage": oAddressController.text, //"Bharoli Bhagor (17/40)",
-          "ownerTehsil": "",
-          "ownerCountry": 80,
-          "ownerState": 12,
-          "ownerDistrict": int.tryParse(ownerDistrictCode!),
-          "ownerPoliceStation":
-              int.tryParse(ownerPoliceStationCode!), //12253025,
-          "ownerPincode": 0,
-          "ownerMobile1": "91",
-          "ownerMobile2": "8473951198", //mobile2,
-          "ownerLandline1": "91",
-          "ownerLandline2": "",
-          "ownerLandline3": "",
-          "ownerPersonCode": null,
-          "ownerAddressCode": null,
-          "tenantFirstName": widget.name,
-          "tenantMiddleName": "",
-          "tenantLastName": "",
-          "tenantGender": widget.genderId,
-          "tenantOccupation": widget.tenantId,
-          "tenantMobile1": "91",
-          "tenantMobile2": "",
-          "tenantLandline1": "91",
-          "tenantLandline2": "",
-          "tenantLandline3": "",
-          "tenantRelationType": widget.relationId,
-          "tenantRelativeName": widget.relativeName,
-          "tenantPurpose": null,
-          "tenantCommercialDetails": null,
-          "tenantPersonCode": null,
-          "tenantPresentAddressCode": null,
-          "tenantPreviousAddressCode": null,
-          "tenantPermanentAddressCode": null,
-          "tenantPresentHouseNo": "",
-          "tenantPresentStreetName": "",
-          "tenantPresentColony": "",
-          "tenantPresentVillage": paddressController.text,
-          "tenantPresentTehsil": "",
-          "tenantPresentAge": null,
-          "tenantPresentCountry": 80,
-          "tenantPresentState": 12,
-          "tenantPresentDistrict": int.tryParse(presentDistrictCode!), //12245,
-          "tenantPresentPoliceStation":
-              int.tryParse(presentPoliceStationCode!), //12245015,
-          "tenantPresentPincode": 0,
-          "tenantPermanentHouseNo": "",
-          "tenantPermanentStreetName": "",
-          "tenantPermanentColony": "",
-          "tenantPermanentVillage": addressController.text,
-          "tenantPermanentTehsil": "",
-          "tenantPermanentCountry": 80,
-          "tenantPermanentState": 12,
-          "tenantPermanentDistrict":
-              int.tryParse(permanentDistrictCode!), //12246,
-          "tenantPermanentPoliceStation":
-              int.tryParse(permanentPoliceStationCode!), //12246002,
-          "tenantPermanentPincode": 0,
-          "familyMemberFirstName": widget.relativeName,
-          "familyMemberMiddleName": "",
-          "familyMemberLastName": "",
-          "familyMemberRelationshipWithTenant": widget.relationId,
-          "familyMemberLandline1": "91",
-          "familyMemberLandline2": "",
-          "familyMemberLandline3": "",
-          "familyMemberAddressDocuments": 0,
-          "familyMemberAddressDocumentsNo": "",
-          "familyMemberMobile1": "91",
-          "familyMemberMobile2": "",
-          "familyMemberApplicationSubmissionDate":
-              DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now()),
-          "hasAnyCriminalRecord": widget.isCriminal ? 'Y' : 'N',
-          "crimeDetails": widget.isCriminal ? widget.affidavit : '',
-          "orRecord": 1,
-          "fileTypeCd": [1, 2],
-          "filedescription": ["photo", "aadhar ration"],
-          "tenancypurpose":  widget.selectedTenancy == "Residential" ? "R" : "C",//"C",
-          "commercialDetails": widget.selectedTenancy == "Commercial" ? widget.commercial : "",//"gjgjhgjhgjhgjh",
-          "submittenant": "submit",
-          "tenantVerificationTenant": {
-            "commonPaneldateOfBirth": formattedDob,
-            "commonPanelAgeYear": widget.age,
-            // "commonPanelAgeMonth": 3,
-            // "commonPanelyearOfBirth": 1997
-          },
-          "tenantVerificationFamily": {
-            "commonPaneldateOfBirth": "00/00/0000",
-            "commonPanelAgeYear": 0,
-            "commonPanelAgeMonth": 0,
-            "commonPanelyearOfBirth": 0
-          },
-          "files": [
-            {
-              "fileName": "Photograph.png",
-              "fieldName": "Photograph",
-              "fileData": photoBase64String ?? "",
-              "fileTypeCd": 1
-            },
-            {
-              "fileName": "Scan Copy.png",
-              "fieldName": "ScanCopy",
-              "fileData": photoTwoBase64String ?? "",
-              "fileTypeCd": 2
-            }
-          ]
-        };
-        print('Request Body: \n${json.encode(payloadBody)}');
 
-        final accountResponse = await client.post(
-          Uri.parse(accountUrl),
-          body: json.encode(payloadBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
+      final accountUrl =
+          '$baseUrl/androidapi/mobile/service/addTenantPgVerification';
+      final DateTime dob = DateTime.parse(
+          widget.dateOfBirth); // Parse the date string into DateTime object
+      final String formattedDob =
+          DateFormat('dd/MM/yyyy').format(dob); // Format the DateTime object
+      final payloadBody = {
+        "userName": loginId,
+        "ownerFirstName": firstName,
+        "ownerMiddleName": "",
+        "ownerLastName": "",
+        "ownerOccupation": int.tryParse(occupationController.text),
+        "ownerEmailId": email,
+        "ownerHouseNo": "",
+        "ownerStreetName": "",
+        "ownerColony": "",
+        "ownerVillage": oAddressController.text, //"Bharoli Bhagor (17/40)",
+        "ownerTehsil": "",
+        "ownerCountry": 80,
+        "ownerState": 12,
+        "ownerDistrict": int.tryParse(ownerDistrictCode!),
+        "ownerPoliceStation": int.tryParse(ownerPoliceStationCode!), //12253025,
+        "ownerPincode": 0,
+        "ownerMobile1": "91",
+        "ownerMobile2": "8473951198", //mobile2,
+        "ownerLandline1": "91",
+        "ownerLandline2": "",
+        "ownerLandline3": "",
+        "ownerPersonCode": null,
+        "ownerAddressCode": null,
+        "tenantFirstName": widget.name,
+        "tenantMiddleName": "",
+        "tenantLastName": "",
+        "tenantGender": widget.genderId,
+        "tenantOccupation": widget.tenantId,
+        "tenantMobile1": "91",
+        "tenantMobile2": "",
+        "tenantLandline1": "91",
+        "tenantLandline2": "",
+        "tenantLandline3": "",
+        "tenantRelationType": widget.relationId,
+        "tenantRelativeName": widget.relativeName,
+        "tenantPurpose": null,
+        "tenantCommercialDetails": null,
+        "tenantPersonCode": null,
+        "tenantPresentAddressCode": null,
+        "tenantPreviousAddressCode": null,
+        "tenantPermanentAddressCode": null,
+        "tenantPresentHouseNo": "",
+        "tenantPresentStreetName": "",
+        "tenantPresentColony": "",
+        "tenantPresentVillage": paddressController.text,
+        "tenantPresentTehsil": "",
+        "tenantPresentAge": null,
+        "tenantPresentCountry": 80,
+        "tenantPresentState": 12,
+        "tenantPresentDistrict": int.tryParse(presentDistrictCode!), //12245,
+        "tenantPresentPoliceStation":
+            int.tryParse(presentPoliceStationCode!), //12245015,
+        "tenantPresentPincode": 0,
+        "tenantPermanentHouseNo": "",
+        "tenantPermanentStreetName": "",
+        "tenantPermanentColony": "",
+        "tenantPermanentVillage": addressController.text,
+        "tenantPermanentTehsil": "",
+        "tenantPermanentCountry": 80,
+        "tenantPermanentState": 12,
+        "tenantPermanentDistrict":
+            int.tryParse(permanentDistrictCode!), //12246,
+        "tenantPermanentPoliceStation":
+            int.tryParse(permanentPoliceStationCode!), //12246002,
+        "tenantPermanentPincode": 0,
+        "familyMemberFirstName": widget.relativeName,
+        "familyMemberMiddleName": "",
+        "familyMemberLastName": "",
+        "familyMemberRelationshipWithTenant": widget.relationId,
+        "familyMemberLandline1": "91",
+        "familyMemberLandline2": "",
+        "familyMemberLandline3": "",
+        "familyMemberAddressDocuments": 0,
+        "familyMemberAddressDocumentsNo": "",
+        "familyMemberMobile1": "91",
+        "familyMemberMobile2": "",
+        "familyMemberApplicationSubmissionDate":
+            DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now()),
+        "hasAnyCriminalRecord": widget.isCriminal ? 'Y' : 'N',
+        "crimeDetails": widget.isCriminal ? widget.affidavit : '',
+        "orRecord": 1,
+        "fileTypeCd": [1, 2],
+        "filedescription": ["photo", "aadhar ration"],
+        "tenancypurpose":
+            widget.selectedTenancy == "Residential" ? "R" : "C", //"C",
+        "commercialDetails": widget.selectedTenancy == "Commercial"
+            ? widget.commercial
+            : "", //"gjgjhgjhgjhgjh",
+        "submittenant": "submit",
+        "tenantVerificationTenant": {
+          "commonPaneldateOfBirth": formattedDob,
+          "commonPanelAgeYear": widget.age,
+          // "commonPanelAgeMonth": 3,
+          // "commonPanelyearOfBirth": 1997
+        },
+        "tenantVerificationFamily": {
+          "commonPaneldateOfBirth": "00/00/0000",
+          "commonPanelAgeYear": 0,
+          "commonPanelAgeMonth": 0,
+          "commonPanelyearOfBirth": 0
+        },
+        "files": [
+          {
+            "fileName": "Photograph.png",
+            "fieldName": "Photograph",
+            "fileData": photoBase64String ?? "",
+            "fileTypeCd": 1
           },
-        );
+          {
+            "fileName": "Scan Copy.png",
+            "fieldName": "ScanCopy",
+            "fileData": photoTwoBase64String ?? "",
+            "fileTypeCd": 2
+          }
+        ]
+      };
+      print('Request Body: \n${json.encode(payloadBody)}');
 
-        if (accountResponse.statusCode == 200) {
-          // final accountData = json.decode(accountResponse.body);
-          // String mercid = accountData['data']['mercid'];
-          // String bdorderid = accountData['data']['bdorderid'];
-          // String rdata = accountData['data']['rdata'];
-          // String token = accountData['data']['token'];
-          _showConfirmationDialog();
-          // print('$mercid, $bdorderid, $rdata');
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => PaymentPage(
-          //       mercid: mercid,
-          //       bdorderid: bdorderid,
-          //       rdata: rdata,
-          //       token: token,
-          //     ),
-          //   ),
-          // );
-        } else {
-          print('Failed to enter${accountResponse.body},$loginId,$mobile2');
-          _showErrorDialog('Please fill the details');
-        }
-      
+      final accountResponse = await client.post(
+        Uri.parse(accountUrl),
+        body: json.encode(payloadBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (accountResponse.statusCode == 200) {
+        // final accountData = json.decode(accountResponse.body);
+        // String mercid = accountData['data']['mercid'];
+        // String bdorderid = accountData['data']['bdorderid'];
+        // String rdata = accountData['data']['rdata'];
+        // String token = accountData['data']['token'];
+        _showConfirmationDialog();
+        // print('$mercid, $bdorderid, $rdata');
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => PaymentPage(
+        //       mercid: mercid,
+        //       bdorderid: bdorderid,
+        //       rdata: rdata,
+        //       token: token,
+        //     ),
+        //   ),
+        // );
+      } else {
+        print('Failed to enter${accountResponse.body},$loginId,$mobile2');
+        _showErrorDialog('Please fill the details');
+      }
     } catch (e) {
       setState(() {
         print('Error occurred: $e');
@@ -613,9 +614,11 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool shouldLogout = await Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CitizenGridPage()));
-        return shouldLogout;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+        );
+        return false; // Prevent default back navigation
       },
       child: Scaffold(
         appBar: AppBar(
@@ -652,11 +655,12 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: oNameController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Full Name',
                       prefixIcon: const Icon(Icons.person),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -669,11 +673,12 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: emailController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       prefixIcon: const Icon(Icons.email),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -692,11 +697,12 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: mobileController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Mobile Number',
                       prefixIcon: const Icon(Icons.phone),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -715,16 +721,17 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                   ),
                   TextFormField(
                     controller: oAddressController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Owner Address',
                       prefixIcon: const Icon(Icons.home),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your address';
@@ -773,15 +780,32 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                   TextFormField(
                     controller: paddressController,
                     decoration: InputDecoration(
-                      labelText: 'Present Address',
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Present Address',
+                          style: TextStyle(
+                              color: Colors.black), // Normal label color
+                          children: [
+                            TextSpan(
+                              text: ' *',
+                              style: TextStyle(
+                                  color: Colors.red), // Red color for *
+                            ),
+                          ],
+                        ),
+                      ),
                       prefixIcon: const Icon(Icons.home),
                       filled: true,
                       fillColor: Colors.white,
-                      border: OutlineInputBorder(
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your address';
@@ -829,15 +853,32 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                     controller: addressController,
                     enabled: true,
                     decoration: InputDecoration(
-                      labelText: 'Permanent Address',
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Permanent Address',
+                          style: TextStyle(
+                              color: Colors.black), // Normal label color
+                          children: [
+                            TextSpan(
+                              text: ' *',
+                              style: TextStyle(
+                                  color: Colors.red), // Red color for *
+                            ),
+                          ],
+                        ),
+                      ),
                       prefixIcon: const Icon(Icons.home),
                       filled: true,
                       fillColor: Colors.white,
-                      border: OutlineInputBorder(
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your address';
@@ -966,34 +1007,43 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: widget.selectedTenancy,
-                    readOnly: true, // Makes the field uneditable
-                    decoration: InputDecoration(
-                      labelText: 'Tenancy',
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  Column(
+                    children: [
+                      TextFormField(
+                        initialValue: widget.selectedTenancy,
+                        readOnly: true, // Makes the field uneditable
+                        decoration: InputDecoration(
+                          labelText: 'Tenancy',
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),const SizedBox(height: 8),
-                  TextFormField(
-                    controller: commercialDetailsController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Commercial',
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
+                      const SizedBox(height: 8),
+
+                      // Use Visibility to conditionally show the field
+                      Visibility(
+                        visible: widget.selectedTenancy == 'Commercial',
+                        child: TextFormField(
+                          controller: commercialDetailsController,
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            labelText: 'Commercial Details',
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          maxLines: 3,
+                        ),
+                      ),
+                    ],
                   ),
+
                   const SizedBox(height: 20),
-                  const Text('Uploaded Files',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
                   Row(
                     children: [
                       const Expanded(
@@ -1021,6 +1071,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                       ),
                     ],
                   ),
+
                   if (_photoFileName != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1031,6 +1082,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                         fit: BoxFit.cover,
                       ),
                     ),
+
                   if (_photoWarning != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1039,7 +1091,10 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
+
                   const SizedBox(height: 20),
+
+                  // Identity Copy Upload
                   Row(
                     children: [
                       const Expanded(
@@ -1067,6 +1122,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                       ),
                     ],
                   ),
+
                   if (_photoFileNameTwo != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1077,6 +1133,7 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                         fit: BoxFit.cover,
                       ),
                     ),
+
                   if (_photoWarningTwo != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1085,66 +1142,102 @@ class _TvrVerificationPageState extends State<TvrVerificationPage> {
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
+
                   const SizedBox(height: 20),
-                  const Text('Affidavit Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: affidavitController,
-                    decoration: InputDecoration(
-                      labelText: 'Affidavit',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+
+                  Visibility(
+                    visible:
+                        widget.isCriminal, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: affidavitController,
+                          decoration: InputDecoration(
+                            labelText: 'Affidavit',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          maxLines: 3,
+                          enabled: false,
+                        ),
+                      ],
                     ),
-                    enabled: false,
                   ),
+
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       Checkbox(
                         value: isAgree,
                         onChanged: (value) {
-                          setState(() {
-                            isAgree = value!;
-                          });
+                          if (_photoFileName == null ||
+                              _photoFileNameTwo == null) {
+                            setState(() {
+                              _photoWarning = _photoFileName == null
+                                  ? 'Please upload the employee photo.'
+                                  : null;
+                              _photoWarningTwo = _photoFileNameTwo == null
+                                  ? 'Please upload the identity copy.'
+                                  : null;
+                            });
+                          } else {
+                            setState(() {
+                              isAgree = value!;
+                              _photoWarning = null;
+                              _photoWarningTwo = null;
+                            });
+                          }
                         },
                       ),
                       const Text(
                           'All the information provided in the form is true'),
                     ],
                   ),
+
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: (isAgree &&
                             _affidavitDetailsFormKey.currentState!.validate() &&
-                            !_isSubmitting) // Check if not already submitting
+                            !_isSubmitting)
                         ? () async {
                             setState(() {
-                              _isSubmitting = true; // Disable the button
+                              _isSubmitting = true;
                             });
 
                             try {
-                              await _registerUser(); // Perform the registration logic
+                              await _registerUser();
                             } finally {
                               setState(() {
-                                _isSubmitting =
-                                    true; // Re-enable the button after completion
+                                _isSubmitting = false;
                               });
                             }
                           }
-                        : null, // Disable button if checkbox is not checked, form is invalid, or already submitting
-                    style: AppButtonStyles.elevatedButtonStyle,
+                        : null, // Disable button if checkbox is unchecked or already submitting
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     child: _isSubmitting
-                        ? const CircularProgressIndicator(
-                            color: Colors.white) // Show a loader
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Submit',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
                           ),
                   ),
                 ],

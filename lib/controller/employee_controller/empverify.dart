@@ -577,9 +577,11 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool shouldLogout = await Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CitizenGridPage()));
-        return shouldLogout;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+        );
+        return false; // Prevent default back navigation
       },
       child: Scaffold(
         appBar: AppBar(
@@ -1134,20 +1136,31 @@ class _EmpVerificationPageState extends State<EmpVerificationPage> {
                       ),
                     ),
                   const SizedBox(height: 20),
-                  const Text('Employee Affidavit Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextFormField(
-                    controller: employeeAffidavitController,
-                    decoration: InputDecoration(
-                      labelText: 'Affidavit',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                  Visibility(
+                    visible:
+                        widget.isCriminal, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: employeeAffidavitController,
+                          decoration: InputDecoration(
+                            labelText: 'Affidavit',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
                     ),
-                    maxLines: 2,
-                    enabled: false,
                   ),
                   const SizedBox(height: 20),
                   Row(

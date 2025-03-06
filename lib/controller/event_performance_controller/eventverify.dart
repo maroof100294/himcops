@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:himcops/authservice.dart';
@@ -10,9 +9,7 @@ import 'package:himcops/drawer/drawer.dart';
 import 'package:himcops/layout/buttonstyle.dart';
 import 'package:himcops/master/country.dart';
 import 'package:himcops/master/locationarea.dart';
-// import 'package:himcops/master/natureofstructure.dart';
 import 'package:himcops/master/sdp.dart';
-import 'package:himcops/master/typeofstructure.dart';
 import 'package:himcops/pages/cgridhome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
@@ -355,10 +352,12 @@ class _EventPerformanceVerificationPageState
         "charLimitId24": 179,
         "locationArea": locationNumberController.text,
         "locationAreaCd": locationAreaController.text, //"Sq.Mts.",
-        "structureNature": selectedNature == "Temporary" ? "T" : "P", //"P", //isStrutureNature
+        "structureNature":
+            selectedNature == "Temporary" ? "T" : "P", //"P", //isStrutureNature
         "nearChimneyDetail": "",
         "charLimitId23": 178,
-        "isStructureOpen": selectedType == "Close" ? "C" : "O",//"O", //isStructureType
+        "isStructureOpen":
+            selectedType == "Close" ? "C" : "O", //"O", //isStructureType
         "charLimitId22": 200,
         "charLimitId26": 15,
         "charLimitId27": 180,
@@ -376,7 +375,8 @@ class _EventPerformanceVerificationPageState
         "isLoudspeakerUsed": "N",
         "eventTypeCd": widget.eventPerformanceId, //3, //eventPerformanceId
         "isParkingAvail": "N",
-        "isFireDeptClearance": widget.fireClearance == "Yes" ? "Y" : "N", //isFireClearance
+        "isFireDeptClearance":
+            widget.fireClearance == "Yes" ? "Y" : "N", //isFireClearance
         "securityRoomDetail": "",
         "charLimitId10": 171,
         "exitGateWidthDesc": "",
@@ -611,7 +611,16 @@ class _EventPerformanceVerificationPageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+  onWillPop: () async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+    );
+    return false; // Prevent default back navigation
+  },
+    
+    child: Scaffold(
       appBar: AppBar(
         title: const Text(
           'Event Performanace Request',
@@ -933,7 +942,7 @@ class _EventPerformanceVerificationPageState
                   children: [
                     Expanded(
                       child: Text(
-                        'Location Area',
+                        'Area Size of Location',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -953,6 +962,7 @@ class _EventPerformanceVerificationPageState
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
+                        keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter loction area';
@@ -1367,57 +1377,113 @@ class _EventPerformanceVerificationPageState
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Affidavit Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: criminalController,
-                  decoration: InputDecoration(
-                    labelText: 'Criminal Details',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                  Visibility(
+                    visible:
+                        widget.isCriminal, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: criminalController,
+                          decoration: InputDecoration(
+                            labelText: 'Criminal Details',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
+                    ),
                   ),
-                  enabled: false,
-                ),
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: convictedController,
-                  decoration: InputDecoration(
-                    labelText: 'Convicted Details',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                 Visibility(
+                    visible:
+                        widget.isConvicted, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: convictedController,
+                          decoration: InputDecoration(
+                            labelText: 'Convicted Details',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
+                    ),
                   ),
-                  enabled: false,
-                ),
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: preceedingController,
-                  decoration: InputDecoration(
-                    labelText: 'preceeding Details',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                Visibility(
+                    visible:
+                        widget.isPreceeding, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: preceedingController,
+                          decoration: InputDecoration(
+                            labelText: 'preceeding Details',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
+                    ),
                   ),
-                  enabled: false,
-                ),
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: blacklistedController,
-                  decoration: InputDecoration(
-                    labelText: 'Blacklist Details',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                Visibility(
+                    visible:
+                        widget.isBlacklisted, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: blacklistedController,
+                          decoration: InputDecoration(
+                            labelText: 'Blacklist Details',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
+                    ),
                   ),
-                  enabled: false,
-                ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -1468,6 +1534,7 @@ class _EventPerformanceVerificationPageState
           ),
         ),
       ),
+    ),
     );
   }
 }

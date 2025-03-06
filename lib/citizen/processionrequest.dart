@@ -76,12 +76,11 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   TextEditingController startMinutesController = TextEditingController();
   TextEditingController expectedMinutesController = TextEditingController();
 
- 
   bool isPersonalFormVisible = true;
   bool isProcessionFormVisible = false;
   String selectedState = 'HIMACHAL PRADESH';
   bool isChecked = true;
-  bool isMovingForward = true; 
+  bool isMovingForward = true;
   String loginId = '';
   String firstName = '';
   String fullName = '';
@@ -123,6 +122,7 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
       mobileController.text = mobile2 != null ? mobile2.toString() : '';
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -132,8 +132,9 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:  AppBar(
-        title: const Text('Procession Request',
+      appBar: AppBar(
+        title: const Text(
+          'Procession Request',
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -266,7 +267,7 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
                     const Text('Next', style: TextStyle(color: Colors.white)),
               ),
@@ -282,9 +283,9 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
                 onPressed: _verifyDetails,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
-                    const Text('Verify', style: TextStyle(color: Colors.white)),
+                    const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -306,12 +307,12 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
   void _nextSection() {
     setState(() {
       if (isMovingForward) {
-        // if (_getCurrentFormKey().currentState!.validate()) {
+        if (_getCurrentFormKey().currentState!.validate()) {
           if (isPersonalFormVisible) {
             isPersonalFormVisible = false;
             isProcessionFormVisible = true;
           }
-        // }
+        }
       } else {
         if (isProcessionFormVisible) {
           isProcessionFormVisible = false;
@@ -337,31 +338,34 @@ class _ProcessionRequestPageState extends State<ProcessionRequestPage> {
     final processionData = jsonDecode(processionTypeController.text);
     final selectedProcessionCodeId = processionData['codeId'];
     final selectedProcessionCodeDesc = processionData['codeDesc'];
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ProcessionVerificationPage(
-        applicantName: nameController.text,
-        applicantRelationType: selectedRelationCodeDesc,
-        applicantRelationId: selectedRelationCodeId,
-        applicationRelativeName: relativeNameController.text,
-        applicantGender: selectedGenderCodeDesc,
-        applicantGenderId: selectedGenderCodeId,
-        applicantDateOfBirth: dateDobController.text,
-        applicantAge: ageController.text,
-        applicantEmail: emailController.text,
-        applicantMobile: mobileController.text,
-        processionType: selectedProcessionCodeDesc,
-        processionTypeId: selectedProcessionCodeId,
-        briefDescription: briefDescriptionController.text,
-        startDate: startDateController.text,
-        endDate: endDateController.text,
-        processionNumber: processionNumberController.text,
-        startHours: startHoursController.text,
-        expectedHours: expectedHoursController.text,
-        startMinutes: startMinutesController.text,
-        expectedMinutes: expectedMinutesController.text,
-        selectedState: selectedState,
-       
-      ),
-    ));
+    setState(() {
+      if (_getCurrentFormKey().currentState!.validate()) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProcessionVerificationPage(
+            applicantName: nameController.text,
+            applicantRelationType: selectedRelationCodeDesc,
+            applicantRelationId: selectedRelationCodeId,
+            applicationRelativeName: relativeNameController.text,
+            applicantGender: selectedGenderCodeDesc,
+            applicantGenderId: selectedGenderCodeId,
+            applicantDateOfBirth: dateDobController.text,
+            applicantAge: ageController.text,
+            applicantEmail: emailController.text,
+            applicantMobile: mobileController.text,
+            processionType: selectedProcessionCodeDesc,
+            processionTypeId: selectedProcessionCodeId,
+            briefDescription: briefDescriptionController.text,
+            startDate: startDateController.text,
+            endDate: endDateController.text,
+            processionNumber: processionNumberController.text,
+            startHours: startHoursController.text,
+            expectedHours: expectedHoursController.text,
+            startMinutes: startMinutesController.text,
+            expectedMinutes: expectedMinutesController.text,
+            selectedState: selectedState,
+          ),
+        ));
+      }
+    });
   }
 }

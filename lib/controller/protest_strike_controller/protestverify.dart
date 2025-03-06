@@ -536,7 +536,15 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+  onWillPop: () async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+    );
+    return false; // Prevent default back navigation
+  },
+    child: Scaffold(
       appBar: AppBar(
         title: const Text(
           'Protest Strike Request',
@@ -1190,7 +1198,7 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Location Area Details',
+                        'Location Area Size in Sq.Mts.',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1210,20 +1218,6 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: widget.locationArea,
-                        readOnly: true, // Makes the field uneditable
-                        decoration: InputDecoration(
-                          labelText: 'Location Area Unit',
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),
@@ -1311,7 +1305,7 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
                         controller: startHoursController,
                         readOnly: true, // Makes the field uneditable
                         decoration: InputDecoration(
-                          labelText: 'Expected minutes',
+                          labelText: 'Expected Hours',
                           filled: true,
                           fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
@@ -1385,6 +1379,7 @@ class _ProtestVerificationPageState extends State<ProtestVerificationPage> {
           ),
         ),
       ),
+    ),
     );
   }
 }

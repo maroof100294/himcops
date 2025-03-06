@@ -521,9 +521,11 @@ class _VerificationPageState extends State<VerificationPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool shouldLogout = await Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CitizenGridPage()));
-        return shouldLogout;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CitizenGridPage()),
+        );
+        return false; // Prevent default back navigation
       },
       child: Scaffold(
         appBar: AppBar(
@@ -991,20 +993,31 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                     ),
                   const SizedBox(height: 20),
-                  const Text('Affidavit Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: affidavitDetailsController,
-                    decoration: InputDecoration(
-                      labelText: 'Affidavit',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                  Visibility(
+                    visible:
+                        widget.isCriminal, // Directly use the boolean value
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Affidavit Details',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: affidavitDetailsController,
+                          decoration: InputDecoration(
+                            labelText: 'Affidavit',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          enabled: false,
+                        ),
+                      ],
                     ),
-                    enabled: false,
                   ),
                   const SizedBox(height: 20),
                   Row(

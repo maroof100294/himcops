@@ -10,6 +10,7 @@ import 'package:himcops/master/psdp.dart';
 import 'package:himcops/police/phome.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 class DSIMobileHomePage extends StatefulWidget {
   const DSIMobileHomePage({super.key});
@@ -58,6 +59,15 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   List<Map<String, String>> districtDescriptions = [];
   String errorMessage = '';
   String? accessToken;
+
+  final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();
+  Timer? _timer;
+
+  void _startTooltipTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _tooltipKey.currentState?.ensureTooltipVisible();
+    });
+  }
 
   Map<String, List<Map<String, dynamic>>> crimeData = {
     'Theft': List.generate(
@@ -108,11 +118,13 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     //   _showListDialog(context);
     //   // _showTooltip();
     // });
+    _startTooltipTimer();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -211,7 +223,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   } else if (codeDesc.contains("POLICE DISTRICT NURPUR")) {
                     codeDesc = "NURPUR";
                   } else if (codeDesc.contains("LAHAUL & SPITI")) {
-                    codeDesc = "LAHAUL/SPITI";
+                    codeDesc = "L&S";
                   } else if (codeDesc.contains("GOVT. RLY POLICE")) {
                     codeDesc = "GRP";
                   } else if (codeDesc.contains("BADDI POLICE DISTT")) {
@@ -643,7 +655,63 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   },
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              // Expanded(
+              //   child: SingleChildScrollView(
+              //     child: Column(
+              //       children: [
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              //           child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //             children: [
+              //               Text('Header',
+              //                   style: TextStyle(fontWeight: FontWeight.bold)),
+              //               Text('Total Count',
+              //                   style: TextStyle(fontWeight: FontWeight.bold)),
+              //             ],
+              //           ),
+              //         ),
+              //         const Divider(),
+              //         ...data.map((section) {
+              //           return Padding(
+              //             padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              //             child: Row(
+              //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //               children: [
+              //                 Row(
+              //                   children: [
+              //                     Container(
+              //                       width: 10,
+              //                       height: 10,
+              //                       decoration: BoxDecoration(
+              //                         color: section['color'],
+              //                         shape: BoxShape.circle,
+              //                       ),
+              //                     ),
+              //                     const SizedBox(width: 8),
+              //                     TextButton(
+              //                       onPressed: () {
+              //                         setState(() {
+              //                           headDsiName = section['label'];
+              //                           headDistrictName = 'ALL';
+              //                           isFirDetailsVisible = false;
+              //                           isGraphDetailsVisible = false;
+              //                         });
+              //                       },
+              //                       child: Text('${section['label']}'),
+              //                     ),
+              //                   ],
+              //                 ),
+              //                 Text('${section['value']}'),
+              //               ],
+              //             ),
+              //           );
+              //         }),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -654,48 +722,68 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('Header',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14)),
                             Text('Total Count',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14)),
                           ],
                         ),
                       ),
-                      const Divider(),
-                      ...data.map((section) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: section['color'],
-                                      shape: BoxShape.circle,
+                      const Divider(height: 10), // Reduce divider height
+                      Column(
+                        children: data.map((section) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40.0,
+                                vertical: 8.0), // Minimized padding
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 8, // Reduce dot size
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: section['color'],
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        headDsiName = section['label'];
-                                        headDistrictName = 'ALL';
-                                        isFirDetailsVisible = false;
-                                        isGraphDetailsVisible = false;
-                                      });
-                                    },
-                                    child: Text('${section['label']}'),
-                                  ),
-                                ],
-                              ),
-                              Text('${section['value']}'),
-                            ],
-                          ),
-                        );
-                      }),
+                                    const SizedBox(
+                                        width:
+                                            6), // Reduce spacing between dot and text
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          headDsiName = section['label'];
+                                          headDistrictName = 'ALL';
+                                          isFirDetailsVisible = false;
+                                          isGraphDetailsVisible = false;
+                                        });
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets
+                                            .zero, // Ensure no extra space
+                                        minimumSize:
+                                            Size(5, 10), // Reduce button height
+                                        tapTargetSize: MaterialTapTargetSize
+                                            .shrinkWrap, // Shrink touch target
+                                      ),
+                                      child: Text(
+                                        '${section['label']}',
+                                      ), // Reduce text size
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '${section['value']}',
+                                ), // Reduce text size
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ],
                   ),
                 ),
@@ -770,6 +858,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     ];
     return Column(
       children: [
+        SizedBox(height: 5),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -781,6 +870,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -801,6 +892,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -814,7 +907,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         PolDpPage(
           onDistrictSelected: (districtCode) {
             setState(() {
@@ -827,17 +920,17 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             });
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
         TabBar(
           controller: _tabController,
           indicatorColor: Colors.blue,
           labelColor: Colors.blue,
           unselectedLabelColor: Colors.grey,
           tabs: const [
-            Tab(text: 'Total FIR'),
-            Tab(text: 'Special Cases'),
-            Tab(text: 'Total FIR'),
-            Tab(text: 'Special Cases'),
+            Tab(text: 'Total FIR\nDate Range'),
+            Tab(text: 'Sp. Cases\nDate Range'),
+            Tab(text: 'Total FIR\nYearly'),
+            Tab(text: 'Sp. Cases\nYearly'),
           ],
         ),
         SizedBox(
@@ -916,10 +1009,13 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.note),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+                keyboardType: TextInputType.number,
               ),
             ),
           ],
@@ -935,6 +1031,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -946,7 +1044,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                 },
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: TextFormField(
                 controller: _dateFirToController,
@@ -955,6 +1053,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -968,7 +1068,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         PolDpPage(
           onDistrictSelected: (districtCode) {
             setState(() {
@@ -1025,6 +1125,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
             ),
           ],
         ),
+        SizedBox(height: 10),
       ],
     );
   }
@@ -1083,6 +1184,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     );
   }
 
+  bool _isExpanded = false;
   Widget buildDsiFirCard(Map<String, String> dsiFirItem) {
     return Card(
       child: Padding(
@@ -1114,40 +1216,67 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                     'IO Mobile', dsiFirItem['ioMobile'] ?? ''),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ElevatedButton(
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                  icon: Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Colors.blue,
+                  ),
+                )
+              ],
+            ),
+            if (_isExpanded) ...[
+              Divider(
+                thickness: 1, // Sets the thickness of the line
+                color: Colors.black, // Sets the color of the line
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
                     onPressed: () {
                       showComplaintDetailsDialog(context);
                     },
-                    child: Text('Complaint Details')),
-                const SizedBox(width: 16),
-                ElevatedButton(
+                    child: Text('Complaint Details'),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
                     onPressed: () {
                       showActSectionDetailsDialog(context);
                     },
-                    child: Text('Fir Act and Section'))
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
+                    child: Text('FIR Act and Section'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
                     onPressed: () {
                       showFirContentDetailsDialog(context);
                     },
-                    child: Text('Fir Content')),
-              ],
-            ),
+                    child: Text('FIR Content'),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
     );
   }
-//i need to filter the details of firDetailsList in buildDsiFirCard,
 
   void showFirContentDetailsDialog(BuildContext context) {
     final Map<String, dynamic> dsiFirItem = {
@@ -1490,7 +1619,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
     // String? selectedDistrictCode = currentDistrictCode;
     // String? selectedDistrictName = currentDistrictName;
     String? selectedHead = "ALL";
-    String? selectedHeadName =  "ALL";
+    String? selectedHeadName = "ALL";
     String? selectedDistrictCode = "ALL";
     String? selectedDistrictName = "ALL";
 
@@ -1521,6 +1650,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                             prefixIcon: const Icon(Icons.list),
                             filled: true,
                             fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
@@ -1553,6 +1684,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                             prefixIcon: const Icon(Icons.list),
                             filled: true,
                             fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
@@ -1581,7 +1714,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   // const SizedBox(height: 10),
                   // Row(
                   //   children: [
-                      
+
                   //   ],
                   // ),
                   const SizedBox(height: 10),
@@ -1595,6 +1728,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                             prefixIcon: const Icon(Icons.calendar_month),
                             filled: true,
                             fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -1615,6 +1750,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                             prefixIcon: const Icon(Icons.calendar_month),
                             filled: true,
                             fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -1673,11 +1810,12 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
         TextField(
           enabled: false, // Makes the TextField non-editable
           decoration: InputDecoration(
-            hintText: "Please tap to the text for changing the category",
+            hintText:
+                "Please tap to the Crime Head and District for changing the category",
             hintStyle: TextStyle(
               fontWeight: FontWeight.bold,
               color: const Color.fromARGB(255, 0, 0, 0),
-              fontSize: 13, // Set font size to 8
+              fontSize: 10, // Set font size to 8
             ),
             prefixIcon: Icon(
               Icons.info, // Change to your preferred icon
@@ -1697,6 +1835,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -1717,6 +1857,8 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
                   prefixIcon: const Icon(Icons.calendar_month),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -1886,7 +2028,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
         ]),
         const SizedBox(height: 24),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1962,7 +2104,7 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
   Widget buildDsiHeadCard(Map<String, dynamic> dsiHeadItem) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 14.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -1982,7 +2124,6 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
 /* ---------------------third Content ends----------------------------- */
 
 /* ---------------------Main Content Starts----------------------------- */
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1997,23 +2138,26 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
           color: Colors.white,
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list_rounded,
-                color: Colors.white, size: 30),
-            onPressed: () {
-              setState(() {
-                if (isGraphDetailsVisible) {
-                  selectedIndex = 0;
-                } else if (isFirDetailsVisible) {
-                  selectedIndex = 1;
-                } else {
-                  selectedIndex =
-                      2; // Ensure it sets to "Local Head Count View"
-                }
-              });
+          Tooltip(
+            key: _tooltipKey,
+            message: "Tap to view list",
+            child: IconButton(
+              icon: const Icon(Icons.filter_list_rounded,
+                  color: Colors.white, size: 30),
+              onPressed: () {
+                setState(() {
+                  if (isGraphDetailsVisible) {
+                    selectedIndex = 0;
+                  } else if (isFirDetailsVisible) {
+                    selectedIndex = 1;
+                  } else {
+                    selectedIndex = 2;
+                  }
+                });
 
-              _showListDialog(context);
-            },
+                _showListDialog(context);
+              },
+            ),
           ),
         ],
       ),
@@ -2023,7 +2167,6 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Conditional visibility
             if (isFirDetailsVisible) ...[
               _buildFirDetails(),
               _buildFirList(),
@@ -2037,6 +2180,60 @@ class _DSIMobileHomePageState extends State<DSIMobileHomePage>
       ),
     );
   }
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: const Text(
+  //         'DSI Dashboard',
+  //         style: TextStyle(
+  //             fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+  //       ),
+  //       backgroundColor: const Color.fromARGB(255, 12, 100, 233),
+  //       iconTheme: const IconThemeData(
+  //         color: Colors.white,
+  //       ),
+  //       actions: [
+  //         IconButton(
+  //           icon: const Icon(Icons.filter_list_rounded,
+  //               color: Colors.white, size: 30),
+  //           onPressed: () {
+  //             setState(() {
+  //               if (isGraphDetailsVisible) {
+  //                 selectedIndex = 0;
+  //               } else if (isFirDetailsVisible) {
+  //                 selectedIndex = 1;
+  //               } else {
+  //                 selectedIndex =
+  //                     2; // Ensure it sets to "Local Head Count View"
+  //               }
+  //             });
 
-/* ---------------------Main Content Starts----------------------------- */
+  //             _showListDialog(context);
+  //           },
+  //         ),
+  //       ],
+  //     ),
+  //     drawer: PolAppDrawer(),
+  //     body: SingleChildScrollView(
+  //       padding: const EdgeInsets.all(10.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           // Conditional visibility
+  //           if (isFirDetailsVisible) ...[
+  //             _buildFirDetails(),
+  //             _buildFirList(),
+  //           ] else if (isGraphDetailsVisible) ...[
+  //             _buildGraphSelector(),
+  //           ] else ...[
+  //             _buildHeadSelector(),
+  //           ],
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+/* ---------------------Main Content ends----------------------------- */
 }

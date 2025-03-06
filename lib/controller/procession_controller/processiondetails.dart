@@ -115,15 +115,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(24, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedHoursController.text = newValue.toString();
+                    widget.expectedHoursController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -140,15 +140,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(60, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedMinutesController.text = newValue.toString();
+                    widget.expectedMinutesController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -291,15 +291,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(24, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startHoursController.text = newValue.toString();
+                    widget.startHoursController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -316,15 +316,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(60, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startMinutesController.text = newValue.toString();
+                    widget.startMinutesController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),

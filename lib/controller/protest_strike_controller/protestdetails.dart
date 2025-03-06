@@ -152,15 +152,15 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(24, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedHoursController.text = newValue.toString();
+                    widget.expectedHoursController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -177,15 +177,15 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(60, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(value.toString().padLeft(2, '0')),
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedMinutesController.text = newValue.toString();
+                    widget.expectedMinutesController.text = newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -224,7 +224,7 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           children: [
             Expanded(
               child: Text(
-                'Location area details in Sq.Mts.',
+                'Location area size details in Sq.Mts.',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -244,6 +244,7 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter loction area';
@@ -337,6 +338,61 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           ],
         ),
         const SizedBox(height: 14),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Expanded(
+        //       child: DropdownButtonFormField<int>(
+        //         value: 0, // Default value
+        //         decoration: InputDecoration(
+        //           labelText: "Expected Hours",
+        //           filled: true,
+        //           fillColor: Colors.white,
+        //           border: OutlineInputBorder(
+        //             borderRadius: BorderRadius.circular(10),
+        //           ),
+        //         ),
+        //         items: List.generate(24, (index) => index).map((int value) {
+        //           return DropdownMenuItem<int>(
+        //             value: value,
+        //             child: Text(value.toString()),
+        //           );
+        //         }).toList(),
+        //         onChanged: (int? newValue) {
+        //           setState(() {
+        //             widget.startHoursController.text = newValue.toString();
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //     const SizedBox(width: 10),
+        //     Expanded(
+        //       child: DropdownButtonFormField<int>(
+        //         value: 0, // Default value
+        //         decoration: InputDecoration(
+        //           labelText: "Expected Minutes",
+        //           filled: true,
+        //           fillColor: Colors.white,
+        //           border: OutlineInputBorder(
+        //             borderRadius: BorderRadius.circular(10),
+        //           ),
+        //         ),
+        //         items: List.generate(60, (index) => index).map((int value) {
+        //           return DropdownMenuItem<int>(
+        //             value: value,
+        //             child: Text(value.toString()),
+        //           );
+        //         }).toList(),
+        //         onChanged: (int? newValue) {
+        //           setState(() {
+        //             widget.startMinutesController.text = newValue.toString();
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -351,15 +407,17 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(24, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(
+                        value.toString().padLeft(2, '0')), // Ensures two digits
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startHoursController.text = newValue.toString();
+                    widget.startHoursController.text =
+                        newValue.toString().padLeft(2, '0');
                   });
                 },
               ),
@@ -376,15 +434,17 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: List.generate(101, (index) => index).map((int value) {
+                items: List.generate(60, (index) => index).map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString()),
+                    child: Text(
+                        value.toString().padLeft(2, '0')), // Ensures two digits
                   );
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startMinutesController.text = newValue.toString();
+                    widget.startMinutesController.text =
+                        newValue.toString().padLeft(2, '0');
                   });
                 },
               ),

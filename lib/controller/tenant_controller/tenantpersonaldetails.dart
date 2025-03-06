@@ -141,7 +141,7 @@ class _TenantDetailsFormPageState extends State<TenantDetailsFormPage> {
         TextFormField(
           controller: widget.ageController,
           decoration: InputDecoration(
-            labelText: 'Age (Years, Months)',
+            labelText: 'Age',
             prefixIcon: const Icon(Icons.numbers),
             filled: true,
             fillColor: Colors.white,

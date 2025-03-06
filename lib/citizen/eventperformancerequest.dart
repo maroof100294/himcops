@@ -122,7 +122,6 @@ class _EventPerformanceRequestPageState
     });
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -230,7 +229,7 @@ class _EventPerformanceRequestPageState
             ),
           ),
           Visibility(
-            visible: !isPerformanceFormVisible,
+            visible: !isOtherFormVisible,
             child: Positioned(
               bottom: 20,
               right: 20,
@@ -239,7 +238,7 @@ class _EventPerformanceRequestPageState
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
                     const Text('Next', style: TextStyle(color: Colors.white)),
               ),
@@ -247,7 +246,7 @@ class _EventPerformanceRequestPageState
           ),
           const SizedBox(width: 20),
           Visibility(
-            visible: !isPersonalFormVisible && !isOtherFormVisible,
+            visible: !isPersonalFormVisible && !isPerformanceFormVisible,
             child: Positioned(
               bottom: 20,
               right: 20,
@@ -255,9 +254,9 @@ class _EventPerformanceRequestPageState
                 onPressed: _verifyDetails,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
-                    const Text('Verify', style: TextStyle(color: Colors.white)),
+                    const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -267,14 +266,14 @@ class _EventPerformanceRequestPageState
   }
 
   GlobalKey<FormState> _getCurrentFormKey() {
-    if (isPerformanceFormVisible) return _performanceFormKey;
     if (isOtherFormVisible) return _otherFormKey;
+    if (isPerformanceFormVisible) return _performanceFormKey;
     return _personalFormKey;
   }
 
   String _getFormTitle() {
-    if (isPerformanceFormVisible) return 'Event Performance Details';
     if (isOtherFormVisible) return 'Applicant Other Details';
+    if (isPerformanceFormVisible) return 'Event Performance Details';
     return 'Applicant Personal Details';
   }
 
@@ -284,23 +283,23 @@ class _EventPerformanceRequestPageState
         if (_getCurrentFormKey().currentState!.validate()) {
           if (isPersonalFormVisible) {
             isPersonalFormVisible = false;
-            isOtherFormVisible = true;
-          } else if (isOtherFormVisible) {
-            isOtherFormVisible = false;
             isPerformanceFormVisible = true;
+          } else if (isPerformanceFormVisible) {
+            isPerformanceFormVisible = false;
+            isOtherFormVisible = true;
           }
         }
       } else {
-        if (isPerformanceFormVisible) {
-          isPerformanceFormVisible = false;
-          isOtherFormVisible = true;
-        } else if (isOtherFormVisible) {
+        if (isOtherFormVisible) {
           isOtherFormVisible = false;
+          isPerformanceFormVisible = true;
+        } else if (isPerformanceFormVisible) {
+          isPerformanceFormVisible = false;
           isPersonalFormVisible = true;
         }
       }
 
-      if (isPerformanceFormVisible) {
+      if (isOtherFormVisible) {
         isMovingForward = false;
       } else if (isPersonalFormVisible) {
         isMovingForward = true;
@@ -309,7 +308,6 @@ class _EventPerformanceRequestPageState
   }
 
   void _verifyDetails() {
-
     final genderData = jsonDecode(genderController.text);
     final selectedGenderCodeId = genderData['codeId'];
     final selectedGenderCodeDesc = genderData['codeDesc'];

@@ -120,7 +120,7 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
               child: FloatingActionButton(
                 onPressed: _nextSection,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child: const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
@@ -133,7 +133,7 @@ class _TenantVerificationPageState extends State<TenantVerificationPage> {
               child: FloatingActionButton(
                 onPressed: _verifyDetails,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child: const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),

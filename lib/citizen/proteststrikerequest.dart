@@ -64,12 +64,11 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
   TextEditingController locationNumberController = TextEditingController();
   TextEditingController structureNatureController = TextEditingController();
 
-  
   bool isPersonalFormVisible = true;
   bool isProtestFormVisible = false;
   String selectedState = 'HIMACHAL PRADESH';
   bool isChecked = true;
-  bool isMovingForward = true; 
+  bool isMovingForward = true;
   String loginId = '';
   String firstName = '';
   String fullName = '';
@@ -111,6 +110,7 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
       mobileController.text = mobile2 != null ? mobile2.toString() : '';
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -121,7 +121,8 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Protest Strike Request',
+        title: const Text(
+          'Protest Strike Request',
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -207,7 +208,7 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
                     const Text('Next', style: TextStyle(color: Colors.white)),
               ),
@@ -223,9 +224,9 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
                 onPressed: _verifyDetails,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
-                backgroundColor: Colors.yellow[700],
+                backgroundColor: const Color(0xFF133371),
                 child:
-                    const Text('Verify', style: TextStyle(color: Colors.white)),
+                    const Text('Next', style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -252,7 +253,7 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
             isPersonalFormVisible = false;
             isProtestFormVisible = true;
           }
-         }
+        }
       } else {
         if (isProtestFormVisible) {
           isProtestFormVisible = false;
@@ -278,33 +279,37 @@ class _ProtestStrikeRequestPageState extends State<ProtestStrikeRequestPage> {
     final strikeData = jsonDecode(protestTypeController.text);
     final selectedStrikeCodeId = strikeData['codeId'];
     final selectedStrikeCodeDesc = strikeData['codeDesc'];
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ProtestVerificationPage(
-        applicantName: nameController.text,
-        applicantRelationType: selectedRelationCodeDesc,
-        applicantRelationId: selectedRelationCodeId,
-        applicationRelativeName: relativeNameController.text,
-        applicantGender: selectedGenderCodeDesc,
-        applicantGenderId: selectedGenderCodeId,
-        applicantDateOfBirth: dateDobController.text,
-        applicantAge: ageController.text,
-        applicantEmail: emailController.text,
-        applicantMobile: mobileController.text,
-        briefDescription: briefDescriptionController.text,
-        structureNature: structureNatureController.text,
-        protestType: selectedStrikeCodeDesc,
-        protestStrikeId: selectedStrikeCodeId,
-        startDate: startDateController.text,
-        endDate: endDateController.text,
-        locationArea: locationAreaController.text,
-        locationNumber: locationNumberController.text,
-        instituteName: instituteNameController.text,
-        startHours: startHoursController.text,
-        expectedHours: expectedHoursController.text,
-        startMinutes: startMinutesController.text,
-        expectedMinutes: expectedMinutesController.text,
-        selectedState: selectedState,
-      ),
-    ));
+    setState(() {
+      if (_getCurrentFormKey().currentState!.validate()) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProtestVerificationPage(
+            applicantName: nameController.text,
+            applicantRelationType: selectedRelationCodeDesc,
+            applicantRelationId: selectedRelationCodeId,
+            applicationRelativeName: relativeNameController.text,
+            applicantGender: selectedGenderCodeDesc,
+            applicantGenderId: selectedGenderCodeId,
+            applicantDateOfBirth: dateDobController.text,
+            applicantAge: ageController.text,
+            applicantEmail: emailController.text,
+            applicantMobile: mobileController.text,
+            briefDescription: briefDescriptionController.text,
+            structureNature: structureNatureController.text,
+            protestType: selectedStrikeCodeDesc,
+            protestStrikeId: selectedStrikeCodeId,
+            startDate: startDateController.text,
+            endDate: endDateController.text,
+            locationArea: locationAreaController.text,
+            locationNumber: locationNumberController.text,
+            instituteName: instituteNameController.text,
+            startHours: startHoursController.text,
+            expectedHours: expectedHoursController.text,
+            startMinutes: startMinutesController.text,
+            expectedMinutes: expectedMinutesController.text,
+            selectedState: selectedState,
+          ),
+        ));
+      }
+    });
   }
 }
