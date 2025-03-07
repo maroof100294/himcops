@@ -33,12 +33,6 @@ class _ViewFIRPageState extends State<ViewFIRPage> {
             MaterialPageRoute(builder: (context) => const CitizenGridPage()));
         return shouldLogout;
       },
-      //  async {
-      //   Navigator.of(context).pushReplacement(
-      //     MaterialPageRoute(builder: (context) => const CitizenGridPage()),
-      //   );
-      //   return false;
-      // },
       child: Scaffold(
         appBar: AppBar(
           title: const Text(

@@ -32,7 +32,6 @@ class ProcessionDetailsForm extends StatefulWidget {
 }
 
 class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
-
   String? ValidateFullName(String value) {
     if (!RegExp(r"^[a-zA-Z\s]{1,50}$").hasMatch(value)) {
       return "Full name should only contain alphabets and spaces\nand not exceed 50 words";
@@ -106,7 +105,6 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -123,15 +121,21 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedHoursController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedHoursController.text =
+                        newValue?.toString().padLeft(2, '0')  ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected hours';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -148,8 +152,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedMinutesController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedMinutesController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),
@@ -282,7 +293,6 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -299,15 +309,21 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startHoursController.text = newValue.toString().padLeft(2, '0');
+                    widget.startHoursController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -324,8 +340,15 @@ class _ProcessionDetailsFormState extends State<ProcessionDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startMinutesController.text = newValue.toString().padLeft(2, '0');
+                    widget.startMinutesController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),

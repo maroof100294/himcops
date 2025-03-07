@@ -143,7 +143,6 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -160,15 +159,20 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedHoursController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedHoursController.text = newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected hours';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -185,8 +189,14 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedMinutesController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedMinutesController.text = newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),
@@ -338,67 +348,11 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
           ],
         ),
         const SizedBox(height: 14),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   children: [
-        //     Expanded(
-        //       child: DropdownButtonFormField<int>(
-        //         value: 0, // Default value
-        //         decoration: InputDecoration(
-        //           labelText: "Expected Hours",
-        //           filled: true,
-        //           fillColor: Colors.white,
-        //           border: OutlineInputBorder(
-        //             borderRadius: BorderRadius.circular(10),
-        //           ),
-        //         ),
-        //         items: List.generate(24, (index) => index).map((int value) {
-        //           return DropdownMenuItem<int>(
-        //             value: value,
-        //             child: Text(value.toString()),
-        //           );
-        //         }).toList(),
-        //         onChanged: (int? newValue) {
-        //           setState(() {
-        //             widget.startHoursController.text = newValue.toString();
-        //           });
-        //         },
-        //       ),
-        //     ),
-        //     const SizedBox(width: 10),
-        //     Expanded(
-        //       child: DropdownButtonFormField<int>(
-        //         value: 0, // Default value
-        //         decoration: InputDecoration(
-        //           labelText: "Expected Minutes",
-        //           filled: true,
-        //           fillColor: Colors.white,
-        //           border: OutlineInputBorder(
-        //             borderRadius: BorderRadius.circular(10),
-        //           ),
-        //         ),
-        //         items: List.generate(60, (index) => index).map((int value) {
-        //           return DropdownMenuItem<int>(
-        //             value: value,
-        //             child: Text(value.toString()),
-        //           );
-        //         }).toList(),
-        //         onChanged: (int? newValue) {
-        //           setState(() {
-        //             widget.startMinutesController.text = newValue.toString();
-        //           });
-        //         },
-        //       ),
-        //     ),
-        //   ],
-        // ),
-
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -417,15 +371,20 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                 onChanged: (int? newValue) {
                   setState(() {
                     widget.startHoursController.text =
-                        newValue.toString().padLeft(2, '0');
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected hours';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -444,8 +403,14 @@ class _ProtestDetailsFormState extends State<ProtestDetailsForm> {
                 onChanged: (int? newValue) {
                   setState(() {
                     widget.startMinutesController.text =
-                        newValue.toString().padLeft(2, '0');
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),

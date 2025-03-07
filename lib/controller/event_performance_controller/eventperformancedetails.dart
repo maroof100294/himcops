@@ -177,7 +177,6 @@ class _EventPerformanceDetailsFormState
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -194,15 +193,21 @@ class _EventPerformanceDetailsFormState
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startHoursController.text = newValue.toString().padLeft(2, '0');
+                    widget.startHoursController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected hours';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -219,8 +224,15 @@ class _EventPerformanceDetailsFormState
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.startMinutesController.text = newValue.toString().padLeft(2, '0');
+                    widget.startMinutesController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
                 },
               ),
             ),
@@ -244,7 +256,6 @@ class _EventPerformanceDetailsFormState
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Hours",
                   filled: true,
@@ -261,15 +272,21 @@ class _EventPerformanceDetailsFormState
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedHoursController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedHoursController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected Hours';
+                  }
+                  return null;
                 },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: 0, // Default value
                 decoration: InputDecoration(
                   labelText: "Expected Minutes",
                   filled: true,
@@ -286,11 +303,18 @@ class _EventPerformanceDetailsFormState
                 }).toList(),
                 onChanged: (int? newValue) {
                   setState(() {
-                    widget.expectedMinutesController.text = newValue.toString().padLeft(2, '0');
+                    widget.expectedMinutesController.text =
+                        newValue?.toString().padLeft(2, '0') ?? '';
                   });
                 },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select expected minutes';
+                  }
+                  return null;
+                },
               ),
-            ),
+            )
           ],
         ),
         const SizedBox(height: 10),
@@ -327,7 +351,7 @@ class _EventPerformanceDetailsFormState
             return null;
           },
         ),
-         const SizedBox(height: 8),
+        const SizedBox(height: 8),
         const Divider(),
         const SizedBox(height: 8),
         const Row(
@@ -342,7 +366,8 @@ class _EventPerformanceDetailsFormState
           ],
         ),
         const SizedBox(height: 14),
-        FireClearancePage(controller: widget.fireClearanceController, enabled: true),
+        FireClearancePage(
+            controller: widget.fireClearanceController, enabled: true),
       ],
     );
   }

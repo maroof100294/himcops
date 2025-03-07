@@ -65,26 +65,22 @@ class ProcessionReqViewPage extends StatelessWidget {
       'applicantPreAddPSCdDesc': 'Police Station' //ps code needed
     };
 
-    
-
-    final viewProtestOrgDetails =data.isNotEmpty ? data : {};
+    final viewProtestOrgDetails = data.isNotEmpty ? data : {};
     final Map<String, String> orglabels = {
       'orgName': 'Organization Name',
-      
     };
-    final Map<String, dynamic> orgAddressData = viewProtestOrgDetails['organization'] as Map<String ,dynamic>? ??
-    {};
-     if (orgAddressData.containsKey('village')) {
+    final Map<String, dynamic> orgAddressData =
+        viewProtestOrgDetails['organization'] as Map<String, dynamic>? ?? {};
+    if (orgAddressData.containsKey('village')) {
       viewProtestOrgDetails['village'] = orgAddressData['village'];
       orglabels['village'] = 'Organization Address';
     }
-    final viewProtestOrgAddDetails =data.isNotEmpty ? data : {};
+    final viewProtestOrgAddDetails = data.isNotEmpty ? data : {};
     final Map<String, String> orgAddlabels = {
       'orgCountryCdDesc': 'Country',
       'orgStateCdDesc': 'State',
-      'orgDistCdDesc':'District',
-      'orgPSCdDesc':'Police Station'//its needed
-      
+      'orgDistCdDesc': 'District',
+      'orgPSCdDesc': 'Police Station' //its needed
     };
     final viewProtestlocationDetails = data.isNotEmpty ? data : {};
     final Map<String, String> locationlabels = {
@@ -93,8 +89,8 @@ class ProcessionReqViewPage extends StatelessWidget {
       'processionEndDtStr': 'End Date of Procession',
       'expectedCrowd': 'Expected Crowd'
     };
-    
-       final viewProStartinglocationDetails =
+
+    final viewProStartinglocationDetails =
         data['startPointAddr'] as Map<String, dynamic>? ?? {};
     final Map<String, String> startingAddLabels = {
       'village': 'Starting Address',
@@ -103,7 +99,7 @@ class ProcessionReqViewPage extends StatelessWidget {
       'districtValue': 'District'
     };
 
-final viewProEndinglocationDetails =
+    final viewProEndinglocationDetails =
         data['endPointAddr'] as Map<String, dynamic>? ?? {};
     final Map<String, String> endingAddLabels = {
       'village': 'End route Address',
@@ -112,10 +108,23 @@ final viewProEndinglocationDetails =
       'districtValue': 'District'
     };
 
-
     final viewProtestStatusDetails = data.isNotEmpty ? data : {};
     final Map<String, String> statusLabels = {
       'serviceRequestStatus': 'Status',
+    };
+
+    final List<dynamic> processionParticipants = data['processionMajorParticipantAddressList'] ?? [];
+
+
+    final Map<String, String> participantLabels = {
+      'participantName': 'Participant Name',
+    };
+    final Map<String, String> participantAddressLabels = {
+      'village': 'Village',
+      'countryValue': 'Country',
+      'stateValue': 'State',
+      'districtValue': 'District',
+      'policeStationValue': 'Police Station',
     };
 
     return Scaffold(
@@ -288,7 +297,7 @@ final viewProEndinglocationDetails =
                 child: TextFormField(
                   initialValue:
                       "${viewProtestlocationDetails['processionStartTimeStrHH'] ?? ' '} : ${viewProtestlocationDetails['processionStartTimeStrMM'] ?? ' '}",
-                  decoration: InputDecoration( 
+                  decoration: InputDecoration(
                     labelText: 'Procession Start/End Time',
                     labelStyle: const TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
@@ -326,7 +335,8 @@ final viewProEndinglocationDetails =
               ),
               ...startingAddLabels.entries.map((entry) {
                 final value =
-                    viewProStartinglocationDetails[entry.key]?.toString() ?? '  ';
+                    viewProStartinglocationDetails[entry.key]?.toString() ??
+                        '  ';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
@@ -372,6 +382,75 @@ final viewProEndinglocationDetails =
               }).toList(),
               const SizedBox(height: 16.0),
               const Text(
+                'Major Participants',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8.0),
+              ...processionParticipants.map((participant) {
+                final participantDetails =
+                    participant as Map<String, dynamic>? ?? {};
+                final addressDetails = participantDetails['particpantAddress']
+                        as Map<String, dynamic>? ??
+                    {};
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...participantLabels.entries.map((entry) {
+                      final value =
+                          participantDetails[entry.key]?.toString() ?? '  ';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: TextFormField(
+                          initialValue: value,
+                          decoration: InputDecoration(
+                            labelText: entry.value,
+                            labelStyle: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: Colors.black, width: 2.0),
+                            ),
+                          ),
+                          enabled: false,
+                        ),
+                      );
+                    }).toList(),
+                    ...participantAddressLabels.entries.map((entry) {
+                      final value =
+                          addressDetails[entry.key]?.toString() ?? '  ';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: TextFormField(
+                          initialValue: value,
+                          decoration: InputDecoration(
+                            labelText: entry.value,
+                            labelStyle: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: Colors.black, width: 2.0),
+                            ),
+                          ),
+                          enabled: false,
+                        ),
+                      );
+                    }).toList(),
+                    const Divider(thickness: 1, color: Colors.black26),
+                    SizedBox(height: 8),
+                  ],
+                );
+              }).toList(),
+              const SizedBox(height: 16.0),
+              const Text(
                 'Request Status',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -406,3 +485,4 @@ final viewProEndinglocationDetails =
     );
   }
 }
+

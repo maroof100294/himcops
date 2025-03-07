@@ -1,231 +1,156 @@
-// //graphFilter begin
-//   void _showGraphDialog(BuildContext context) {
-//     showDialog(
-//       context: context,
-//       builder: (context) => Dialog(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             children: [
-//               const Text(
-//                 'Filter Options',
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-//               ),
-//               const SizedBox(height: 20),
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateFromController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range From',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selectfromDate(context);
-//                       },
-//                     ),
-//                   ),
-//                   const SizedBox(width: 8),
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateToController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range To',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selecttoDate(context);
-//                       },
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 8),
-//               PolDpPage(
-//                 onDistrictSelected: (districtCode) {
-//                   setState(() {
-//                     dsiDistrictCode = districtCode;
-//                   });
-//                 },
-//                 onPoliceStationSelected: (policeStationCode) {
-//                   setState(() {
-//                     dsiPoliceStationCode = policeStationCode;
-//                   });
-//                 },
-//               ),
-//               const SizedBox(height: 16),
-//               Row(
-//                 children: [
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       setState(() {
-//                         isFirDetailsVisible = false;
-//                         isGraphDetailsVisible = true; // Show FIR details
-//                       });
-//                       Navigator.pop(context);
-//                     },
-//                     child: const Text('Search'),
-//                   ),
-//                   const SizedBox(width: 10),
-//                   ElevatedButton(
-//                     onPressed: () => Navigator.pop(context),
-//                     child: const Text('Close'),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
+// import 'package:flutter/material.dart';
+// import 'package:himcops/config.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+
+// class MajStateDistrictDynamicPage extends StatefulWidget {
+//   final Function(String, String) onStateSelected;
+//   final Function(String, String) onDistrictSelected;
+//   final Function(String, String) onPoliceStationSelected;
+
+//   const MajStateDistrictDynamicPage({
+//     Key? key,
+//     required this.onStateSelected,
+//     required this.onDistrictSelected,
+//     required this.onPoliceStationSelected,
+//   }) : super(key: key);
+
+//   @override
+//   _MajStateDistrictDynamicPageState createState() =>
+//       _MajStateDistrictDynamicPageState();
+// }
+
+// class _MajStateDistrictDynamicPageState
+//     extends State<MajStateDistrictDynamicPage> {
+//   List<Map<String, String>> states = [];
+//   List<Map<String, String>> districts = [];
+//   List<Map<String, String>> policeStations = [];
+
+//   String? selectedStateCode;
+//   String? selectedStateDesc;
+//   String? selectedDistrictCode;
+//   String? selectedDistrictDesc;
+//   String? selectedPoliceCode;
+//   String? selectedPoliceDesc;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _fetchStates();
 //   }
 
-// //graphFilter end
-// //FIRFilter begin
-//   void _showFirDialog(BuildContext context) {
-//     showDialog(
-//       context: context,
-//       builder: (context) => Dialog(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             children: [
-//               const Text(
-//                 'Filter Options',
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-//               ),
-//               const SizedBox(height: 20),
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: firNumController,
-//                       decoration: InputDecoration(
-//                         labelText: 'FIR Number',
-//                         prefixIcon: const Icon(Icons.note),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 10),
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateFirFromController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range From',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selectfirfromDate(context);
-//                       },
-//                     ),
-//                   ),
-//                   const SizedBox(width: 8),
-//                   Expanded(
-//                     child: TextFormField(
-//                       controller: _dateFirToController,
-//                       decoration: InputDecoration(
-//                         labelText: 'Date Range To',
-//                         prefixIcon: const Icon(Icons.calendar_month),
-//                         filled: true,
-//                         fillColor: Colors.white,
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                       ),
-//                       readOnly: true,
-//                       onTap: () {
-//                         FocusScope.of(context).requestFocus(FocusNode());
-//                         _selectfirtoDate(context);
-//                       },
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 8),
-//               PolDpPage(
-//                 onDistrictSelected: (districtCode) {
-//                   setState(() {
-//                     dsiFirDistrictCode = districtCode;
-//                   });
-//                 },
-//                 onPoliceStationSelected: (policeStationCode) {
-//                   setState(() {
-//                     dsiFirPoliceStationCode = policeStationCode;
-//                   });
-//                 },
-//               ),
-//               const SizedBox(height: 16),
-//               Row(
-//                 children: [
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       setState(() {
-//                         isFirDetailsVisible = true;
-//                         isGraphDetailsVisible = false;
-
-//                         // Apply filtering logic
-//                         filteredFirList = firDetailsList.where((fir) {
-//                           bool matchesFirNo = firNumController.text.isEmpty ||
-//                               fir['firNo'] == firNumController.text;
-
-//                           return matchesFirNo;
-//                         }).toList();
-
-//                         // Reset pagination when filtering
-//                         currentPage = 0;
-//                       });
-
-//                       Navigator.pop(context);
-//                     },
-//                     child: const Text('Search'),
-//                   ),
-//                   const SizedBox(width: 10),
-//                   ElevatedButton(
-//                     onPressed: () => Navigator.pop(context),
-//                     child: const Text('Close'),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
+//   Future<void> _fetchStates() async {
+//     final response = await http.get(Uri.parse('$baseUrl/androidapi/master/getStates'));
+//     if (response.statusCode == 200) {
+//       final List<dynamic> data = json.decode(response.body);
+//       setState(() {
+//         states = data
+//             .map((item) => {'codeId': item['codeId'], 'codeDesc': item['codeDesc']})
+//             .toList();
+//       });
+//     }
 //   }
 
-// //FIRFilter ends
+//   Future<void> _fetchDistricts(String stateCode) async {
+//     final response = await http.get(Uri.parse('$baseUrl/androidapi/master/getDistricts?state=$stateCode'));
+//     if (response.statusCode == 200) {
+//       final List<dynamic> data = json.decode(response.body);
+//       setState(() {
+//         districts = data
+//             .map((item) => {'codeId': item['codeId'], 'codeDesc': item['codeDesc']})
+//             .toList();
+//       });
+//     }
+//   }
+
+//   Future<void> _fetchPoliceStations(String districtCode) async {
+//     final response = await http.get(Uri.parse('$baseUrl/androidapi/master/getPoliceStations?district=$districtCode'));
+//     if (response.statusCode == 200) {
+//       final List<dynamic> data = json.decode(response.body);
+//       setState(() {
+//         policeStations = data
+//             .map((item) => {'codeId': item['codeId'], 'codeDesc': item['codeDesc']})
+//             .toList();
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         DropdownButtonFormField<String>(
+//           value: selectedStateDesc,
+//           hint: const Text('Select State'),
+//           items: states.map((state) {
+//             return DropdownMenuItem(
+//               value: state['codeDesc'],
+//               child: Text(state['codeDesc']!),
+//               onTap: () {
+//                 selectedStateCode = state['codeId'];
+//               },
+//             );
+//           }).toList(),
+//           onChanged: (value) {
+//             setState(() {
+//               selectedStateDesc = value;
+//               selectedDistrictDesc = null;
+//               selectedPoliceDesc = null;
+//               districts.clear();
+//               policeStations.clear();
+//             });
+//             if (selectedStateCode != null) {
+//               _fetchDistricts(selectedStateCode!);
+//               widget.onStateSelected(selectedStateDesc!, selectedStateCode!);
+//             }
+//           },
+//         ),
+//         DropdownButtonFormField<String>(
+//           value: selectedDistrictDesc,
+//           hint: const Text('Select District'),
+//           items: districts.map((district) {
+//             return DropdownMenuItem(
+//               value: district['codeDesc'],
+//               child: Text(district['codeDesc']!),
+//               onTap: () {
+//                 selectedDistrictCode = district['codeId'];
+//               },
+//             );
+//           }).toList(),
+//           onChanged: (value) {
+//             setState(() {
+//               selectedDistrictDesc = value;
+//               selectedPoliceDesc = null;
+//               policeStations.clear();
+//             });
+//             if (selectedDistrictCode != null) {
+//               _fetchPoliceStations(selectedDistrictCode!);
+//               widget.onDistrictSelected(selectedDistrictDesc!, selectedDistrictCode!);
+//             }
+//           },
+//         ),
+//         DropdownButtonFormField<String>(
+//           value: selectedPoliceDesc,
+//           hint: const Text('Select Police Station'),
+//           items: policeStations.map((ps) {
+//             return DropdownMenuItem(
+//               value: ps['codeDesc'],
+//               child: Text(ps['codeDesc']!),
+//               onTap: () {
+//                 selectedPoliceCode = ps['codeId'];
+//               },
+//             );
+//           }).toList(),
+//           onChanged: (value) {
+//             setState(() {
+//               selectedPoliceDesc = value;
+//             });
+//             if (selectedPoliceCode != null) {
+//               widget.onPoliceStationSelected(selectedPoliceDesc!, selectedPoliceCode!);
+//             }
+//           },
+//         ),
+//       ],
+//     );
+//   }
+// }

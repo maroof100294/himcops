@@ -826,7 +826,7 @@ class _EventPerformanceVerificationPageState
                     ],
                   ),
                 const SizedBox(height: 20),
-                const Text('Eveny Location Detail',
+                const Text('Event Location Details',
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
